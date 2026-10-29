@@ -3,6 +3,9 @@ import terra2 from "@/assets/terra-2.jpg";
 import terra3 from "@/assets/terra-3.jpg";
 import terra4 from "@/assets/terra-4.jpg";
 import heroLamp from "@/assets/hero-lamp.jpg";
+import stack2 from "@/assets/stack-2.jpg";
+import stack3 from "@/assets/stack-3.jpg";
+import stack4 from "@/assets/stack-4.jpg";
 import noir from "@/assets/noir.jpg";
 import haze from "@/assets/haze.jpg";
 import orb from "@/assets/p-orb.jpg";
@@ -29,7 +32,7 @@ export const galleryFor = (p: Product) => [p.image, ...(p.gallery ?? [])];
 export const slugify = (name: string) => name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
 
 export const products: Product[] = [
-  { name: "The Stack Lamp", note: "Layered sculptural table lamp", price: 340, image: heroLamp, category: "Lighting", spaces: ["The Lounge", "The Study"] },
+  { name: "The Stack Lamp", note: "Layered sculptural table lamp", price: 340, image: heroLamp, category: "Lighting", spaces: ["The Lounge", "The Study"], gallery: [stack2, stack3, stack4] },
   { name: "Terra", note: "Warm ceramic lighting", price: 280, image: terra, category: "Lighting", spaces: ["The Lounge", "The Suite"], gallery: [terra2, terra3, terra4] },
   { name: "Noir", note: "Glazed ceramic sphere", price: 310, image: noir, category: "Lighting", spaces: ["The Lounge", "The Café"] },
   { name: "Haze", note: "Arched floor light", price: 265, image: haze, category: "Lighting", spaces: ["The Lounge"] },

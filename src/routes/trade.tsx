@@ -25,12 +25,12 @@ export const Route = createFileRoute("/trade")({
 });
 
 const partners = [
-  { img: studioImg, name: "Interiors & Architects", text: "Custom lighting, fixtures and decor for your projects.", points: ["Colour & size changes", "Project-specific runs", "Material samples"] },
-  { img: retailImg, name: "Retailers & Concept Stores", text: "Ready-to-shelf collections at wholesale pricing.", points: ["Wholesale rates", "Curated assortments", "Restock support"] },
-  { img: vendorsImg, name: "Vendors & Resellers", text: "Add our objects to your catalogue with ease.", points: ["White-label options", "Dropship support", "Product imagery"] },
-  { img: startupsImg, name: "Startups & Businesses", text: "Branded objects and prototypes to grow your range.", points: ["Branded merch", "Prototyping", "Small to bulk batches"] },
-  { img: giftingImg, name: "Corporate Gifting", text: "Thoughtful gifts for employees, clients and partners.", points: ["Festive hampers", "Logo personalisation", "Bulk delivery"] },
-  { img: makersImg, name: "Makers & Enthusiasts", text: "Collaborate with us on something new.", points: ["Small-batch collabs", "Limited drops", "Community projects"] },
+  { img: studioImg, name: "Interiors & Architects", text: "Custom lighting, fixtures and decor for your projects." },
+  { img: retailImg, name: "Retailers & Concept Stores", text: "Ready-to-shelf collections at wholesale pricing." },
+  { img: vendorsImg, name: "Vendors & Resellers", text: "Add our objects to your catalogue with ease." },
+  { img: startupsImg, name: "Startups & Businesses", text: "Branded objects and prototypes to grow your range." },
+  { img: giftingImg, name: "Corporate Gifting", text: "Thoughtful gifts for employees, clients and partners." },
+  { img: makersImg, name: "Makers & Enthusiasts", text: "Collaborate with us on something new." },
 ];
 
 const catalogues = ["Festive", "B2B / Wholesale", "Retail", "Corporate Gifting", "Custom Projects"];
@@ -80,27 +80,28 @@ function Trade() {
         <p className="mt-4 max-w-md text-ink-muted">We 3D print in PLA, PETG, TPU, ABS and ASA for studios, retailers, brands and makers — from one-off pieces to bulk runs.</p>
       </DarkHero>
 
-      <section className="mx-auto max-w-7xl px-6 pt-20 pb-6">
+      <section className="bg-ink text-ink-foreground">
+      <div className="mx-auto max-w-7xl px-6 pt-20 pb-6">
         <p className="text-xs font-semibold uppercase tracking-widest text-primary">Who we work with</p>
         <h2 className="mt-3 text-3xl font-bold md:text-4xl">Whoever you are, we have something for you.</h2>
-      </section>
+      </div>
 
-      <section className="relative">
-        {partners.map(({ img, name, text, points }, i) => (
-          <div key={name} className="sticky top-0 flex min-h-screen items-center bg-background" style={{ zIndex: i + 1 }}>
-            <div className="mx-auto grid w-full max-w-7xl items-center gap-10 px-6 py-16 md:grid-cols-2">
+      <div className="relative">
+        {partners.map(({ img, name, text }, i) => (
+          <div key={name} className="sticky top-0 flex h-[75vh] min-h-[520px] items-center bg-ink" style={{ zIndex: i + 1 }}>
+            <div className="mx-auto grid w-full max-w-7xl items-center gap-10 px-6 py-10 md:grid-cols-[1.2fr_1fr]">
               <div>
-                <span className="font-display text-sm text-muted-foreground">{String(i + 1).padStart(2, "0")} / {String(partners.length).padStart(2, "0")}</span>
-                <h3 className="mt-4 font-display text-5xl font-extrabold uppercase leading-[0.95] md:text-7xl">{name}</h3>
-                <p className="mt-6 max-w-md text-lg text-muted-foreground">{text}</p>
-                <ul className="mt-6 flex flex-wrap gap-2">{points.map((p) => <li key={p} className="rounded-full border border-border px-4 py-1.5 text-sm">{p}</li>)}</ul>
+                <span className="font-display text-sm text-ink-muted">{String(i + 1).padStart(2, "0")} / {String(partners.length).padStart(2, "0")}</span>
+                <h3 className="mt-4 font-display text-5xl font-extrabold uppercase leading-[0.95] md:text-6xl">{name}</h3>
+                <p className="mt-6 max-w-md text-lg text-ink-muted">{text}</p>
               </div>
-              <div className="group overflow-hidden rounded-2xl shadow-xl">
-                <img src={img} alt={name} loading="lazy" width={1200} height={1408} className="aspect-[4/5] max-h-[78vh] w-full object-cover transition duration-700 group-hover:scale-105" />
+              <div className="group overflow-hidden rounded-2xl border border-ink-line">
+                <img src={img} alt={name} loading="lazy" width={1200} height={1408} className="aspect-[4/3] max-h-[55vh] w-full object-cover transition duration-700 group-hover:scale-105" />
               </div>
             </div>
           </div>
         ))}
+      </div>
       </section>
 
       <section className="bg-ink text-ink-foreground">

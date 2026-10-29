@@ -33,11 +33,14 @@ describe("Careers application form", () => {
     expect(issue?.path[0]).toBe("offer");
   });
 
-  it("asks for a role when the select is left untouched", () => {
-    // A <select> still on its disabled placeholder contributes nothing to FormData.
+  it("accepts a role written in their own words", () => {
+    expect(careersSchema.safeParse({ ...valid, role: "Lighting prototyper" }).success).toBe(true);
+  });
+
+  it("asks for a role when the field is left empty", () => {
     const issue = firstIssue(
       careersSchema.safeParse({ ...valid, role: fieldValue(new FormData(), "role") }),
     );
-    expect(issue?.message).toBe("Please choose a role");
+    expect(issue?.message).toBe("Tell us the role you'd like to apply for");
   });
 });

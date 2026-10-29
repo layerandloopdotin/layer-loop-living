@@ -8,7 +8,7 @@ export function Logo({ dot = false }: { dot?: boolean }) {
   return (
     <Link to="/" className="flex items-center gap-2">
       {dot && <span className="h-4 w-4 rounded-full bg-primary" />}
-      <span className="font-display text-lg font-bold tracking-tight">b LAYER &amp; LOOP</span>
+      <span className="font-display text-lg font-bold tracking-tight">LAYER &amp; LOOP</span>
     </Link>
   );
 }

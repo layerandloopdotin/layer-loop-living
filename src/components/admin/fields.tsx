@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { img, MEDIA_BUCKET } from "@/lib/media";
 import { LINK_TARGETS, type Field } from "@/lib/cms-schema";
+import { Button } from "@/components/ui/button";
 
 export const inputBase = "min-w-0 rounded-md border border-border bg-background px-3 py-2 text-sm";
 export const inputCls = `w-full ${inputBase}`;
@@ -19,31 +20,32 @@ export async function uploadImage(file: File): Promise<string | null> {
   return `media:${path}`;
 }
 
-function usePicker(onFiles: (files: File[]) => void, multiple = false) {
+function usePicker(onFiles: (files: File[]) => void, multiple = false, accept = "image/*") {
   const ref = useRef<HTMLInputElement>(null);
   const input = (
-    <input ref={ref} type="file" accept="image/*" multiple={multiple} className="hidden"
+    <input ref={ref} type="file" accept={accept} multiple={multiple} className="hidden"
       onChange={(e) => { const f = Array.from(e.target.files ?? []); e.target.value = ""; if (f.length) onFiles(f); }} />
   );
   return { input, open: () => ref.current?.click() };
 }
 
-export function ImageInput({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+export function ImageInput({ value, onChange, logo = false }: { value: string; onChange: (v: string) => void; logo?: boolean }) {
   const [busy, setBusy] = useState(false);
   const { input, open } = usePicker(async ([f]) => {
     if (!f) return;
+    if (logo && !["image/png", "image/svg+xml"].includes(f.type)) { toast.error("Please choose an SVG or PNG logo"); return; }
     setBusy(true);
     const ref = await uploadImage(f);
     setBusy(false);
     if (ref) onChange(ref);
-  });
+  }, false, logo ? "image/png,image/svg+xml,.png,.svg" : "image/*");
   return (
     <div className="flex items-center gap-3">
       {input}
-      <button type="button" onClick={open} className="relative h-24 w-24 shrink-0 overflow-hidden rounded-lg border border-dashed border-border bg-card">
-        {value ? <img src={img(value)} alt="" className="h-full w-full object-cover" /> : <ImagePlus className="mx-auto h-6 w-6 text-muted-foreground" />}
+      <Button variant="outline" type="button" aria-label={logo ? "Upload logo" : "Upload photo"} onClick={open} className="relative h-24 w-24 shrink-0 overflow-hidden rounded-lg border-dashed bg-card p-1">
+        {value ? <img src={img(value)} alt="" className={`h-full w-full ${logo ? "object-contain" : "object-cover"}`} /> : <ImagePlus className="mx-auto h-6 w-6 text-muted-foreground" />}
         {busy && <span className="absolute inset-0 flex items-center justify-center bg-background/70"><Loader2 className="h-5 w-5 animate-spin" /></span>}
-      </button>
+      </Button>
       <div className="flex flex-col gap-1 text-xs">
         <button type="button" onClick={open} className="font-semibold underline-offset-4 hover:underline">{value ? "Replace photo" : "Upload photo"}</button>
         {value && <button type="button" onClick={() => onChange("")} className="text-left text-muted-foreground hover:text-destructive">Remove</button>}
@@ -134,7 +136,7 @@ export function FieldInput({ field, value, onChange, products }: { field: Field;
     case "textarea":
       return <textarea value={str} rows={Math.min(10, Math.max(3, str.split("\n").length + 1))} onChange={(e) => onChange(e.target.value)} className={inputCls} />;
     case "image":
-      return <ImageInput value={str} onChange={onChange} />;
+      return <ImageInput value={str} onChange={onChange} logo={field.k === "logoImage"} />;
     case "images":
       return <ImagesInput value={arr.map(String)} onChange={onChange} />;
     case "strings":

@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
+const GAP = 24;
+
 /**
  * Straight, front-facing photo strip: slides stay flat and upright, the row
  * slides sideways. Drag / swipe to move, arrows and scroll wheel also work.
@@ -10,17 +12,29 @@ export function StoreWheel({ images, alt }: { images: string[]; alt: string }) {
   const [active, setActive] = useState(0);
   const [dragPx, setDragPx] = useState(0);
   const [dragging, setDragging] = useState(false);
+  const [size, setSize] = useState({ wrap: 0, slide: 0 });
 
   const wrap = useRef<HTMLDivElement>(null);
   const slide = useRef<HTMLDivElement>(null);
   const startX = useRef<number | null>(null);
   const lock = useRef(0);
 
-  /** Width of one slide plus the gap between slides, in CSS px. */
-  const pitch = () => {
-    const s = slide.current?.getBoundingClientRect().width ?? 0;
-    return s + 24;
-  };
+  // Measure once mounted and again whenever the panel changes size.
+  useEffect(() => {
+    const measure = () =>
+      setSize({
+        wrap: wrap.current?.getBoundingClientRect().width ?? 0,
+        slide: slide.current?.getBoundingClientRect().width ?? 0,
+      });
+    measure();
+    const ro = new ResizeObserver(measure);
+    if (wrap.current) ro.observe(wrap.current);
+    if (slide.current) ro.observe(slide.current);
+    return () => ro.disconnect();
+  }, []);
+
+  const pitch = size.slide + GAP;
+  const center = (size.wrap - size.slide) / 2;
 
   const step = (d: number) =>
     setActive((a) => Math.min(n - 1, Math.max(0, a + d)));
@@ -51,21 +65,10 @@ export function StoreWheel({ images, alt }: { images: string[]; alt: string }) {
     startX.current = null;
     setDragging(false);
     setDragPx(0);
-    const throwDist = Math.max(40, pitch() * 0.18);
-    if (Math.abs(dx) > throwDist) step(dx < 0 ? 1 : -1);
+    if (Math.abs(dx) > Math.max(40, pitch * 0.18)) step(dx < 0 ? 1 : -1);
   };
 
-  // Keep the active slide centred when the panel is resized.
-  useEffect(() => {
-    const onResize = () => setDragPx(0);
-    window.addEventListener("resize", onResize);
-    return () => window.removeEventListener("resize", onResize);
-  }, []);
-
-  const containerW = wrap.current?.getBoundingClientRect().width ?? 0;
-  const slideW = slide.current?.getBoundingClientRect().width ?? 0;
-  const center = (containerW - slideW) / 2;
-  const x = center - active * pitch() + dragPx;
+  const x = center - active * pitch + dragPx;
 
   return (
     <div
@@ -79,7 +82,6 @@ export function StoreWheel({ images, alt }: { images: string[]; alt: string }) {
       style={{ touchAction: "pan-y", cursor: dragging ? "grabbing" : "grab" }}
     >
       <div
-        ref={slide}
         className="flex h-full items-center gap-6 will-change-transform"
         style={{
           transform: `translate3d(${x}px,0,0)`,
@@ -88,6 +90,7 @@ export function StoreWheel({ images, alt }: { images: string[]; alt: string }) {
       >
         {images.map((src, i) => (
           <div
+            ref={i === 0 ? slide : undefined}
             key={i}
             className="aspect-[4/5] h-[78%] shrink-0 overflow-hidden rounded-2xl shadow-2xl transition-opacity duration-500 md:h-[74%]"
             style={{ opacity: dragging ? 1 : i === active ? 1 : 0.55 }}

@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import { useState } from "react";
 import { Page, ProductCard } from "@/components/site";
+import { InstagramStrip } from "@/components/instagram-strip";
 import { categoryTiles, products } from "@/lib/products";
 import heroLamp from "@/assets/hero-lamp.jpg";
 import living from "@/assets/living.jpg";
@@ -124,6 +125,7 @@ function Index() {
         <h2 className="mx-auto max-w-xl text-4xl font-bold">Objects That Shape Everyday Living</h2>
         <img src={living} alt="Warm living room with sculptural floor lamps" loading="lazy" width={1600} height={832} className="mt-12 w-full rounded-2xl" />
       </section>
+      <InstagramStrip />
     </Page>
   );
 }

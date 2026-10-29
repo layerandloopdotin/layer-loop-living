@@ -1,0 +1,57 @@
+import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
+import { DarkHero, Page, ProductCard } from "@/components/site";
+import { categories, materials, products } from "@/lib/products";
+
+export const Route = createFileRoute("/products")({
+  head: () => ({
+    meta: [
+      { title: "All Objects — Layer & Loop" },
+      { name: "description", content: "Browse table, floor, pendant and sculptural lamps crafted for the modern home." },
+      { property: "og:title", content: "All Objects — Layer & Loop" },
+      { property: "og:description", content: "The full Layer & Loop lighting catalog." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
+  }),
+  component: Products,
+});
+
+function Products() {
+  const [cats, setCats] = useState<string[]>([]);
+  const [mats, setMats] = useState<string[]>([]);
+  const toggle = (list: string[], set: (v: string[]) => void, v: string) => set(list.includes(v) ? list.filter((x) => x !== v) : [...list, v]);
+  const shown = products.filter((p) => (!cats.length || cats.includes(p.category)) && (!mats.length || mats.includes(p.material)));
+
+  const Box = ({ checked, label, onChange }: { checked: boolean; label: string; onChange: () => void }) => (
+    <label className="flex cursor-pointer items-center gap-2 text-sm">
+      <input type="checkbox" checked={checked} onChange={onChange} className="accent-foreground" /> {label}
+    </label>
+  );
+
+  return (
+    <Page>
+      <DarkHero title="ALL OBJECTS">
+        <p className="mt-4 max-w-md text-ink-muted">Browse our full catalog of table, floor, and structural atmosphere lamps crafted for the modern home.</p>
+      </DarkHero>
+      <section className="mx-auto grid max-w-7xl gap-12 px-6 py-16 md:grid-cols-[200px_1fr]">
+        <aside>
+          <h3 className="font-display font-bold uppercase">Filters</h3>
+          <p className="mt-6 text-xs uppercase tracking-widest text-muted-foreground">Category</p>
+          <div className="mt-3 space-y-2">
+            <Box label="All Products" checked={!cats.length} onChange={() => setCats([])} />
+            {categories.map((c) => <Box key={c} label={c} checked={cats.includes(c)} onChange={() => toggle(cats, setCats, c)} />)}
+          </div>
+          <p className="mt-8 text-xs uppercase tracking-widest text-muted-foreground">Material</p>
+          <div className="mt-3 space-y-2">
+            {materials.map((m) => <Box key={m} label={m} checked={mats.includes(m)} onChange={() => toggle(mats, setMats, m)} />)}
+          </div>
+        </aside>
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {shown.map((p) => <ProductCard key={p.name} {...p} tall />)}
+          {!shown.length && <p className="text-muted-foreground">No objects match these filters.</p>}
+        </div>
+      </section>
+    </Page>
+  );
+}

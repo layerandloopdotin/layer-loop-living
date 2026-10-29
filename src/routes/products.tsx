@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { DarkHero, Page } from "@/components/site";
 import { categories, spaces, products, slugify } from "@/lib/products";
+import { formatPrice } from "@/lib/currency";
 
 export const Route = createFileRoute("/products")({
   head: () => ({
@@ -51,17 +52,29 @@ function Products() {
             {spaces.map((m) => <Box key={m} label={m} checked={mats.includes(m)} onChange={() => toggle(mats, setMats, m)} />)}
           </div>
         </aside>
-        <div key={cats.join()+mats.join()} className="group/grid grid content-start gap-6 animate-in fade-in duration-500 sm:grid-cols-2 lg:grid-cols-3">
+        <div key={cats.join()+mats.join()} className="grid content-start gap-6 animate-in fade-in duration-500 sm:grid-cols-2 lg:grid-cols-3">
           {shown.map((p) => (
             <Link
               key={p.name}
               to="/product/$slug"
               params={{ slug: slugify(p.name) }}
               aria-label={p.name}
-              className="relative block rounded-2xl transition-all duration-500 ease-out [@media(hover:hover)]:group-hover/grid:opacity-80 [@media(hover:hover)]:group-hover/grid:blur-[2px] [@media(hover:hover)]:hover:z-10 [@media(hover:hover)]:hover:scale-[1.07] [@media(hover:hover)]:hover:!opacity-100 [@media(hover:hover)]:hover:!blur-none [@media(hover:hover)]:hover:shadow-2xl"
+              className="group/tile block"
             >
-              <div className="aspect-[4/5] overflow-hidden rounded-xl">
-                <img src={p.image} alt={p.name} loading="lazy" className="h-full w-full object-cover" />
+              <div className="aspect-[4/5] overflow-hidden rounded-xl transition-shadow duration-500 group-hover/tile:shadow-2xl">
+                <img
+                  src={p.image}
+                  alt={p.name}
+                  loading="lazy"
+                  className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover/tile:scale-105"
+                />
+              </div>
+              <div className="mt-3 flex items-start justify-between gap-3">
+                <div>
+                  <p className="font-display font-semibold">{p.name}</p>
+                  <p className="text-xs text-muted-foreground">{p.note}</p>
+                </div>
+                <span className="shrink-0 font-display font-semibold">{formatPrice(p.price)}</span>
               </div>
             </Link>
           ))}

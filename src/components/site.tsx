@@ -73,11 +73,13 @@ export function SiteHeader() {
   );
 }
 
-const cols = [
-  ["Explore", ["Collection", "Floor Lamps", "Table Lamps", "Pendant Lamps"]],
-  ["Company", ["Our Story", "Materials", "Trade Pricing", "Contact"]],
-  ["Social", ["Instagram", "Pinterest", "Journal", "Youtube"]],
-] as const;
+const footLink = "transition-colors hover:text-ink-foreground";
+const footHead = "text-xs font-bold uppercase tracking-widest";
+const socials = [
+  { label: "Instagram", href: "https://instagram.com/layerandloop" },
+  { label: "Pinterest", href: "https://pinterest.com/layerandloop" },
+  { label: "LinkedIn", href: "https://linkedin.com/company/layerandloop" },
+];
 
 export function SiteFooter() {
   return (
@@ -85,18 +87,36 @@ export function SiteFooter() {
       <div className="mx-auto grid max-w-7xl gap-10 px-6 py-16 md:grid-cols-[2fr_1fr_1fr_1fr]">
         <div>
           <Logo dot />
-          <p className="mt-4 max-w-xs text-sm text-ink-muted">Thoughtfully crafted atmospheric lighting balancing sculpture, form, and comfort. Bring a warm, organic glow to everyday interiors.</p>
+          <p className="mt-4 max-w-xs text-sm leading-relaxed text-ink-muted">3D printed objects for considered living — lighting, vessels and desk pieces, made layer by layer in Mumbai from non-toxic, recyclable materials.</p>
         </div>
-        {cols.map(([h, items]) => (
-          <div key={h}>
-            <h4 className="text-xs font-bold uppercase tracking-widest">{h}</h4>
-            <ul className="mt-4 space-y-2 text-sm text-ink-muted">{items.map((i) => <li key={i}>{i}</li>)}</ul>
-          </div>
-        ))}
+        <div>
+          <h4 className={footHead}>Explore</h4>
+          <ul className="mt-4 space-y-2 text-sm text-ink-muted">
+            <li><Link to="/products" className={footLink}>All Products</Link></li>
+            {categories.map((c) => <li key={c}><Link to="/products" search={{ category: c }} className={footLink}>{c}</Link></li>)}
+          </ul>
+        </div>
+        <div>
+          <h4 className={footHead}>Company</h4>
+          <ul className="mt-4 space-y-2 text-sm text-ink-muted">
+            <li><Link to="/about" className={footLink}>About Us</Link></li>
+            <li><Link to="/trade" className={footLink}>Trade &amp; Partnerships</Link></li>
+            <li><Link to="/contactus" className={footLink}>Contact Us</Link></li>
+          </ul>
+        </div>
+        <div>
+          <h4 className={footHead}>Social</h4>
+          <ul className="mt-4 space-y-2 text-sm text-ink-muted">
+            {socials.map((s) => <li key={s.label}><a href={s.href} target="_blank" rel="noreferrer" className={footLink}>{s.label}</a></li>)}
+          </ul>
+        </div>
       </div>
-      <div className="mx-auto flex max-w-7xl justify-between border-t border-ink-line px-6 py-6 text-xs text-ink-muted">
-        <span>© 2026 LAYER &amp; LOOP Objects. Crafted for lasting atmosphere.</span>
-        <span className="flex gap-6"><span>Privacy Policy</span><span>Terms &amp; Services</span></span>
+      <div className="mx-auto flex max-w-7xl flex-wrap justify-between gap-4 border-t border-ink-line px-6 py-6 text-xs text-ink-muted">
+        <span>© 2026 Layer &amp; Loop Objects. All rights reserved.</span>
+        <span className="flex flex-wrap gap-6">
+          <Link to="/terms" className={footLink}>Terms &amp; Conditions</Link>
+          <Link to="/returns" className={footLink}>Returns, Replacements &amp; Refunds</Link>
+        </span>
       </div>
     </footer>
   );

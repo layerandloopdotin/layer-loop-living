@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Laugh } from "lucide-react";
+import { Heart } from "lucide-react";
 import { DarkHero, Page } from "@/components/site";
 import { useSite } from "@/lib/site";
 import { formatPrice } from "@/lib/currency";
@@ -41,7 +41,7 @@ function Wishlist() {
                 <div key={slug}>
                   <div className="relative overflow-hidden rounded-xl">
                     <Link to="/product/$slug" params={{ slug }}><img src={p.image} alt={p.name} className="aspect-square w-full object-cover" /></Link>
-                    <button aria-label={`Remove ${p.name}`} onClick={() => shop.toggleWish(slug)} className="absolute right-3 top-3 rounded-full bg-background p-2"><Laugh className="h-4 w-4 text-primary" /></button>
+                    <button aria-label={`Remove ${p.name}`} onClick={() => shop.toggleWish(slug)} className="absolute right-3 top-3 rounded-full bg-background p-2"><Heart className="h-4 w-4 text-primary" fill="currentColor" /></button>
                   </div>
                   <div className="mt-3 flex justify-between">
                     <div><p className="font-display font-semibold">{p.name}</p><p className="text-xs text-muted-foreground">{p.note}</p></div>

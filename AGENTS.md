@@ -16,3 +16,4 @@
 - Image values are references resolved by `img()` in `src/lib/media.ts` (`asset:` bundled, `media:` uploaded); uploads go to the private `cms-media` bucket and are served by `/api/public/media/*` because public buckets are blocked in this workspace.
 - The shared Logo reads its display mode and media reference from site settings so header and footer stay consistent; uploaded media responses carry sandbox CSP and nosniff to prevent active SVG content executing on the app origin.
 - Admin writes go straight from the browser client and are protected by admin-only RLS via `has_role`; the first account ever created becomes admin through a database trigger.
+- Product inventory lives in a separate admin-only table and is queried only by CMS editors, never by public site loaders, to keep stock counts private.

@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { slugify, type Colour, type Pair } from "@/lib/catalog";
 import { ImageInput, ImagesInput, inputBase, inputCls, labelCls, RowTools } from "@/components/admin/fields";
 import type { Json } from "@/integrations/supabase/types";
+import { inventoryQuantitySchema } from "@/lib/inventory";
 
 export const Route = createFileRoute("/_authenticated/admin/products/$id")({
   component: ProductEditor,
@@ -15,12 +16,14 @@ export const Route = createFileRoute("/_authenticated/admin/products/$id")({
 type Form = {
   name: string; slug: string; tagline: string; short_description: string; long_description: string;
   price: string; compare_at_price: string; featured: boolean; published: boolean;
+  inventory_quantity: string;
   category_ids: string[]; space_ids: string[]; images: string[]; colors: Colour[]; specs: Pair[]; care: Pair[]; variants: { name: string; price: string; image: string }[];
 };
 
 const emptyForm = (): Form => ({
   name: "", slug: "", tagline: "", short_description: "", long_description: "", price: "", compare_at_price: "",
   featured: false, published: true, category_ids: [], space_ids: [], images: [], colors: [], variants: [],
+  inventory_quantity: "0",
   specs: ["Dimensions", "Weight", "Material", "Bulb", "Cable"].map((label) => ({ label, value: "" })),
   care: [{ label: "Cleaning", value: "" }, { label: "Wear & tear", value: "" }],
 });
@@ -75,14 +78,19 @@ function ProductEditor() {
     queryKey: ["admin", "product", id],
     enabled: !isNew,
     queryFn: async () => {
-      const { data, error } = await supabase.from("products").select("*").eq("id", id).single();
+      const [{ data, error }, inventory] = await Promise.all([
+        supabase.from("products").select("*").eq("id", id).single(),
+        supabase.from("product_inventory").select("quantity").eq("product_id", id).maybeSingle(),
+      ]);
       if (error) throw error;
-      return data;
+      if (inventory.error) throw inventory.error;
+      return { ...data, inventory_quantity: String(inventory.data?.quantity ?? 0) };
     },
   });
   const [f, setF] = useState<Form | null>(isNew ? emptyForm() : null);
   const [slugTouched, setSlugTouched] = useState(!isNew);
   const [busy, setBusy] = useState(false);
+  const [createdId, setCreatedId] = useState<string | null>(null);
 
   useEffect(() => {
     const p = existing.data;
@@ -90,6 +98,7 @@ function ProductEditor() {
     setF({
       name: p.name, slug: p.slug, tagline: p.tagline, short_description: p.short_description, long_description: p.long_description,
       price: String(p.price), compare_at_price: p.compare_at_price == null ? "" : String(p.compare_at_price),
+      inventory_quantity: p.inventory_quantity,
       featured: p.featured, published: p.published, category_ids: p.category_ids, space_ids: p.space_ids, images: p.images,
       colors: asColours(p.colors), specs: asPairs(p.specs), care: asPairs(p.care),
       variants: Array.isArray(p.variants) ? p.variants.map((x) => { const v = x as { name?: unknown; price?: unknown; image?: unknown }; return { name: String(v?.name ?? ""), price: String(v?.price ?? "0"), image: String(v?.image ?? "") }; }) : [],
@@ -102,6 +111,8 @@ function ProductEditor() {
   const setColour = (i: number, patch: Partial<Colour>) => set("colors", f.colors.map((c, k) => (k === i ? { ...c, ...patch } : c)));
 
   const save = async () => {
+    const quantity = inventoryQuantitySchema.safeParse(f.inventory_quantity);
+    if (!quantity.success) { toast.error(quantity.error.issues[0]?.message ?? "Enter a valid inventory quantity"); return; }
     const price = Number(f.price);
     if (!f.name.trim()) { toast.error("Give the product a name"); return; }
     if (!f.slug.trim()) { toast.error("Add a web address"); return; }
@@ -118,11 +129,14 @@ function ProductEditor() {
     };
     if (f.variants.some((v) => v.name.trim() && !(Number(v.price || 0) >= 0))) { toast.error("Enter a valid extra price for each variant"); return; }
     setBusy(true);
-    const res = isNew
+    const res = isNew && !createdId
       ? await supabase.from("products").insert({ ...row, sort: 999 }).select("id").single()
-      : await supabase.from("products").update(row).eq("id", id).select("id").single();
+      : await supabase.from("products").update(row).eq("id", createdId ?? id).select("id").single();
+    if (res.error || !res.data) { setBusy(false); toast.error(res.error?.code === "23505" ? "Another product already uses that web address" : res.error?.message ?? "Couldn't save product"); return; }
+    if (isNew) setCreatedId(res.data.id);
+    const inventory = await supabase.from("product_inventory").upsert({ product_id: res.data.id, quantity: quantity.data });
     setBusy(false);
-    if (res.error) { toast.error(res.error.code === "23505" ? "Another product already uses that web address" : res.error.message); return; }
+    if (inventory.error) { toast.error(`Product saved, but inventory wasn't saved: ${inventory.error.message}. Please retry.`); return; }
     toast.success("Product saved");
     qc.invalidateQueries({ queryKey: ["admin"] });
     qc.invalidateQueries({ queryKey: ["site"] });
@@ -148,6 +162,10 @@ function ProductEditor() {
             <label className="flex items-center gap-2"><input type="checkbox" checked={f.featured} onChange={(e) => set("featured", e.target.checked)} className="accent-primary" /> Featured — show in The Edit on the homepage</label>
             <label className="flex items-center gap-2"><input type="checkbox" checked={f.published} onChange={(e) => set("published", e.target.checked)} className="accent-primary" /> Visible on the website</label>
           </div>
+        </Card>
+
+        <Card title="Inventory" help="Private stock tracking — only visible in the CMS. This does not change availability on the website.">
+          <L label="Inventory quantity"><input type="number" min="0" step="1" inputMode="numeric" value={f.inventory_quantity} onChange={(e) => set("inventory_quantity", e.target.value)} className={inputCls} /></L>
         </Card>
 
         <Card title="Descriptions">

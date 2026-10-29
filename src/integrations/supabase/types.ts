@@ -38,6 +38,32 @@ export type Database = {
         }
         Relationships: []
       }
+      product_inventory: {
+        Row: {
+          product_id: string
+          quantity: number
+          updated_at: string
+        }
+        Insert: {
+          product_id: string
+          quantity?: number
+          updated_at?: string
+        }
+        Update: {
+          product_id?: string
+          quantity?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_inventory_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: true
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       products: {
         Row: {
           care: Json

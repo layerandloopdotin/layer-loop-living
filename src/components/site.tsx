@@ -1,9 +1,23 @@
 import { Link } from "@tanstack/react-router";
-import { ArrowRight, Heart, ShoppingBag } from "lucide-react";
-import { useState, type ReactNode } from "react";
+import { ArrowRight, Laugh, ShoppingBag, Smile } from "lucide-react";
+import { type ReactNode } from "react";
 import { formatPrice } from "@/lib/currency";
-import { useShop } from "@/lib/shop";
-import { Button } from "@/components/ui/button";
+import { shop, useShop } from "@/lib/shop";
+import { slugify } from "@/lib/products";
+
+/** Wishlist toggle — a smile that turns into a laugh when saved. */
+export function WishButton({ slug, name, className = "" }: { slug: string; name: string; className?: string }) {
+  const { wishlist } = useShop();
+  const on = wishlist.includes(slug);
+  const Icon = on ? Laugh : Smile;
+  return (
+    <button type="button" aria-label={on ? `Remove ${name} from favourites` : `Add ${name} to favourites`} aria-pressed={on}
+      onClick={(e) => { e.preventDefault(); e.stopPropagation(); shop.toggleWish(slug); }}
+      className={`inline-flex h-9 w-9 items-center justify-center rounded-full bg-background text-foreground transition-transform hover:scale-110 ${className}`}>
+      <Icon className={`h-5 w-5 ${on ? "text-primary" : ""}`} strokeWidth={on ? 2.25 : 1.75} />
+    </button>
+  );
+}
 
 export function Logo({ dot = false }: { dot?: boolean }) {
   return (

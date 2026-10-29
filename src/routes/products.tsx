@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { DarkHero, Page } from "@/components/site";
+import { DarkHero, Page, WishButton } from "@/components/site";
 import { categories, spaces, products, slugify } from "@/lib/products";
 import { formatPrice } from "@/lib/currency";
 
@@ -54,12 +54,12 @@ function Products() {
         </aside>
         <div key={cats.join()+mats.join()} className="product-grid grid content-start gap-6 animate-in fade-in duration-500 sm:grid-cols-2 lg:grid-cols-3">
           {shown.map((p) => (
+            <div key={p.name} className="product-card group relative">
             <Link
-              key={p.name}
               to="/product/$slug"
               params={{ slug: slugify(p.name) }}
               aria-label={p.name}
-              className="product-card group block"
+              className="block"
             >
               <div className="product-frame aspect-[4/5] overflow-hidden rounded-xl">
                 <img
@@ -77,6 +77,8 @@ function Products() {
                 <span className="shrink-0 font-display font-semibold">{formatPrice(p.price)}</span>
               </div>
             </Link>
+            <WishButton slug={slugify(p.name)} name={p.name} className="absolute right-3 top-3 z-10" />
+            </div>
           ))}
           {!shown.length && <p className="text-muted-foreground">No objects match these filters.</p>}
         </div>

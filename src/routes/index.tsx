@@ -76,7 +76,10 @@ function Index() {
 
       <section className="mx-auto max-w-7xl px-6 py-20">
         <div className="flex flex-wrap items-start justify-between gap-6">
-          <h2 className="text-4xl font-extrabold uppercase">The Edit</h2>
+          <div>
+            <h2 className="text-4xl font-extrabold uppercase">The Edit</h2>
+            <p className="mt-2 text-sm text-muted-foreground">Feature collection</p>
+          </div>
           <div className="max-w-sm">
             <p className="text-xs font-bold uppercase tracking-widest">Our Philosophy</p>
             <p className="mt-2 text-sm text-muted-foreground">Every piece is thoughtfully crafted to balance atmosphere, material, and form — bringing quiet elegance into everyday living.</p>

@@ -11,3 +11,7 @@
 
 - Format every product price through the shared currency formatter so the homepage and catalog always use the same currency presentation.
 - Keep each form's zod schema in a browser-safe module under `src/lib` and read submitted values through `fieldValue`, so a select left on its disabled placeholder still shows the friendly message and the rules stay testable.
+- Site text and photos live in the `site_content` table (one JSON document per key); `src/lib/cms-schema.ts` holds each key's admin fields and default content, and pages read it via `useContent(key)` — add new editable copy there, never as hard-coded page text, so it stays editable.
+- Products, categories and spaces come only from the database through the root `siteQuery` loader; never reintroduce a static product list, or admin edits stop showing.
+- Image values are references resolved by `img()` in `src/lib/media.ts` (`asset:` bundled, `media:` uploaded); uploads go to the private `cms-media` bucket and are served by `/api/public/media/*` because public buckets are blocked in this workspace.
+- Admin writes go straight from the browser client and are protected by admin-only RLS via `has_role`; the first account ever created becomes admin through a database trigger.

@@ -214,8 +214,8 @@ export const defaults = { settings, home, catalog, about, trade, contact, instag
 export type ContentKey = keyof typeof defaults;
 export type Content<K extends ContentKey> = (typeof defaults)[K];
 
-const t = (k: string, label: string, help?: string): Field => ({ k, label, t: "text", help });
-const ta = (k: string, label: string, help?: string): Field => ({ k, label, t: "textarea", help });
+const t = (k: string, label: string, help?: string): Field => ({ k, label, t: "text", ...(help ? { help } : {}) });
+const ta = (k: string, label: string, help?: string): Field => ({ k, label, t: "textarea", ...(help ? { help } : {}) });
 const im = (k: string, label: string): Field => ({ k, label, t: "image" });
 const legal: Group[] = [
   { title: "Header", fields: [t("eyebrow", "Small label"), t("title", "Title"), ta("intro", "Introduction"), ta("notice", "Notice box")] },

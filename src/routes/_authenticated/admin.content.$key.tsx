@@ -43,7 +43,7 @@ function ContentEditor() {
     setBusy(true);
     const { error } = await supabase.from("site_content").upsert({ key, data: value as Json });
     setBusy(false);
-    if (error) return toast.error(`Couldn't save: ${error.message}`);
+    if (error) { toast.error(`Couldn't save: ${error.message}`); return; }
     setDirty(false);
     toast.success("Saved — the website is updated");
     qc.invalidateQueries({ queryKey: ["site"] });

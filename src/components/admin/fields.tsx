@@ -5,7 +5,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { img, MEDIA_BUCKET } from "@/lib/media";
 import { LINK_TARGETS, type Field } from "@/lib/cms-schema";
 
-export const inputCls = "w-full rounded-md border border-border bg-background px-3 py-2 text-sm";
+export const inputBase = "min-w-0 rounded-md border border-border bg-background px-3 py-2 text-sm";
+export const inputCls = `w-full ${inputBase}`;
 export const labelCls = "block text-xs font-semibold uppercase tracking-widest text-muted-foreground";
 
 export async function uploadImage(file: File): Promise<string | null> {

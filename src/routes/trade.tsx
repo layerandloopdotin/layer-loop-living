@@ -25,12 +25,12 @@ export const Route = createFileRoute("/trade")({
 });
 
 const partners = [
-  { img: studioImg, name: "Interiors & Architects", text: "Custom lighting, fixtures and decor for your projects.", points: ["Colour & size changes", "Project-specific runs", "Material samples"] },
-  { img: retailImg, name: "Retailers & Concept Stores", text: "Ready-to-shelf collections at wholesale pricing.", points: ["Wholesale rates", "Curated assortments", "Restock support"] },
-  { img: vendorsImg, name: "Vendors & Resellers", text: "Add our objects to your catalogue with ease.", points: ["White-label options", "Dropship support", "Product imagery"] },
-  { img: startupsImg, name: "Startups & Businesses", text: "Branded objects and prototypes to grow your range.", points: ["Branded merch", "Prototyping", "Small to bulk batches"] },
-  { img: giftingImg, name: "Corporate Gifting", text: "Thoughtful gifts for employees, clients and partners.", points: ["Festive hampers", "Logo personalisation", "Bulk delivery"] },
-  { img: makersImg, name: "Makers & Enthusiasts", text: "Collaborate with us on something new.", points: ["Small-batch collabs", "Limited drops", "Community projects"] },
+  { img: studioImg, name: "Interiors & Architects", text: "Custom lighting, fixtures and decor for your projects." },
+  { img: retailImg, name: "Retailers & Concept Stores", text: "Ready-to-shelf collections at wholesale pricing." },
+  { img: vendorsImg, name: "Vendors & Resellers", text: "Add our objects to your catalogue with ease." },
+  { img: startupsImg, name: "Startups & Businesses", text: "Branded objects and prototypes to grow your range." },
+  { img: giftingImg, name: "Corporate Gifting", text: "Thoughtful gifts for employees, clients and partners." },
+  { img: makersImg, name: "Makers & Enthusiasts", text: "Collaborate with us on something new." },
 ];
 
 const catalogues = ["Festive", "B2B / Wholesale", "Retail", "Corporate Gifting", "Custom Projects"];

@@ -49,6 +49,8 @@ export function StoreWheel({ images, alt }: { images: string[]; alt: string }) {
   };
 
   const onDown = (e: React.PointerEvent) => {
+    // Let the arrows and counter handle their own clicks.
+    if ((e.target as HTMLElement).closest("button")) return;
     startX.current = e.clientX;
     setDragging(true);
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);

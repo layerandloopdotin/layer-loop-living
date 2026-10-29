@@ -1,6 +1,6 @@
 import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
 import { useRef, useState, type PointerEvent } from "react";
-import { Check, CreditCard, Laugh, Smile, Landmark, MapPin, Minus, Plus, ShieldCheck, Smartphone, Truck, Wallet } from "lucide-react";
+import { Check, CreditCard, Heart, Landmark, MapPin, Minus, Plus, ShieldCheck, Smartphone, Truck, Wallet } from "lucide-react";
 import { Page } from "@/components/site";
 import { ProductGallery } from "@/components/product-gallery";
 import { galleryFor, unitPrice, type Variant } from "@/lib/catalog";
@@ -152,7 +152,7 @@ function ProductDetail() {
               {added ? <><Check className="h-4 w-4" /> Added</> : "Add to cart"}
             </button>
             <button aria-label={wished ? "Remove from favourites" : "Add to favourites"} aria-pressed={wished} onClick={() => shop.toggleWish(slug)} className="rounded-full border border-border p-3 transition-colors hover:bg-muted">
-              {wished ? <Laugh className="h-5 w-5 text-primary" /> : <Smile className="h-5 w-5" />}
+              {wished ? <Heart className="h-5 w-5 text-primary" fill="currentColor" /> : <Heart className="h-5 w-5" />}
             </button>
           </div>
           <button onClick={() => { shop.add(slug, qty, variant); navigate({ to: "/cart" }); }} className="mt-3 w-full rounded-full bg-primary py-3.5 text-sm font-semibold text-primary-foreground">

@@ -1,20 +1,19 @@
 import { Link } from "@tanstack/react-router";
-import { ArrowRight, Laugh, MessageCircle, ShoppingBag, Smile } from "lucide-react";
+import { ArrowRight, Heart, MessageCircle, ShoppingBag } from "lucide-react";
 import { type ReactNode } from "react";
 import { formatPrice } from "@/lib/currency";
 import { shop, useShop } from "@/lib/shop";
 import { useSite, waHref } from "@/lib/site";
 
-/** Wishlist toggle — a smile that turns into a laugh when saved. */
+/** Wishlist toggle — an outline heart that fills in once saved. */
 export function WishButton({ slug, name, className = "" }: { slug: string; name: string; className?: string }) {
   const { wishlist } = useShop();
   const on = wishlist.includes(slug);
-  const Icon = on ? Laugh : Smile;
   return (
     <button type="button" aria-label={on ? `Remove ${name} from favourites` : `Add ${name} to favourites`} aria-pressed={on}
       onClick={(e) => { e.preventDefault(); e.stopPropagation(); shop.toggleWish(slug); }}
       className={`inline-flex h-9 w-9 items-center justify-center rounded-full bg-background text-foreground transition-transform hover:scale-110 ${className}`}>
-      <Icon className={`h-5 w-5 ${on ? "text-primary" : ""}`} strokeWidth={on ? 2.25 : 1.75} />
+      <Heart className={`h-5 w-5 ${on ? "text-primary" : ""}`} strokeWidth={on ? 2.25 : 1.75} fill={on ? "currentColor" : "none"} />
     </button>
   );
 }
@@ -60,7 +59,7 @@ export function SiteHeader() {
           <Link to="/contactus" className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2 text-sm font-medium text-primary-foreground">
             {s.contactButton} <ArrowRight className="h-4 w-4" />
           </Link>
-          <HeaderIcon to="/wishlist" label="Favourites" count={wishlist.length}><Smile className="h-4 w-4" /></HeaderIcon>
+          <HeaderIcon to="/wishlist" label="Favourites" count={wishlist.length}><Heart className="h-4 w-4" fill={wishlist.length ? "currentColor" : "none"} /></HeaderIcon>
           <HeaderIcon to="/cart" label="Cart" count={cart.reduce((sum, c) => sum + c.qty, 0)}><ShoppingBag className="h-4 w-4" /></HeaderIcon>
         </div>
       </div>

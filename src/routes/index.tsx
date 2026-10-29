@@ -22,14 +22,14 @@ export const Route = createFileRoute("/")({
 
 const slides = [
   { name: "The Stack Lamp", price: 340, image: heroLamp },
-  { name: "Noir", price: 310, image: products[1].image },
-  { name: "Terra", price: 280, image: products[0].image },
+  { name: "Noir", price: 310, image: products[1]!.image },
+  { name: "Terra", price: 280, image: products[0]!.image },
 ];
 const tags = ["Sculptural", "Mid-century", "Artisan made", "Floor Lamp", "Elegant design"];
 
 function Index() {
   const [i, setI] = useState(0);
-  const s = slides[i];
+  const s = slides[i]!;
   const edit = products.slice(0, 3);
   return (
     <Page>

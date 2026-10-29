@@ -1,4 +1,5 @@
 import terra from "@/assets/terra.jpg";
+import heroLamp from "@/assets/hero-lamp.jpg";
 import noir from "@/assets/noir.jpg";
 import haze from "@/assets/haze.jpg";
 import orb from "@/assets/p-orb.jpg";
@@ -22,6 +23,7 @@ export type Product = { name: string; note: string; price: number; image: string
 export const slugify = (name: string) => name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
 
 export const products: Product[] = [
+  { name: "The Stack Lamp", note: "Layered sculptural table lamp", price: 340, image: heroLamp, category: "Lighting", spaces: ["The Lounge", "The Study"] },
   { name: "Terra", note: "Warm ceramic lighting", price: 280, image: terra, category: "Lighting", spaces: ["The Lounge", "The Suite"] },
   { name: "Noir", note: "Glazed ceramic sphere", price: 310, image: noir, category: "Lighting", spaces: ["The Lounge", "The Café"] },
   { name: "Haze", note: "Arched floor light", price: 265, image: haze, category: "Lighting", spaces: ["The Lounge"] },

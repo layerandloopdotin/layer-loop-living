@@ -1,9 +1,23 @@
 import { Link } from "@tanstack/react-router";
-import { ArrowRight, Heart, ShoppingBag } from "lucide-react";
-import { useState, type ReactNode } from "react";
+import { ArrowRight, Laugh, ShoppingBag, Smile } from "lucide-react";
+import { type ReactNode } from "react";
 import { formatPrice } from "@/lib/currency";
-import { useShop } from "@/lib/shop";
-import { Button } from "@/components/ui/button";
+import { shop, useShop } from "@/lib/shop";
+import { slugify } from "@/lib/products";
+
+/** Wishlist toggle — a smile that turns into a laugh when saved. */
+export function WishButton({ slug, name, className = "" }: { slug: string; name: string; className?: string }) {
+  const { wishlist } = useShop();
+  const on = wishlist.includes(slug);
+  const Icon = on ? Laugh : Smile;
+  return (
+    <button type="button" aria-label={on ? `Remove ${name} from favourites` : `Add ${name} to favourites`} aria-pressed={on}
+      onClick={(e) => { e.preventDefault(); e.stopPropagation(); shop.toggleWish(slug); }}
+      className={`inline-flex h-9 w-9 items-center justify-center rounded-full bg-background text-foreground transition-transform hover:scale-110 ${className}`}>
+      <Icon className={`h-5 w-5 ${on ? "text-primary" : ""}`} strokeWidth={on ? 2.25 : 1.75} />
+    </button>
+  );
+}
 
 export function Logo({ dot = false }: { dot?: boolean }) {
   return (
@@ -51,7 +65,7 @@ export function SiteHeader() {
           <Link to="/contactus" className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2 text-sm font-medium text-primary-foreground">
             Contact us <ArrowRight className="h-4 w-4" />
           </Link>
-          <HeaderIcon to="/wishlist" label="Wishlist" count={wishlist.length}><Heart className="h-4 w-4" /></HeaderIcon>
+          <HeaderIcon to="/wishlist" label="Favourites" count={wishlist.length}><Smile className="h-4 w-4" /></HeaderIcon>
           <HeaderIcon to="/cart" label="Cart" count={cart.reduce((s, c) => s + c.qty, 0)}><ShoppingBag className="h-4 w-4" /></HeaderIcon>
         </div>
       </div>
@@ -99,21 +113,21 @@ export function Page({ children }: { children: ReactNode }) {
 }
 
 export function ProductCard({ name, note, price, image, tall }: { name: string; note?: string; price?: number; image: string; tall?: boolean }) {
-  const [liked, setLiked] = useState(false);
+  const slug = slugify(name);
   return (
-    <div className="group">
-      <div className={`relative overflow-hidden rounded-xl ${tall ? "aspect-[4/5]" : "aspect-square"}`}>
-        <img src={image} alt={name} loading="lazy" className="h-full w-full object-cover" />
-        <Button variant="ghost" size="icon" aria-label={`Save ${name}`} aria-pressed={liked} onClick={() => setLiked(!liked)} className="absolute right-3 top-3 h-8 w-8 rounded-full bg-background">
-          <Heart className={`h-4 w-4 ${liked ? "fill-foreground" : ""}`} />
-        </Button>
-      </div>
-      {note !== undefined && (
-        <div className="mt-3 flex justify-between">
-          <div><p className="font-display font-semibold">{name}</p><p className="text-xs text-muted-foreground">{note}</p></div>
-          {price !== undefined && <span className="shrink-0 font-display font-semibold">{formatPrice(price)}</span>}
+    <div className="group relative">
+      <Link to="/product/$slug" params={{ slug }} aria-label={name} className="block">
+        <div className={`overflow-hidden rounded-xl ${tall ? "aspect-[4/5]" : "aspect-square"}`}>
+          <img src={image} alt={name} loading="lazy" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
         </div>
-      )}
+        {note !== undefined && (
+          <div className="mt-3 flex justify-between">
+            <div><p className="font-display font-semibold">{name}</p><p className="text-xs text-muted-foreground">{note}</p></div>
+            {price !== undefined && <span className="shrink-0 font-display font-semibold">{formatPrice(price)}</span>}
+          </div>
+        )}
+      </Link>
+      <WishButton slug={slug} name={name} className="absolute right-3 top-3" />
     </div>
   );
 }

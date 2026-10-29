@@ -3,7 +3,7 @@ import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import { useState } from "react";
 import { Page, ProductCard } from "@/components/site";
 import { InstagramStrip } from "@/components/instagram-strip";
-import { categoryTiles, products } from "@/lib/products";
+import { categoryTiles, products, slugify } from "@/lib/products";
 import heroLamp from "@/assets/hero-lamp.jpg";
 import living from "@/assets/living.jpg";
 import noir from "@/assets/noir.jpg";
@@ -35,7 +35,7 @@ const tags = ["Nature", "Sculptural", "Minimalism"];
 function Index() {
   const [i, setI] = useState(0);
   const s = slides[i] ?? slides[0];
-  const edit = products.slice(0, 3);
+  const edit = ["Terra", "Noir", "Haze"].flatMap((n) => products.filter((p) => p.name === n));
   if (!s) return null;
   return (
     <Page>
@@ -55,8 +55,8 @@ function Index() {
               <Button variant="ghost" size="icon" aria-label="Next" onClick={() => setI((i + 1) % slides.length)} className="h-7 w-7 rounded-full border border-ink-line"><ChevronRight className="h-4 w-4" /></Button>
             </div>
           </div>
-          <div className="relative overflow-hidden rounded-2xl">
-            <img src={s.image} alt={s.name} width={896} height={1024} className="aspect-[9/10] w-full object-cover" />
+          <Link to="/product/$slug" params={{ slug: slugify(s.name) }} aria-label={`View ${s.name}`} className="group relative block overflow-hidden rounded-2xl">
+            <img src={s.image} alt={s.name} width={896} height={1024} className="aspect-[9/10] w-full object-cover transition-transform duration-700 group-hover:scale-[1.03]" />
             <div className="absolute inset-x-4 top-4 flex flex-wrap gap-2 text-[10px] font-medium lg:text-xs">
               <span className="rounded-full bg-background px-3 py-1.5 text-foreground">Premium selection</span>
               <span className="rounded-full bg-background px-3 py-1.5 text-foreground">Non - Toxic Material</span>
@@ -65,7 +65,7 @@ function Index() {
               <span className="min-w-0"><b className="font-display">{s.name}</b> <span className="mt-0.5 block text-xs text-ink-muted xl:ml-2 xl:inline">Now available for order</span></span>
               <b className="ml-3 shrink-0 font-display text-primary">{formatPrice(s.price)}</b>
             </div>
-          </div>
+          </Link>
         </div>
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-6 px-6 py-10 md:px-12 md:py-12">
           <p className="max-w-xl leading-relaxed text-ink-muted">Designed with enduring materials, quiet forms, and thoughtful craftsmanship for interiors that feel timeless rather than trendy.</p>

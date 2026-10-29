@@ -24,6 +24,7 @@ export const Route = createFileRoute("/cart")({
 
 function Cart() {
   const { cart } = useShop();
+  const site = useSite();
   const lines = cart.flatMap((c) => {
     const p = site.bySlug(c.slug);
     return p ? [{ ...c, p }] : [];

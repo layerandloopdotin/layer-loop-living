@@ -1,6 +1,6 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { Page } from "@/components/site";
-import { products, slugify } from "@/lib/products";
+import { products, slugify, type Product } from "@/lib/products";
 import { formatPrice } from "@/lib/currency";
 
 export const Route = createFileRoute("/product/$slug")({
@@ -19,13 +19,15 @@ export const Route = createFileRoute("/product/$slug")({
       ],
     };
   },
-  loader: ({ params }) => {
-    const p = products.find((x) => slugify(x.name) === params.slug);
-    if (!p) throw notFound();
-    return p;
-  },
+  loader: ({ params }) => productOr404(params.slug),
   component: ProductDetail,
 });
+
+const productOr404 = (slug: string): Product => {
+  const p = products.find((x) => slugify(x.name) === slug);
+  if (!p) throw notFound();
+  return p;
+};
 
 function ProductDetail() {
   const p = Route.useLoaderData();

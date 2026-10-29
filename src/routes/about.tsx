@@ -3,6 +3,7 @@ import { useRef } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { StoreWheel } from "@/components/store-wheel";
 import { DarkHero, Page } from "@/components/site";
+import { InstagramStrip } from "@/components/instagram-strip";
 import craft from "@/assets/about-printer.jpg";
 import pla from "@/assets/mat-pla.jpg";
 import petg from "@/assets/mat-petg.jpg";
@@ -95,6 +96,7 @@ function About() {
         <h2 className="text-2xl font-bold uppercase">Designed for Atmosphere</h2>
         <img src={study} alt="Warm study lit at dusk" loading="lazy" width={1600} height={768} className="mt-10 w-full rounded-2xl" />
       </section>
+      <InstagramStrip />
       <section className="mx-auto flex min-h-screen max-w-7xl items-center px-6 pb-20">
         <div className="grid w-full items-center gap-10 md:grid-cols-[1fr_1.8fr]">
           <div>

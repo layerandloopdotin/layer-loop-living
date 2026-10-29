@@ -3,7 +3,7 @@ import { useState } from "react";
 import { ArrowUpRight, Clock, Mail, MapPin, Phone } from "lucide-react";
 import storeImg from "@/assets/store-1.jpg";
 import { DarkHero, Page } from "@/components/site";
-import { careersSchema, fieldValue, roles } from "@/lib/contact";
+import { careersSchema, fieldValue } from "@/lib/contact";
 
 export const Route = createFileRoute("/contactus")({
   head: () => ({
@@ -209,14 +209,7 @@ function Contact() {
                 </label>
                 <label className={lbl}>
                   Role you're applying for
-                  <select name="role" defaultValue="" className={field}>
-                    <option value="" disabled>
-                      Select
-                    </option>
-                    {roles.map((r) => (
-                      <option key={r}>{r}</option>
-                    ))}
-                  </select>
+                  <input name="role" maxLength={100} placeholder="e.g. Print technician, store lead, designer" className={field} />
                   {err("role")}
                 </label>
                 <label className={lbl}>

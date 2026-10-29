@@ -3,6 +3,7 @@
 // Browser-safe: no server or database imports.
 
 export type Field =
+  | { k: string; label: string; t: "select"; options: { value: string; label: string }[]; help?: string }
   | { k: string; label: string; t: "text" | "textarea" | "image" | "url" | "product" | "link" | "color"; help?: string }
   | { k: string; label: string; t: "images" | "strings"; help?: string }
   | { k: string; label: string; t: "list"; of: Field[]; item: string; help?: string };
@@ -19,6 +20,8 @@ export const LINK_TARGETS = [
 
 const settings = {
   brand: "LAYER & LOOP",
+  logoMode: "text",
+  logoImage: "",
   nav: [
     { label: "Home", path: "/" },
     { label: "Products", path: "/products" },
@@ -229,7 +232,8 @@ export const sections: Record<ContentKey, { title: string; description: string; 
     title: "Site settings",
     description: "Navigation, contact details, store location, socials and footer — used on every page.",
     groups: [
-      { title: "Navigation", fields: [t("brand", "Logo text"), { k: "nav", label: "Menu links", t: "list", item: "link", of: [t("label", "Label"), { k: "path", label: "Opens page", t: "link" }] }, t("contactButton", "Contact button label")] },
+      { title: "Logo", fields: [{ k: "logoMode", label: "Display logo as", t: "select", options: [{ value: "text", label: "Text" }, { value: "image", label: "Image (SVG or PNG)" }] }, t("brand", "Logo text", "Also used as the image description and fallback if no image is uploaded."), { k: "logoImage", label: "Logo image", t: "image", help: "Upload an SVG or PNG logo. Choose Image above to display it." }] },
+      { title: "Navigation", fields: [{ k: "nav", label: "Menu links", t: "list", item: "link", of: [t("label", "Label"), { k: "path", label: "Opens page", t: "link" }] }, t("contactButton", "Contact button label")] },
       { title: "Contact details", fields: [t("email", "Main email"), t("tradeEmail", "Trade email"), t("phone", "Phone number"), t("whatsapp", "WhatsApp number", "Country code + number, digits only, e.g. 919800000000"), t("whatsappMessage", "WhatsApp greeting"), t("showWhatsappButton", "Show floating WhatsApp button", "Type yes or no")] },
       { title: "Store & studio", fields: [t("storeName", "Store name"), ta("storeAddress", "Store address"), t("storeHours", "Opening hours"), { k: "mapUrl", label: "Google Maps link", t: "url" }, t("studioLocation", "Studio location")] },
       { title: "Social profiles", fields: [{ k: "socials", label: "Profiles", t: "list", item: "profile", of: [t("label", "Name (e.g. Instagram)"), { k: "url", label: "Profile link", t: "url" }] }] },

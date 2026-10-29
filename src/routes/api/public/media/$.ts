@@ -27,6 +27,8 @@ export const Route = createFileRoute("/api/public/media/$")({
           headers: {
             "content-type": data.type || "application/octet-stream",
             "cache-control": "public, max-age=31536000, immutable",
+            "content-security-policy": "default-src 'none'; style-src 'unsafe-inline'; sandbox",
+            "x-content-type-options": "nosniff",
           },
         });
       },

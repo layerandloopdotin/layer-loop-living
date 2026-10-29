@@ -14,4 +14,5 @@
 - Site text and photos live in the `site_content` table (one JSON document per key); `src/lib/cms-schema.ts` holds each key's admin fields and default content, and pages read it via `useContent(key)` — add new editable copy there, never as hard-coded page text, so it stays editable.
 - Products, categories and spaces come only from the database through the root `siteQuery` loader; never reintroduce a static product list, or admin edits stop showing.
 - Image values are references resolved by `img()` in `src/lib/media.ts` (`asset:` bundled, `media:` uploaded); uploads go to the private `cms-media` bucket and are served by `/api/public/media/*` because public buckets are blocked in this workspace.
+- The shared Logo reads its display mode and media reference from site settings so header and footer stay consistent; uploaded media responses carry sandbox CSP and nosniff to prevent active SVG content executing on the app origin.
 - Admin writes go straight from the browser client and are protected by admin-only RLS via `has_role`; the first account ever created becomes admin through a database trigger.

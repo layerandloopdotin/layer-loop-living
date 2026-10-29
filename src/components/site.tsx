@@ -4,6 +4,7 @@ import { type ReactNode } from "react";
 import { formatPrice } from "@/lib/currency";
 import { shop, useShop } from "@/lib/shop";
 import { useSite, waHref } from "@/lib/site";
+import { img } from "@/lib/media";
 
 /** Wishlist toggle — an outline heart that fills in once saved. */
 export function WishButton({ slug, name, className = "" }: { slug: string; name: string; className?: string }) {
@@ -22,8 +23,10 @@ export function Logo({ dot = false }: { dot?: boolean }) {
   const s = useSite().content("settings");
   return (
     <Link to="/" className="flex items-center gap-2">
-      {dot && <span className="h-4 w-4 rounded-full bg-primary" />}
-      <span className="font-display text-lg font-bold tracking-tight">{s.brand}</span>
+      {s.logoMode === "image" && s.logoImage ? <img src={img(s.logoImage)} alt={s.brand} className="h-10 w-auto max-w-48 object-contain" /> : <>
+        {dot && <span className="h-4 w-4 rounded-full bg-primary" />}
+        <span className="font-display text-lg font-bold">{s.brand}</span>
+      </>}
     </Link>
   );
 }

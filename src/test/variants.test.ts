@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { unitPrice, variants } from "./catalog";
+import { unitPrice, variants } from "@/lib/catalog";
 
 describe("product variants", () => {
   const v = variants([{ name: "Standard", price: 0 }, { name: "Threaded wire", price: 150 }, { name: "", price: 9 }]);

@@ -34,13 +34,13 @@ function Editor({ table, title, withImage }: { table: "categories" | "spaces"; t
   const [name, setName] = useState("");
   const refresh = () => { qc.invalidateQueries({ queryKey: ["admin"] }); qc.invalidateQueries({ queryKey: ["site"] }); };
   const patch = async (id: string, p: Partial<Row>) => {
-    const { error } = await supabase.from(table).update(p).eq("id", id);
+    const { error } = await supabase.from(table).update(p as never).eq("id", id);
     if (error) toast.error(error.message); else refresh();
   };
   const add = async () => {
     if (!name.trim()) return;
     const { error } = await supabase.from(table).insert({ name: name.trim(), sort: (q.data?.length ?? 0) + 1 });
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     setName(""); refresh();
   };
   const remove = async (r: Row) => {

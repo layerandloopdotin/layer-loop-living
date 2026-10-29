@@ -102,10 +102,10 @@ function ProductEditor() {
 
   const save = async () => {
     const price = Number(f.price);
-    if (!f.name.trim()) return toast.error("Give the product a name");
-    if (!f.slug.trim()) return toast.error("Add a web address");
-    if (!Number.isFinite(price) || price < 0) return toast.error("Enter a valid price");
-    if (!f.images.length && !f.colors.some((c) => c.images.length)) return toast.error("Add at least one photo");
+    if (!f.name.trim()) { toast.error("Give the product a name"); return; }
+    if (!f.slug.trim()) { toast.error("Add a web address"); return; }
+    if (!Number.isFinite(price) || price < 0) { toast.error("Enter a valid price"); return; }
+    if (!f.images.length && !f.colors.some((c) => c.images.length)) { toast.error("Add at least one photo"); return; }
     const row = {
       name: f.name.trim(), slug: slugify(f.slug), tagline: f.tagline, short_description: f.short_description, long_description: f.long_description,
       price, compare_at_price: f.compare_at_price ? Number(f.compare_at_price) : null, featured: f.featured, published: f.published,
@@ -119,7 +119,7 @@ function ProductEditor() {
       ? await supabase.from("products").insert({ ...row, sort: 999 }).select("id").single()
       : await supabase.from("products").update(row).eq("id", id).select("id").single();
     setBusy(false);
-    if (res.error) return toast.error(res.error.code === "23505" ? "Another product already uses that web address" : res.error.message);
+    if (res.error) { toast.error(res.error.code === "23505" ? "Another product already uses that web address" : res.error.message); return; }
     toast.success("Product saved");
     qc.invalidateQueries({ queryKey: ["admin"] });
     qc.invalidateQueries({ queryKey: ["site"] });

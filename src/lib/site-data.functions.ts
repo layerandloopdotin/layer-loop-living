@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { createClient } from "@supabase/supabase-js";
-import type { Database } from "@/integrations/supabase/types";
+import type { Database, Json } from "@/integrations/supabase/types";
 
 /** Everything the public site shows: page content, categories, spaces and published products. */
 export const getSiteData = createServerFn({ method: "GET" }).handler(async () => {
@@ -25,9 +25,9 @@ export const getSiteData = createServerFn({ method: "GET" }).handler(async () =>
   const err = content.error ?? categories.error ?? spaces.error ?? products.error;
   if (err) console.error("getSiteData failed", err);
   return {
-    content: Object.fromEntries((content.data ?? []).map((r) => [r.key, r.data])) as Record<string, unknown>,
+    content: Object.fromEntries((content.data ?? []).map((r) => [r.key, r.data])) as Record<string, Json>,
     categories: categories.data ?? [],
     spaces: spaces.data ?? [],
-    products: (products.data ?? []).map((p) => ({ ...p, colors: p.colors as unknown, specs: p.specs as unknown, care: p.care as unknown })),
+    products: products.data ?? [],
   };
 });

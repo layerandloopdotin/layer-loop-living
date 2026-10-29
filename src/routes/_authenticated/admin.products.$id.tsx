@@ -5,7 +5,7 @@ import { Loader2, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { slugify, type Colour, type Pair } from "@/lib/catalog";
-import { ImagesInput, inputBase, inputCls, labelCls, RowTools } from "@/components/admin/fields";
+import { ImageInput, ImagesInput, inputBase, inputCls, labelCls, RowTools } from "@/components/admin/fields";
 import type { Json } from "@/integrations/supabase/types";
 
 export const Route = createFileRoute("/_authenticated/admin/products/$id")({
@@ -15,7 +15,7 @@ export const Route = createFileRoute("/_authenticated/admin/products/$id")({
 type Form = {
   name: string; slug: string; tagline: string; short_description: string; long_description: string;
   price: string; compare_at_price: string; featured: boolean; published: boolean;
-  category_ids: string[]; space_ids: string[]; images: string[]; colors: Colour[]; specs: Pair[]; care: Pair[]; variants: { name: string; price: string }[];
+  category_ids: string[]; space_ids: string[]; images: string[]; colors: Colour[]; specs: Pair[]; care: Pair[]; variants: { name: string; price: string; image: string }[];
 };
 
 const emptyForm = (): Form => ({
@@ -92,7 +92,7 @@ function ProductEditor() {
       price: String(p.price), compare_at_price: p.compare_at_price == null ? "" : String(p.compare_at_price),
       featured: p.featured, published: p.published, category_ids: p.category_ids, space_ids: p.space_ids, images: p.images,
       colors: asColours(p.colors), specs: asPairs(p.specs), care: asPairs(p.care),
-      variants: Array.isArray(p.variants) ? p.variants.map((x) => { const v = x as { name?: unknown; price?: unknown }; return { name: String(v?.name ?? ""), price: String(v?.price ?? "0") }; }) : [],
+      variants: Array.isArray(p.variants) ? p.variants.map((x) => { const v = x as { name?: unknown; price?: unknown; image?: unknown }; return { name: String(v?.name ?? ""), price: String(v?.price ?? "0"), image: String(v?.image ?? "") }; }) : [],
     });
   }, [existing.data]);
 
@@ -114,7 +114,7 @@ function ProductEditor() {
       colors: f.colors.filter((c) => c.name.trim()) as unknown as Json,
       specs: f.specs.filter((s) => s.label.trim()) as unknown as Json,
       care: f.care.filter((s) => s.label.trim()) as unknown as Json,
-      variants: f.variants.filter((v) => v.name.trim()).map((v) => ({ name: v.name.trim(), price: Number(v.price || 0) })) as unknown as Json,
+      variants: f.variants.filter((v) => v.name.trim()).map((v) => ({ name: v.name.trim(), price: Number(v.price || 0), image: v.image })) as unknown as Json,
     };
     if (f.variants.some((v) => v.name.trim() && !(Number(v.price || 0) >= 0))) { toast.error("Enter a valid extra price for each variant"); return; }
     setBusy(true);
@@ -181,13 +181,16 @@ function ProductEditor() {
 
         <Card title="Variants (optional)" help="E.g. cable options for pendant lights. The first one is selected by default. Extra price is added to the product price — use 0 for the standard option. Leave empty to hide variants.">
           {f.variants.map((v, i) => (
-            <div key={i} className="flex items-center gap-2">
+            <div key={i} className="rounded-xl border border-border bg-background p-4">
+            <div className="flex items-center gap-2">
               <input value={v.name} placeholder="Variant, e.g. Golden wire" onChange={(e) => set("variants", f.variants.map((x, k) => (k === i ? { ...x, name: e.target.value } : x)))} className={inputCls} />
               <input value={v.price} inputMode="decimal" placeholder="+ ₹" aria-label="Extra price (₹)" onChange={(e) => set("variants", f.variants.map((x, k) => (k === i ? { ...x, price: e.target.value } : x)))} className={`${inputBase} w-28 shrink-0`} />
               <RowTools onUp={() => set("variants", move(f.variants, i, -1))} onDown={() => set("variants", move(f.variants, i, 1))} onRemove={() => set("variants", f.variants.filter((_, k) => k !== i))} />
             </div>
+            <div className="mt-3 max-w-xs"><p className={`${labelCls} mb-1.5`}>Photo (optional, shown on hover)</p><ImageInput value={v.image} onChange={(img) => set("variants", f.variants.map((x, k) => (k === i ? { ...x, image: img } : x)))} /></div>
+            </div>
           ))}
-          <button type="button" onClick={() => set("variants", [...f.variants, { name: "", price: "0" }])} className="inline-flex w-fit items-center gap-1.5 rounded-full border border-border px-4 py-1.5 text-xs font-semibold hover:border-foreground"><Plus className="h-3.5 w-3.5" /> Add variant</button>
+          <button type="button" onClick={() => set("variants", [...f.variants, { name: "", price: "0", image: "" }])} className="inline-flex w-fit items-center gap-1.5 rounded-full border border-border px-4 py-1.5 text-xs font-semibold hover:border-foreground"><Plus className="h-3.5 w-3.5" /> Add variant</button>
         </Card>
 
         <Card title="Size & specification" help="Dimensions, weight, material, bulb, cable — add or remove rows freely.">

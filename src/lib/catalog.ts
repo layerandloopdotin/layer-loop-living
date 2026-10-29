@@ -2,7 +2,7 @@
 import { img } from "@/lib/media";
 
 export type Pair = { label: string; value: string };
-export type Variant = { name: string; price: number };
+export type Variant = { name: string; price: number; image: string };
 export type Colour = { name: string; hex: string; images: string[] };
 export type Category = { id: string; name: string; image: string; sort: number };
 export type Space = { id: string; name: string; sort: number };
@@ -34,7 +34,7 @@ const colours = (v: unknown): Colour[] =>
 
 export const variants = (v: unknown): Variant[] =>
   Array.isArray(v)
-    ? v.filter((x) => x && typeof x === "object" && String(x.name ?? "").trim()).map((x) => ({ name: String(x.name).trim(), price: Math.max(0, Number(x.price) || 0) }))
+    ? v.filter((x) => x && typeof x === "object" && String(x.name ?? "").trim()).map((x) => ({ name: String(x.name).trim(), price: Math.max(0, Number(x.price) || 0), image: String(x.image ?? "") }))
     : [];
 
 /** Unit price including the chosen variant's extra cost. */
@@ -56,7 +56,7 @@ export function toProduct(r: ProductRow, cats: Category[], spaces: Space[]): Pro
     colours: cs.map((c) => ({ ...c, images: c.images.map(img) })),
     categories: cats.filter((c) => r.category_ids?.includes(c.id)).map((c) => c.name),
     spaces: spaces.filter((s) => r.space_ids?.includes(s.id)).map((s) => s.name),
-    specs: pairs(r.specs), care: pairs(r.care), variants: variants(r.variants),
+    specs: pairs(r.specs), care: pairs(r.care), variants: variants(r.variants).map((v) => ({ ...v, image: v.image ? img(v.image) : "" })),
   };
 }
 

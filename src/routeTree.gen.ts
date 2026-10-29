@@ -14,6 +14,8 @@ import { Route as AboutRouteImport } from './routes/about'
 import { Route as CartRouteImport } from './routes/cart'
 import { Route as ContactusRouteImport } from './routes/contactus'
 import { Route as ProductsRouteImport } from './routes/products'
+import { Route as ReturnsRouteImport } from './routes/returns'
+import { Route as TermsRouteImport } from './routes/terms'
 import { Route as TradeRouteImport } from './routes/trade'
 import { Route as WishlistRouteImport } from './routes/wishlist'
 import { Route as ProductSlugRouteImport } from './routes/product.$slug'
@@ -43,6 +45,16 @@ const ProductsRoute = ProductsRouteImport.update({
   path: '/products',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ReturnsRoute = ReturnsRouteImport.update({
+  id: '/returns',
+  path: '/returns',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TradeRoute = TradeRouteImport.update({
   id: '/trade',
   path: '/trade',
@@ -65,6 +77,8 @@ export interface FileRoutesByFullPath {
   '/cart': typeof CartRoute
   '/contactus': typeof ContactusRoute
   '/products': typeof ProductsRoute
+  '/returns': typeof ReturnsRoute
+  '/terms': typeof TermsRoute
   '/trade': typeof TradeRoute
   '/wishlist': typeof WishlistRoute
   '/product/$slug': typeof ProductSlugRoute
@@ -75,6 +89,8 @@ export interface FileRoutesByTo {
   '/cart': typeof CartRoute
   '/contactus': typeof ContactusRoute
   '/products': typeof ProductsRoute
+  '/returns': typeof ReturnsRoute
+  '/terms': typeof TermsRoute
   '/trade': typeof TradeRoute
   '/wishlist': typeof WishlistRoute
   '/product/$slug': typeof ProductSlugRoute
@@ -86,6 +102,8 @@ export interface FileRoutesById {
   '/cart': typeof CartRoute
   '/contactus': typeof ContactusRoute
   '/products': typeof ProductsRoute
+  '/returns': typeof ReturnsRoute
+  '/terms': typeof TermsRoute
   '/trade': typeof TradeRoute
   '/wishlist': typeof WishlistRoute
   '/product/$slug': typeof ProductSlugRoute
@@ -98,6 +116,8 @@ export interface FileRouteTypes {
     | '/cart'
     | '/contactus'
     | '/products'
+    | '/returns'
+    | '/terms'
     | '/trade'
     | '/wishlist'
     | '/product/$slug'
@@ -108,6 +128,8 @@ export interface FileRouteTypes {
     | '/cart'
     | '/contactus'
     | '/products'
+    | '/returns'
+    | '/terms'
     | '/trade'
     | '/wishlist'
     | '/product/$slug'
@@ -118,6 +140,8 @@ export interface FileRouteTypes {
     | '/cart'
     | '/contactus'
     | '/products'
+    | '/returns'
+    | '/terms'
     | '/trade'
     | '/wishlist'
     | '/product/$slug'
@@ -129,6 +153,8 @@ export interface RootRouteChildren {
   CartRoute: typeof CartRoute
   ContactusRoute: typeof ContactusRoute
   ProductsRoute: typeof ProductsRoute
+  ReturnsRoute: typeof ReturnsRoute
+  TermsRoute: typeof TermsRoute
   TradeRoute: typeof TradeRoute
   WishlistRoute: typeof WishlistRoute
   ProductSlugRoute: typeof ProductSlugRoute
@@ -171,6 +197,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProductsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/returns': {
+      id: '/returns'
+      path: '/returns'
+      fullPath: '/returns'
+      preLoaderRoute: typeof ReturnsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/trade': {
       id: '/trade'
       path: '/trade'
@@ -201,6 +241,8 @@ const rootRouteChildren: RootRouteChildren = {
   CartRoute: CartRoute,
   ContactusRoute: ContactusRoute,
   ProductsRoute: ProductsRoute,
+  ReturnsRoute: ReturnsRoute,
+  TermsRoute: TermsRoute,
   TradeRoute: TradeRoute,
   WishlistRoute: WishlistRoute,
   ProductSlugRoute: ProductSlugRoute,

@@ -1,9 +1,9 @@
 import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useRef, useState, type PointerEvent } from "react";
 import { Check, CreditCard, Laugh, Smile, Landmark, MapPin, Minus, Plus, ShieldCheck, Smartphone, Truck, Wallet } from "lucide-react";
 import { Page } from "@/components/site";
 import { ProductGallery } from "@/components/product-gallery";
-import { galleryFor, unitPrice } from "@/lib/catalog";
+import { galleryFor, unitPrice, type Variant } from "@/lib/catalog";
 import { formatPrice } from "@/lib/currency";
 import { shop, useShop } from "@/lib/shop";
 import { checkPincode, type DeliveryResult } from "@/lib/delivery";
@@ -41,6 +41,24 @@ const payIcon = (label: string) => {
   return CreditCard;
 };
 
+/** Small photo that trails the cursor while a variant option is hovered. */
+function VariantPeek({ src, name, x, gridTop, gridBottom }: { src: string; name: string; x: number; gridTop: number; gridBottom: number }) {
+  const size = 140;
+  const vw = typeof window === "undefined" ? 1280 : window.innerWidth;
+  const vh = typeof window === "undefined" ? 800 : window.innerHeight;
+  const top = gridBottom + 10 + size <= vh ? gridBottom + 10 : Math.max(12, gridTop - size - 10);
+  return (
+    <div aria-hidden className="pointer-events-none fixed z-50" style={{ left: Math.max(12, Math.min(x - size / 2, vw - size)), top }}>
+      <div className="relative h-32 w-32 overflow-hidden rounded-xl border border-border shadow-2xl">
+        <img src={src} alt="" width={640} height={640} loading="lazy" className="h-full w-full object-cover" />
+        <p className="absolute inset-x-1 bottom-1 truncate rounded-md bg-foreground/90 px-1.5 py-0.5 text-center text-[10px] font-semibold uppercase tracking-wide text-background">{name}</p>
+      </div>
+    </div>
+  );
+}
+
+
+
 function ProductDetail() {
   const { slug } = Route.useParams();
   const site = useSite();
@@ -54,7 +72,14 @@ function ProductDetail() {
   const [added, setAdded] = useState(false);
   const [colour, setColour] = useState(p.colours[0]?.name ?? "");
   const [variant, setVariant] = useState(p.variants[0]?.name);
-  const [peek, setPeek] = useState<{ src: string; x: number; y: number } | null>(null);
+  const variantGrid = useRef<HTMLDivElement>(null);
+  const [peek, setPeek] = useState<{ src: string; name: string; x: number; gridTop: number; gridBottom: number } | null>(null);
+  const showPeek = (v: Variant, e: PointerEvent<HTMLButtonElement>) => {
+    if (!v.image || e.pointerType !== "mouse") return;
+    const g = variantGrid.current?.getBoundingClientRect();
+    setPeek({ src: v.image, name: v.name, x: e.clientX, gridTop: g?.top ?? e.clientY, gridBottom: g?.bottom ?? e.clientY });
+  };
+
   const [pin, setPin] = useState("");
   const [delivery, setDelivery] = useState<DeliveryResult | null>(null);
 
@@ -90,19 +115,23 @@ function ProductDetail() {
             ))}
           </div></>}
 
-          {p.variants.length > 0 && <><p className="mt-8 text-xs uppercase tracking-widest text-muted-foreground">{c.variantLabel || "Variant"}</p>
-          <div role="radiogroup" aria-label="Variant" className="mt-3 grid gap-2 sm:grid-cols-2">
+          {p.variants.length > 0 && <><p className="mt-8 text-xs uppercase tracking-widest text-muted-foreground">{c.variantLabel || "Variant"}{p.variants.some((v) => v.image) && <span className="ml-2 normal-case tracking-normal">— hover an option to see it</span>}</p>
+          <div ref={variantGrid} role="radiogroup" aria-label="Variant" className="mt-3 grid gap-2 sm:grid-cols-2">
             {p.variants.map((v) => (
               <button key={v.name} type="button" role="radio" aria-checked={variant === v.name} onClick={() => setVariant(v.name)}
-                onPointerMove={(e) => { if (v.image && e.pointerType === "mouse") setPeek({ src: v.image, x: e.clientX, y: e.clientY }); }}
+                onPointerEnter={(e) => showPeek(v, e)}
+                onPointerMove={(e) => showPeek(v, e)}
+
+
                 onPointerLeave={() => setPeek(null)}
                 className={`flex items-center justify-between gap-3 rounded-lg border px-4 py-3 text-left text-sm transition ${variant === v.name ? "border-foreground bg-card" : "border-border hover:border-muted-foreground"}`}>
                 <span>{v.name}</span>
                 <span className="shrink-0 text-xs text-muted-foreground">{v.price > 0 ? `+ ${formatPrice(v.price)}` : "Included"}</span>
               </button>
             ))}
-          </div>
-          {peek && <img src={peek.src} alt="" aria-hidden className="pointer-events-none fixed z-50 h-40 w-40 rounded-xl border border-border object-cover shadow-xl" style={{ left: peek.x + 18, top: peek.y + 18 }} />}</>}
+          </div></>}
+          {peek && <VariantPeek {...peek} />}
+
 
           {p.specs.length > 0 && <><p className="mt-8 text-xs uppercase tracking-widest text-muted-foreground">{c.specsLabel}</p>
           <dl className="mt-3 divide-y divide-border border-y border-border text-sm">

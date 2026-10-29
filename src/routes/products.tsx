@@ -51,8 +51,12 @@ function Products() {
             {spaces.map((m) => <Box key={m} label={m} checked={mats.includes(m)} onChange={() => toggle(mats, setMats, m)} />)}
           </div>
         </aside>
-        <div key={cats.join()+mats.join()} className="grid content-start gap-6 animate-in fade-in duration-500 sm:grid-cols-2 lg:grid-cols-3">
-          {shown.map((p) => <ProductCard key={p.name} {...p} tall />)}
+        <div key={cats.join()+mats.join()} className="group/grid grid content-start gap-6 animate-in fade-in duration-500 sm:grid-cols-2 lg:grid-cols-3">
+          {shown.map((p) => (
+            <div key={p.name} className="relative rounded-2xl transition-all duration-500 ease-out [@media(hover:hover)]:group-hover/grid:opacity-80 [@media(hover:hover)]:group-hover/grid:blur-[2px] [@media(hover:hover)]:hover:z-10 [@media(hover:hover)]:hover:scale-[1.07] [@media(hover:hover)]:hover:!opacity-100 [@media(hover:hover)]:hover:!blur-none [@media(hover:hover)]:hover:bg-background [@media(hover:hover)]:hover:shadow-2xl">
+              <ProductCard {...p} tall />
+            </div>
+          ))}
           {!shown.length && <p className="text-muted-foreground">No objects match these filters.</p>}
         </div>
       </section>

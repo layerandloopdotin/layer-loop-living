@@ -36,7 +36,7 @@ export function SiteHeader() {
             ))}
           </nav>
         </div>
-        <Link to="/trade" className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2 text-sm font-medium text-primary-foreground">
+        <Link to="/contactus" className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2 text-sm font-medium text-primary-foreground">
           Contact us <ArrowRight className="h-4 w-4" />
         </Link>
       </div>

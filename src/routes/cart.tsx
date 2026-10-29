@@ -1,5 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Minus, Plus, X } from "lucide-react";
+import { Minus, Plus, Tag, X } from "lucide-react";
+import { useState } from "react";
+import { applyCoupon, cartTotals, FREE_SHIPPING_FROM } from "@/lib/pricing";
 import { DarkHero, Page } from "@/components/site";
 import { products, slugify } from "@/lib/products";
 import { formatPrice } from "@/lib/currency";

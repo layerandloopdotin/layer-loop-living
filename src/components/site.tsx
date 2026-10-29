@@ -1,7 +1,8 @@
 import { Link } from "@tanstack/react-router";
-import { ArrowRight, Heart } from "lucide-react";
+import { ArrowRight, Heart, ShoppingBag } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { formatPrice } from "@/lib/currency";
+import { useShop } from "@/lib/shop";
 import { Button } from "@/components/ui/button";
 
 export function Logo({ dot = false }: { dot?: boolean }) {
@@ -20,7 +21,17 @@ const nav = [
   { to: "/trade", label: "Trade" },
 ] as const;
 
+function HeaderIcon({ to, label, count, children }: { to: "/cart" | "/wishlist"; label: string; count: number; children: ReactNode }) {
+  return (
+    <Link to={to} aria-label={`${label}${count ? ` (${count})` : ""}`} className="relative inline-flex h-9 w-9 items-center justify-center rounded-full border border-ink-line text-ink-foreground transition-colors hover:border-ink-foreground">
+      {children}
+      {count > 0 && <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-semibold text-primary-foreground">{count}</span>}
+    </Link>
+  );
+}
+
 export function SiteHeader() {
+  const { cart, wishlist } = useShop();
   return (
     <header className="border-b border-ink-line bg-ink text-ink-foreground">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-6 py-4">

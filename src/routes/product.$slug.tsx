@@ -41,6 +41,20 @@ const payIcon = (label: string) => {
   return CreditCard;
 };
 
+/** Small photo that trails the cursor while a variant option is hovered. */
+function VariantPeek({ src, name, x, y }: { src: string; name: string; x: number; y: number }) {
+  const size = 186;
+  const vw = typeof window === "undefined" ? 1280 : window.innerWidth;
+  const vh = typeof window === "undefined" ? 800 : window.innerHeight;
+  return (
+    <div aria-hidden className="pointer-events-none fixed z-50" style={{ left: Math.max(12, Math.min(x + 18, vw - size)), top: Math.max(12, Math.min(y + 18, vh - size)) }}>
+      <img src={src} alt="" width={640} height={640} loading="lazy" className="h-40 w-40 rounded-xl border border-border object-cover shadow-2xl" />
+      <p className="mt-1.5 rounded-md bg-foreground px-2 py-1 text-center text-[11px] font-semibold uppercase tracking-wide text-background">{name}</p>
+    </div>
+  );
+}
+
+
 function ProductDetail() {
   const { slug } = Route.useParams();
   const site = useSite();
@@ -54,7 +68,7 @@ function ProductDetail() {
   const [added, setAdded] = useState(false);
   const [colour, setColour] = useState(p.colours[0]?.name ?? "");
   const [variant, setVariant] = useState(p.variants[0]?.name);
-  const [peek, setPeek] = useState<{ src: string; x: number; y: number } | null>(null);
+  const [peek, setPeek] = useState<{ src: string; name: string; x: number; y: number } | null>(null);
   const [pin, setPin] = useState("");
   const [delivery, setDelivery] = useState<DeliveryResult | null>(null);
 

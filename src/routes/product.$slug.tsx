@@ -1,5 +1,5 @@
 import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Check, CreditCard, Laugh, Smile, Landmark, MapPin, Minus, Plus, ShieldCheck, Smartphone, Truck, Wallet } from "lucide-react";
 import { Page } from "@/components/site";
 import { ProductGallery } from "@/components/product-gallery";
@@ -70,6 +70,7 @@ function ProductDetail() {
   const [added, setAdded] = useState(false);
   const [colour, setColour] = useState(p.colours[0]?.name ?? "");
   const [variant, setVariant] = useState(p.variants[0]?.name);
+  const variantGrid = useRef<HTMLDivElement>(null);
   const [peek, setPeek] = useState<{ src: string; name: string; x: number; y: number } | null>(null);
   const [pin, setPin] = useState("");
   const [delivery, setDelivery] = useState<DeliveryResult | null>(null);

@@ -1,6 +1,7 @@
 import type { Category, Product } from "@/lib/products";
 
 const short: Record<string, string> = {
+  "The Stack Lamp": "Stacked, softly glowing layers that turn a side table into a quiet centrepiece.",
   Terra: "A softly ribbed ceramic-look shade that pools warm, low light — made for slow evenings.",
   Noir: "A deep, glaze-finished sphere that glows from within like a lantern at dusk.",
   Haze: "A gentle arched floor light that leans over a sofa or reading chair.",

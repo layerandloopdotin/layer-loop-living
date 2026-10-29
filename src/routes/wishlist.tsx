@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Heart } from "lucide-react";
+import { Laugh } from "lucide-react";
 import { DarkHero, Page } from "@/components/site";
 import { products, slugify } from "@/lib/products";
 import { formatPrice } from "@/lib/currency";
@@ -29,7 +29,7 @@ function Wishlist() {
       <section className="mx-auto max-w-7xl px-6 py-16">
         {items.length === 0 ? (
           <div className="py-12 text-center">
-            <p className="text-muted-foreground">Nothing saved yet — tap the heart on any object.</p>
+            <p className="text-muted-foreground">Nothing saved yet — tap the smiley on any object.</p>
             <Link to="/products" className="mt-6 inline-flex rounded-full border border-foreground px-6 py-3 text-sm font-semibold">Browse objects</Link>
           </div>
         ) : (
@@ -40,7 +40,7 @@ function Wishlist() {
                 <div key={slug}>
                   <div className="relative overflow-hidden rounded-xl">
                     <Link to="/product/$slug" params={{ slug }}><img src={p.image} alt={p.name} className="aspect-square w-full object-cover" /></Link>
-                    <button aria-label={`Remove ${p.name}`} onClick={() => shop.toggleWish(slug)} className="absolute right-3 top-3 rounded-full bg-background p-2"><Heart className="h-4 w-4 fill-primary text-primary" /></button>
+                    <button aria-label={`Remove ${p.name}`} onClick={() => shop.toggleWish(slug)} className="absolute right-3 top-3 rounded-full bg-background p-2"><Laugh className="h-4 w-4 text-primary" /></button>
                   </div>
                   <div className="mt-3 flex justify-between">
                     <div><p className="font-display font-semibold">{p.name}</p><p className="text-xs text-muted-foreground">{p.note}</p></div>

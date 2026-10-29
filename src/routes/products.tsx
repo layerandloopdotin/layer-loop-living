@@ -52,21 +52,21 @@ function Products() {
             {spaces.map((m) => <Box key={m} label={m} checked={mats.includes(m)} onChange={() => toggle(mats, setMats, m)} />)}
           </div>
         </aside>
-        <div key={cats.join()+mats.join()} className="grid content-start gap-6 animate-in fade-in duration-500 sm:grid-cols-2 lg:grid-cols-3">
+        <div key={cats.join()+mats.join()} className="product-grid grid content-start gap-6 animate-in fade-in duration-500 sm:grid-cols-2 lg:grid-cols-3">
           {shown.map((p) => (
             <Link
               key={p.name}
               to="/product/$slug"
               params={{ slug: slugify(p.name) }}
               aria-label={p.name}
-              className="group block"
+              className="product-card group block"
             >
-              <div className="aspect-[4/5] overflow-hidden rounded-xl transition-shadow duration-500 group-hover:shadow-2xl">
+              <div className="product-frame aspect-[4/5] overflow-hidden rounded-xl">
                 <img
                   src={p.image}
                   alt={p.name}
                   loading="lazy"
-                  className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                  className="h-full w-full object-cover"
                 />
               </div>
               <div className="mt-3 flex items-start justify-between gap-3">

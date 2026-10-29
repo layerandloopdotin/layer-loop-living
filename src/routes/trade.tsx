@@ -1,7 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { z } from "zod";
-import { Briefcase, Gift, Mail, MapPin, Phone, PenTool, Sparkles, Store, Truck } from "lucide-react";
+import { Mail, MapPin, Phone } from "lucide-react";
+import studioImg from "@/assets/trade-studio.jpg";
+import retailImg from "@/assets/trade-retail.jpg";
+import vendorsImg from "@/assets/trade-vendors.jpg";
+import startupsImg from "@/assets/trade-startups.jpg";
+import giftingImg from "@/assets/trade-gifting.jpg";
+import makersImg from "@/assets/trade-makers.jpg";
 import { DarkHero, Page } from "@/components/site";
 
 export const Route = createFileRoute("/trade")({
@@ -19,12 +25,12 @@ export const Route = createFileRoute("/trade")({
 });
 
 const partners = [
-  { icon: PenTool, name: "Design Studios & Architects", text: "Custom lighting, fixtures and decor for your projects.", points: ["Colour & size changes", "Project-specific runs", "Material samples"] },
-  { icon: Store, name: "Retailers & Concept Stores", text: "Ready-to-shelf collections at wholesale pricing.", points: ["Wholesale rates", "Curated assortments", "Restock support"] },
-  { icon: Truck, name: "Vendors & Resellers", text: "Add our objects to your catalogue with ease.", points: ["White-label options", "Dropship support", "Product imagery"] },
-  { icon: Briefcase, name: "Startups & Businesses", text: "Branded objects and prototypes to grow your range.", points: ["Branded merch", "Prototyping", "Small to bulk batches"] },
-  { icon: Gift, name: "Corporate Gifting", text: "Thoughtful gifts for employees, clients and partners.", points: ["Festive hampers", "Logo personalisation", "Bulk delivery"] },
-  { icon: Sparkles, name: "Makers & Enthusiasts", text: "Collaborate with us on something new.", points: ["Small-batch collabs", "Limited drops", "Community projects"] },
+  { img: studioImg, name: "Interiors & Architects", text: "Custom lighting, fixtures and decor for your projects.", points: ["Colour & size changes", "Project-specific runs", "Material samples"] },
+  { img: retailImg, name: "Retailers & Concept Stores", text: "Ready-to-shelf collections at wholesale pricing.", points: ["Wholesale rates", "Curated assortments", "Restock support"] },
+  { img: vendorsImg, name: "Vendors & Resellers", text: "Add our objects to your catalogue with ease.", points: ["White-label options", "Dropship support", "Product imagery"] },
+  { img: startupsImg, name: "Startups & Businesses", text: "Branded objects and prototypes to grow your range.", points: ["Branded merch", "Prototyping", "Small to bulk batches"] },
+  { img: giftingImg, name: "Corporate Gifting", text: "Thoughtful gifts for employees, clients and partners.", points: ["Festive hampers", "Logo personalisation", "Bulk delivery"] },
+  { img: makersImg, name: "Makers & Enthusiasts", text: "Collaborate with us on something new.", points: ["Small-batch collabs", "Limited drops", "Community projects"] },
 ];
 
 const catalogues = ["Festive", "B2B / Wholesale", "Retail", "Corporate Gifting", "Custom Projects"];
@@ -74,20 +80,27 @@ function Trade() {
         <p className="mt-4 max-w-md text-ink-muted">We 3D print in PLA, PETG, TPU, ABS and ASA for studios, retailers, brands and makers — from one-off pieces to bulk runs.</p>
       </DarkHero>
 
-      <section className="mx-auto max-w-7xl px-6 py-20">
+      <section className="mx-auto max-w-7xl px-6 pt-20 pb-6">
         <p className="text-xs font-semibold uppercase tracking-widest text-primary">Who we work with</p>
         <h2 className="mt-3 text-3xl font-bold md:text-4xl">Whoever you are, we have something for you.</h2>
-        <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {partners.map(({ icon: Icon, name, text, points }) => (
-            <div key={name} className="rounded-2xl bg-card p-7 transition hover:-translate-y-1 hover:shadow-lg">
-              <Icon className="h-6 w-6 text-primary" strokeWidth={1.5} />
-              <h3 className="mt-5 font-bold uppercase">{name}</h3>
-              <p className="mt-3 text-sm text-muted-foreground">{text}</p>
-              <ul className="mt-5 space-y-2 border-t border-border pt-5 text-sm">{points.map((p) => <li key={p}>✓ {p}</li>)}</ul>
+      </section>
+
+      <section className="relative">
+        {partners.map(({ img, name, text, points }, i) => (
+          <div key={name} className="sticky top-0 flex min-h-screen items-center bg-background" style={{ zIndex: i + 1 }}>
+            <div className="mx-auto grid w-full max-w-7xl items-center gap-10 px-6 py-16 md:grid-cols-2">
+              <div>
+                <span className="font-display text-sm text-muted-foreground">{String(i + 1).padStart(2, "0")} / {String(partners.length).padStart(2, "0")}</span>
+                <h3 className="mt-4 font-display text-5xl font-extrabold uppercase leading-[0.95] md:text-7xl">{name}</h3>
+                <p className="mt-6 max-w-md text-lg text-muted-foreground">{text}</p>
+                <ul className="mt-6 flex flex-wrap gap-2">{points.map((p) => <li key={p} className="rounded-full border border-border px-4 py-1.5 text-sm">{p}</li>)}</ul>
+              </div>
+              <div className="group overflow-hidden rounded-2xl shadow-xl">
+                <img src={img} alt={name} loading="lazy" width={1200} height={1408} className="aspect-[4/5] max-h-[78vh] w-full object-cover transition duration-700 group-hover:scale-105" />
+              </div>
             </div>
-          ))}
-        </div>
-        <p className="mt-10 text-center text-muted-foreground">Not sure where you fit? Talk to us anyway.</p>
+          </div>
+        ))}
       </section>
 
       <section className="bg-ink text-ink-foreground">
@@ -105,7 +118,6 @@ function Trade() {
               <MapPin className="h-5 w-5 text-primary" /><p className="mt-4 text-xs uppercase tracking-widest text-ink-muted">Studio</p><p className="mt-1">Indiranagar, Bengaluru, India</p>
             </div>
           </div>
-          <a href="#catalogue" className="mt-10 inline-block rounded-full bg-primary px-7 py-3 text-sm font-semibold text-primary-foreground">Request a Catalogue</a>
         </div>
       </section>
 
@@ -113,6 +125,7 @@ function Trade() {
         <div>
           <p className="text-xs font-semibold uppercase tracking-widest text-primary">Catalogue request</p>
           <h2 className="mt-3 text-3xl font-bold md:text-4xl">Get Our Catalogues</h2>
+          <p className="mt-2 text-lg font-semibold">Request a catalogue</p>
           <p className="mt-4 max-w-md text-muted-foreground">Festive, B2B, retail or corporate gifting — tell us what you need and we'll send the right catalogue within 2 business days.</p>
         </div>
         <form onSubmit={submit} noValidate className="space-y-5 rounded-2xl bg-card p-7">
@@ -141,7 +154,7 @@ function Trade() {
               {err("catalogues")}
             </div>
             <label className={lbl}>Message (optional)<textarea name="message" rows={4} maxLength={1000} className={field} /></label>
-            <button className="w-full rounded-full bg-primary py-3 text-sm font-semibold text-primary-foreground">Send My Request</button>
+            <button className="w-full rounded-full bg-primary py-3 text-sm font-semibold text-primary-foreground">Request a Catalogue</button>
           </>}
         </form>
       </section>

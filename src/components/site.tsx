@@ -1,9 +1,9 @@
 import { Link } from "@tanstack/react-router";
-import { ArrowRight, Laugh, ShoppingBag, Smile } from "lucide-react";
+import { ArrowRight, Laugh, MessageCircle, ShoppingBag, Smile } from "lucide-react";
 import { type ReactNode } from "react";
 import { formatPrice } from "@/lib/currency";
 import { shop, useShop } from "@/lib/shop";
-import { categories, slugify } from "@/lib/products";
+import { useSite, waHref } from "@/lib/site";
 
 /** Wishlist toggle — a smile that turns into a laugh when saved. */
 export function WishButton({ slug, name, className = "" }: { slug: string; name: string; className?: string }) {
@@ -20,20 +20,14 @@ export function WishButton({ slug, name, className = "" }: { slug: string; name:
 }
 
 export function Logo({ dot = false }: { dot?: boolean }) {
+  const s = useSite().content("settings");
   return (
     <Link to="/" className="flex items-center gap-2">
       {dot && <span className="h-4 w-4 rounded-full bg-primary" />}
-      <span className="font-display text-lg font-bold tracking-tight">LAYER &amp; LOOP</span>
+      <span className="font-display text-lg font-bold tracking-tight">{s.brand}</span>
     </Link>
   );
 }
-
-const nav = [
-  { to: "/", label: "Home" },
-  { to: "/products", label: "Products" },
-  { to: "/about", label: "About" },
-  { to: "/trade", label: "Trade" },
-] as const;
 
 function HeaderIcon({ to, label, count, children }: { to: "/cart" | "/wishlist"; label: string; count: number; children: ReactNode }) {
   return (
@@ -46,14 +40,15 @@ function HeaderIcon({ to, label, count, children }: { to: "/cart" | "/wishlist";
 
 export function SiteHeader() {
   const { cart, wishlist } = useShop();
+  const s = useSite().content("settings");
   return (
     <header className="border-b border-ink-line bg-ink text-ink-foreground">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-6 py-4">
         <div className="flex items-center gap-10">
           <Logo />
           <nav className="hidden gap-7 text-sm md:flex">
-            {nav.map((n) => (
-              <Link key={n.to} to={n.to} activeOptions={{ exact: true }}
+            {s.nav.map((n) => (
+              <Link key={n.label + n.path} to={n.path as "/"} activeOptions={{ exact: true }}
                 className="pb-1 text-ink-muted transition-colors hover:text-ink-foreground"
                 activeProps={{ className: "border-b-2 border-ink-foreground !text-ink-foreground" }}>
                 {n.label}
@@ -63,10 +58,10 @@ export function SiteHeader() {
         </div>
         <div className="flex items-center gap-2">
           <Link to="/contactus" className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2 text-sm font-medium text-primary-foreground">
-            Contact us <ArrowRight className="h-4 w-4" />
+            {s.contactButton} <ArrowRight className="h-4 w-4" />
           </Link>
           <HeaderIcon to="/wishlist" label="Favourites" count={wishlist.length}><Smile className="h-4 w-4" /></HeaderIcon>
-          <HeaderIcon to="/cart" label="Cart" count={cart.reduce((s, c) => s + c.qty, 0)}><ShoppingBag className="h-4 w-4" /></HeaderIcon>
+          <HeaderIcon to="/cart" label="Cart" count={cart.reduce((sum, c) => sum + c.qty, 0)}><ShoppingBag className="h-4 w-4" /></HeaderIcon>
         </div>
       </div>
     </header>
@@ -75,29 +70,27 @@ export function SiteHeader() {
 
 const footLink = "transition-colors hover:text-ink-foreground";
 const footHead = "text-xs font-bold uppercase tracking-widest";
-const socials = [
-  { label: "Instagram", href: "https://instagram.com/layerandloop" },
-  { label: "Pinterest", href: "https://pinterest.com/layerandloop" },
-  { label: "LinkedIn", href: "https://linkedin.com/company/layerandloop" },
-];
 
 export function SiteFooter() {
+  const site = useSite();
+  const s = site.content("settings");
+  const all = site.content("catalog").allLabel;
   return (
     <footer className="bg-ink text-ink-foreground">
       <div className="mx-auto grid max-w-7xl gap-10 px-6 py-16 md:grid-cols-[2fr_1fr_1fr_1fr]">
         <div>
           <Logo dot />
-          <p className="mt-4 max-w-xs text-sm leading-relaxed text-ink-muted">3D printed objects for considered living — lighting, vessels and desk pieces, made layer by layer in Mumbai from non-toxic, recyclable materials.</p>
+          <p className="mt-4 max-w-xs text-sm leading-relaxed text-ink-muted">{s.footerText}</p>
         </div>
         <div>
-          <h4 className={footHead}>Explore</h4>
+          <h4 className={footHead}>{s.footerExplore}</h4>
           <ul className="mt-4 space-y-2 text-sm text-ink-muted">
-            <li><Link to="/products" className={footLink}>All Products</Link></li>
-            {categories.map((c) => <li key={c}><Link to="/products" search={{ category: c }} className={footLink}>{c}</Link></li>)}
+            <li><Link to="/products" className={footLink}>{all}</Link></li>
+            {site.categories.map((c) => <li key={c.id}><Link to="/products" search={{ category: c.name }} className={footLink}>{c.name}</Link></li>)}
           </ul>
         </div>
         <div>
-          <h4 className={footHead}>Company</h4>
+          <h4 className={footHead}>{s.footerCompany}</h4>
           <ul className="mt-4 space-y-2 text-sm text-ink-muted">
             <li><Link to="/about" className={footLink}>About Us</Link></li>
             <li><Link to="/trade" className={footLink}>Trade &amp; Partnerships</Link></li>
@@ -105,20 +98,31 @@ export function SiteFooter() {
           </ul>
         </div>
         <div>
-          <h4 className={footHead}>Social</h4>
+          <h4 className={footHead}>{s.footerSocial}</h4>
           <ul className="mt-4 space-y-2 text-sm text-ink-muted">
-            {socials.map((s) => <li key={s.label}><a href={s.href} target="_blank" rel="noreferrer" className={footLink}>{s.label}</a></li>)}
+            {s.socials.map((x) => <li key={x.label + x.url}><a href={x.url} target="_blank" rel="noreferrer" className={footLink}>{x.label}</a></li>)}
           </ul>
         </div>
       </div>
       <div className="mx-auto flex max-w-7xl flex-wrap justify-between gap-4 border-t border-ink-line px-6 py-6 text-xs text-ink-muted">
-        <span>© 2026 Layer &amp; Loop Objects. All rights reserved.</span>
+        <span>{s.copyright}</span>
         <span className="flex flex-wrap gap-6">
-          <Link to="/terms" className={footLink}>Terms &amp; Conditions</Link>
-          <Link to="/returns" className={footLink}>Returns, Replacements &amp; Refunds</Link>
+          <Link to="/terms" className={footLink}>{site.content("terms").title}</Link>
+          <Link to="/returns" className={footLink}>{site.content("returns").title}</Link>
         </span>
       </div>
     </footer>
+  );
+}
+
+function WhatsAppButton() {
+  const s = useSite().content("settings");
+  if (s.showWhatsappButton.trim().toLowerCase() === "no" || !s.whatsapp) return null;
+  return (
+    <a href={waHref(s.whatsapp, s.whatsappMessage)} target="_blank" rel="noreferrer" aria-label="Chat with us on WhatsApp"
+      className="fixed bottom-5 right-5 z-40 inline-flex h-12 w-12 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg transition-transform hover:scale-110">
+      <MessageCircle className="h-6 w-6" />
+    </a>
   );
 }
 
@@ -128,12 +132,12 @@ export function Page({ children }: { children: ReactNode }) {
       <SiteHeader />
       <main className="flex-1">{children}</main>
       <SiteFooter />
+      <WhatsAppButton />
     </div>
   );
 }
 
-export function ProductCard({ name, note, price, image, tall }: { name: string; note?: string; price?: number; image: string; tall?: boolean }) {
-  const slug = slugify(name);
+export function ProductCard({ slug, name, note, price, image, tall }: { slug: string; name: string; note?: string; price?: number; image: string; tall?: boolean }) {
   return (
     <div className="group relative">
       <Link to="/product/$slug" params={{ slug }} aria-label={name} className="block">

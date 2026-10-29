@@ -2,7 +2,8 @@ import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-ro
 import { useState } from "react";
 import { Check, CreditCard, Laugh, Smile, Landmark, MapPin, Minus, Plus, ShieldCheck, Smartphone, Truck, Wallet } from "lucide-react";
 import { Page } from "@/components/site";
-import { products, slugify, type Product } from "@/lib/products";
+import { ProductGallery } from "@/components/product-gallery";
+import { galleryFor, products, slugify, type Product } from "@/lib/products";
 import { formatPrice } from "@/lib/currency";
 import { detailsFor } from "@/lib/product-details";
 import { shop, useShop } from "@/lib/shop";
@@ -73,9 +74,7 @@ function ProductDetail() {
   return (
     <Page>
       <section className="mx-auto grid max-w-7xl items-start gap-12 px-6 py-16 md:grid-cols-2">
-        <div className="overflow-hidden rounded-2xl md:sticky md:top-24">
-          <img src={p.image} alt={p.name} className="aspect-[4/5] w-full object-cover" />
-        </div>
+        <ProductGallery key={slug} name={p.name} images={galleryFor(p)} />
         <div>
           <p className="text-xs font-bold uppercase tracking-widest text-primary">{p.category}</p>
           <h1 className="mt-3 font-display text-5xl font-bold">{p.name}</h1>

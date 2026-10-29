@@ -81,7 +81,7 @@ function About() {
             <p className="mt-6 text-sm font-semibold">{c.storeAddress}</p>
             <p className="text-sm text-muted-foreground">{c.storeHours}</p>
           </div>
-          <StoreWheel images={c.storeImages.map(img)} alt="Layer & Loop retail store" />
+          {c.storeImages.length > 0 && <StoreWheel images={c.storeImages.map(img)} alt={c.storeTitle} />}
         </div>
       </section>
     </Page>

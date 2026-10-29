@@ -5,6 +5,10 @@ import { Page, ProductCard } from "@/components/site";
 import { products } from "@/lib/products";
 import heroLamp from "@/assets/hero-lamp.jpg";
 import living from "@/assets/living.jpg";
+import noir from "@/assets/noir.jpg";
+import terra from "@/assets/terra.jpg";
+import { Button } from "@/components/ui/button";
+import { formatPrice } from "@/lib/currency";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -22,48 +26,49 @@ export const Route = createFileRoute("/")({
 
 const slides = [
   { name: "The Stack Lamp", price: 340, image: heroLamp },
-  { name: "Noir", price: 310, image: products[1]!.image },
-  { name: "Terra", price: 280, image: products[0]!.image },
+  { name: "Noir", price: 310, image: noir },
+  { name: "Terra", price: 280, image: terra },
 ];
-const tags = ["Sculptural", "Mid-century", "Artisan made", "Floor Lamp", "Elegant design"];
+const tags = ["Nature", "Sculptural", "Minimalism"];
 
 function Index() {
   const [i, setI] = useState(0);
-  const s = slides[i]!;
+  const s = slides[i] ?? slides[0];
   const edit = products.slice(0, 3);
+  if (!s) return null;
   return (
     <Page>
       <section className="bg-ink text-ink-foreground">
-        <div className="mx-auto grid max-w-7xl gap-10 px-6 pt-16 md:grid-cols-2">
+        <div className="mx-auto grid max-w-7xl items-center gap-10 px-6 pt-10 md:grid-cols-[1.35fr_1fr] md:gap-12 md:px-12 md:pt-14">
           <div className="flex flex-col justify-center">
-            <h1 className="text-4xl font-extrabold uppercase leading-tight md:text-6xl">Modern designs.<br />Effortless comfort.<br />Lasting quality.</h1>
-            <div className="mt-8 flex gap-3">
+            <h1 className="font-display text-3xl font-extrabold uppercase leading-[1.12] sm:text-4xl lg:text-5xl xl:text-6xl">Modern designs.<br />Effortless comfort.<br />Lasting quality.</h1>
+            <div className="mt-9 flex gap-3">
               {slides.map((sl, n) => (
-                <button key={sl.name} onClick={() => setI(n)} className={`h-20 w-20 overflow-hidden rounded-lg border-2 ${n === i ? "border-primary" : "border-transparent opacity-70"}`}>
+                <Button variant="ghost" key={sl.name} aria-label={`Show ${sl.name}`} aria-pressed={n === i} onClick={() => setI(n)} className={`h-[72px] w-[72px] shrink-0 overflow-hidden rounded-xl border-2 p-0 ${n === i ? "border-primary" : "border-transparent opacity-70"}`}>
                   <img src={sl.image} alt={sl.name} className="h-full w-full object-cover" />
-                </button>
+                </Button>
               ))}
             </div>
-            <div className="mt-4 flex gap-2">
-              <button aria-label="Previous" onClick={() => setI((i + 2) % 3)} className="grid h-8 w-8 place-items-center rounded-full border border-ink-line"><ChevronLeft className="h-4 w-4" /></button>
-              <button aria-label="Next" onClick={() => setI((i + 1) % 3)} className="grid h-8 w-8 place-items-center rounded-full border border-ink-line"><ChevronRight className="h-4 w-4" /></button>
+            <div className="mt-3 flex gap-2">
+              <Button variant="ghost" size="icon" aria-label="Previous" onClick={() => setI((i + slides.length - 1) % slides.length)} className="h-7 w-7 rounded-full border border-ink-line"><ChevronLeft className="h-4 w-4" /></Button>
+              <Button variant="ghost" size="icon" aria-label="Next" onClick={() => setI((i + 1) % slides.length)} className="h-7 w-7 rounded-full border border-ink-line"><ChevronRight className="h-4 w-4" /></Button>
             </div>
           </div>
           <div className="relative overflow-hidden rounded-2xl">
-            <img src={s.image} alt={s.name} width={896} height={1024} className="aspect-[4/4.2] w-full object-cover" />
-            <div className="absolute left-4 top-4 flex gap-2 text-xs">
-              <span className="rounded-full bg-background px-3 py-1 text-foreground">Premium materials</span>
-              <span className="rounded-full bg-background px-3 py-1 text-foreground">Natural finish</span>
+            <img src={s.image} alt={s.name} width={896} height={1024} className="aspect-[9/10] w-full object-cover" />
+            <div className="absolute inset-x-4 top-4 flex flex-wrap gap-2 text-[10px] font-medium lg:text-xs">
+              <span className="rounded-full bg-background px-3 py-1.5 text-foreground">Premium selection</span>
+              <span className="rounded-full bg-background px-3 py-1.5 text-foreground">Non - Toxic Material</span>
             </div>
             <div className="absolute inset-x-4 bottom-4 flex items-center justify-between rounded-xl bg-ink/80 px-4 py-3 text-sm backdrop-blur">
-              <span><b className="font-display">{s.name}</b> <span className="ml-2 text-ink-muted">Now available for order</span></span>
-              <b className="font-display">${s.price}</b>
+              <span className="min-w-0"><b className="font-display">{s.name}</b> <span className="mt-0.5 block text-xs text-ink-muted xl:ml-2 xl:inline">Now available for order</span></span>
+              <b className="ml-3 shrink-0 font-display text-primary">{formatPrice(s.price)}</b>
             </div>
           </div>
         </div>
-        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-6 px-6 py-12">
-          <p className="max-w-lg text-ink-muted">Designed with enduring materials, quiet forms, and thoughtful craftsmanship for interiors that feel timeless rather than trendy.</p>
-          <div className="flex max-w-sm flex-wrap gap-2 text-xs">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-6 px-6 py-10 md:px-12 md:py-12">
+          <p className="max-w-xl leading-relaxed text-ink-muted">Designed with enduring materials, quiet forms, and thoughtful craftsmanship for interiors that feel timeless rather than trendy.</p>
+          <div className="flex flex-wrap gap-2 text-xs">
             {tags.map((t, n) => <span key={t} className={`rounded-full px-3 py-1.5 ${n === 0 ? "bg-primary text-primary-foreground" : "border border-ink-line"}`}>{t}</span>)}
           </div>
         </div>

@@ -1,6 +1,8 @@
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, Heart } from "lucide-react";
 import { useState, type ReactNode } from "react";
+import { formatPrice } from "@/lib/currency";
+import { Button } from "@/components/ui/button";
 
 export function Logo({ dot = false }: { dot?: boolean }) {
   return (
@@ -87,14 +89,14 @@ export function ProductCard({ name, note, price, image, tall }: { name: string; 
     <div className="group">
       <div className={`relative overflow-hidden rounded-xl ${tall ? "aspect-[4/5]" : "aspect-square"}`}>
         <img src={image} alt={name} loading="lazy" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
-        <button aria-label="Save" onClick={() => setLiked(!liked)} className="absolute right-3 top-3 grid h-8 w-8 place-items-center rounded-full bg-background">
+        <Button variant="ghost" size="icon" aria-label={`Save ${name}`} aria-pressed={liked} onClick={() => setLiked(!liked)} className="absolute right-3 top-3 h-8 w-8 rounded-full bg-background">
           <Heart className={`h-4 w-4 ${liked ? "fill-foreground" : ""}`} />
-        </button>
+        </Button>
       </div>
       {note !== undefined && (
         <div className="mt-3 flex justify-between">
           <div><p className="font-display font-semibold">{name}</p><p className="text-xs text-muted-foreground">{note}</p></div>
-          {price && <span className="font-display font-semibold">${price}</span>}
+          {price !== undefined && <span className="shrink-0 font-display font-semibold">{formatPrice(price)}</span>}
         </div>
       )}
     </div>

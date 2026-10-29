@@ -98,20 +98,28 @@ function Index() {
       </div>
 
       <section className="mx-auto max-w-7xl px-6 pt-20">
-        <div className="flex flex-wrap items-end justify-between gap-6">
+        <div className="flex flex-wrap items-end justify-between gap-6 border-b border-border pb-5">
           <div>
-            <h2 className="text-4xl font-extrabold uppercase">Shop by Category</h2>
-            <p className="mt-2 text-sm text-muted-foreground">Find the piece that fits your space</p>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">Index — 04 Collections</p>
+            <h2 className="mt-2 text-3xl font-semibold uppercase tracking-tight md:text-4xl">Shop by Category</h2>
           </div>
-          <Link to="/products" className="inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-2 text-sm text-background">Browse All Collections <ArrowRight className="h-4 w-4" /></Link>
+          <Link to="/products" className="group inline-flex items-center gap-2 border-b border-foreground pb-1 text-sm font-medium">
+            Browse All Collections
+            <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+          </Link>
         </div>
-        <div className="mt-10 grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-6">
-          {categoryTiles.map((c) => (
-            <Link key={c.name} to="/products" search={{ category: c.name }} className="group relative block overflow-hidden rounded-2xl">
-              <img src={c.image} alt={c.name} loading="lazy" width={768} height={1024} className="aspect-[3/4] w-full object-cover transition-transform duration-500 group-hover:scale-105" />
-              <div className="absolute inset-x-3 bottom-3 flex items-center justify-between rounded-xl bg-ink/80 px-4 py-3 text-ink-foreground backdrop-blur">
-                <b className="font-display text-sm md:text-base">{c.name}</b>
-                <span className="flex items-center gap-1 text-xs text-ink-muted">Explore <ArrowRight className="h-3 w-3" /></span>
+        <div className="mt-8 grid grid-cols-2 gap-x-4 gap-y-10 md:grid-cols-4 md:gap-x-6">
+          {categoryTiles.map((c, i) => (
+            <Link key={c.name} to="/products" search={{ category: c.name }} className="group block">
+              <div className="overflow-hidden rounded-[4px] border border-border bg-card">
+                <img src={c.image} alt={c.name} loading="lazy" width={960} height={1280} className="aspect-[3/4] w-full object-cover transition-transform duration-[900ms] ease-out group-hover:scale-[1.04]" />
+              </div>
+              <div className="mt-3 flex items-center justify-between gap-3 border-t border-border pt-3">
+                <span className="flex items-baseline gap-2">
+                  <span className="font-display text-[11px] tabular-nums text-muted-foreground">{String(i + 1).padStart(2, "0")}</span>
+                  <span className="font-display text-sm font-semibold uppercase tracking-[0.08em] group-hover:underline group-hover:underline-offset-4">{c.name}</span>
+                </span>
+                <ArrowRight className="h-4 w-4 shrink-0 -translate-x-1 opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100" />
               </div>
             </Link>
           ))}

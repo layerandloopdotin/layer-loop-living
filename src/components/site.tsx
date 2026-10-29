@@ -88,7 +88,7 @@ export function ProductCard({ name, note, price, image, tall }: { name: string; 
   return (
     <div className="group">
       <div className={`relative overflow-hidden rounded-xl ${tall ? "aspect-[4/5]" : "aspect-square"}`}>
-        <img src={image} alt={name} loading="lazy" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
+        <img src={image} alt={name} loading="lazy" className="h-full w-full object-cover" />
         <Button variant="ghost" size="icon" aria-label={`Save ${name}`} aria-pressed={liked} onClick={() => setLiked(!liked)} className="absolute right-3 top-3 h-8 w-8 rounded-full bg-background">
           <Heart className={`h-4 w-4 ${liked ? "fill-foreground" : ""}`} />
         </Button>

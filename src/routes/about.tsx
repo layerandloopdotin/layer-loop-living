@@ -1,4 +1,7 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
+import { useRef } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { StoreWheel } from "@/components/store-wheel";
 import { DarkHero, Page } from "@/components/site";
 import craft from "@/assets/about-printer.jpg";
 import pla from "@/assets/mat-pla.jpg";
@@ -7,13 +10,19 @@ import tpu from "@/assets/mat-tpu.jpg";
 import store1 from "@/assets/store-1.jpg";
 import store2 from "@/assets/store-2.jpg";
 import store3 from "@/assets/store-3.jpg";
+import store4 from "@/assets/store-4.jpg";
+import store5 from "@/assets/store-5.jpg";
+import abs from "@/assets/mat-abs.jpg";
+import asa from "@/assets/mat-asa.jpg";
+
+const store = [store1, store4, store2, store5, store3];
 import study from "@/assets/study.jpg";
 
 export const Route = createFileRoute("/about")({
   head: () => ({
     meta: [
       { title: "Our Story — Layer & Loop" },
-      { name: "description", content: "Layer & Loop designs and 3D prints lamps, vases and objects in PLA, PETG and TPU — visit our studio store." },
+      { name: "description", content: "Layer & Loop designs and 3D prints lamps, vases and objects in PLA, PETG, TPU, ABS and ASA — visit our studio store." },
       { property: "og:title", content: "Our Story — Layer & Loop" },
       { property: "og:description", content: "A 3D printed lifestyle brand, made layer by layer." },
       { property: "og:type", content: "website" },
@@ -27,6 +36,8 @@ const mats = [
   { name: "PLA", text: "Plant-based, matte and non-toxic. Our go-to for lamps, vases and collectibles.", img: pla },
   { name: "PETG", text: "Tough and water-safe, so planters and everyday objects last.", img: petg },
   { name: "TPU", text: "Soft and flexible, used for grips, feet and desk essentials.", img: tpu },
+  { name: "ABS", text: "Strong and heat-resistant, for lamp parts and structural pieces.", img: abs },
+  { name: "ASA", text: "UV- and weather-resistant, for outdoor planters and café terraces.", img: asa },
 ];
 
 const beliefs = [
@@ -36,6 +47,8 @@ const beliefs = [
 ];
 
 function About() {
+  const rail = useRef<HTMLDivElement>(null);
+  const slide = (d: number) => rail.current?.scrollBy({ left: d * rail.current.clientWidth / 3, behavior: "smooth" });
   return (
     <Page>
       <DarkHero eyebrow="Our Story" title="Layer. Loop. Form." />
@@ -49,10 +62,16 @@ function About() {
       </section>
       <section className="bg-ink py-20 text-ink-foreground">
         <div className="mx-auto max-w-7xl px-6">
-          <h2 className="text-center text-3xl font-bold">Materials We Print With</h2>
-          <div className="mt-12 grid gap-6 md:grid-cols-3">
+          <div className="flex items-center justify-between gap-4">
+            <h2 className="text-3xl font-bold">Materials We Print With</h2>
+            <div className="flex gap-2">
+              <button aria-label="Previous material" onClick={() => slide(-1)} className="rounded-full border border-ink-muted p-2 transition-colors hover:bg-ink-soft"><ChevronLeft className="h-4 w-4" /></button>
+              <button aria-label="Next material" onClick={() => slide(1)} className="rounded-full border border-ink-muted p-2 transition-colors hover:bg-ink-soft"><ChevronRight className="h-4 w-4" /></button>
+            </div>
+          </div>
+          <div ref={rail} className="mt-12 flex snap-x snap-mandatory gap-6 overflow-x-auto pb-2 [scrollbar-width:none]">
             {mats.map((m) => (
-              <div key={m.name} className="rounded-2xl bg-ink-soft p-5">
+              <div key={m.name} className="shrink-0 basis-[85%] snap-start rounded-2xl bg-ink-soft p-5 sm:basis-[calc((100%-1.5rem)/2)] md:basis-[calc((100%-3rem)/3)]">
                 <img src={m.img} alt={m.name} loading="lazy" className="aspect-[3/1.2] w-full rounded-lg object-cover" />
                 <h3 className="mt-5 font-bold">{m.name}</h3>
                 <p className="mt-2 text-sm text-ink-muted">{m.text}</p>
@@ -76,29 +95,16 @@ function About() {
         <h2 className="text-2xl font-bold uppercase">Designed for Atmosphere</h2>
         <img src={study} alt="Warm study lit at dusk" loading="lazy" width={1600} height={768} className="mt-10 w-full rounded-2xl" />
       </section>
-      <section className="mx-auto max-w-7xl px-6 pb-20">
-        <div className="grid gap-10 md:grid-cols-[1fr_2fr] md:items-end">
+      <section className="mx-auto flex min-h-screen max-w-7xl items-center px-6 pb-20">
+        <div className="grid w-full items-center gap-10 md:grid-cols-[1fr_1.8fr]">
           <div>
             <p className="text-xs font-bold uppercase tracking-widest text-primary">Visit Us</p>
-            <h2 className="mt-3 text-3xl font-bold">Our Retail Store</h2>
+            <h2 className="mt-3 text-4xl font-bold">Our Retail Store</h2>
             <p className="mt-5 text-muted-foreground">Printed objects are best understood in person. We opened our store so you can run a hand over the layer lines, see the lamps glowing as they would at home, and watch a printer at work in the window.</p>
             <p className="mt-6 text-sm font-semibold">12 Linking Road, Bandra West, Mumbai</p>
             <p className="text-sm text-muted-foreground">Tue – Sun, 11am – 8pm</p>
           </div>
-          <div className="grid grid-cols-3 gap-4">
-            {[store1, store2, store3].map((src, i) => (
-              <img key={i} src={src} alt="Layer & Loop retail store" loading="lazy" width={1024} height={1280} className="aspect-[4/5] w-full rounded-2xl object-cover" />
-            ))}
-          </div>
-        </div>
-      </section>
-      <section className="bg-ink py-20 text-ink-foreground">
-        <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-8 px-6 md:flex-row md:items-center">
-          <div>
-            <h2 className="text-3xl font-bold">For Studios, Cafés &amp; Retailers</h2>
-            <p className="mt-3 max-w-xl text-ink-muted">We take B2B, bulk and custom print orders for interiors, hospitality and retail. Tell us what you need.</p>
-          </div>
-          <Link to="/trade" className="rounded-full border border-ink-foreground px-7 py-3 text-sm font-semibold transition-colors hover:bg-ink-foreground hover:text-ink">Trade Enquiries</Link>
+          <StoreWheel images={store} alt="Layer & Loop retail store" />
         </div>
       </section>
     </Page>

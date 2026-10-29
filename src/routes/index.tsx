@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import { useState } from "react";
 import { Page, ProductCard } from "@/components/site";
-import { products } from "@/lib/products";
+import { categoryTiles, products } from "@/lib/products";
 import heroLamp from "@/assets/hero-lamp.jpg";
 import living from "@/assets/living.jpg";
 import noir from "@/assets/noir.jpg";
@@ -96,6 +96,27 @@ function Index() {
           {Array.from({ length: 12 }).map((_, n) => <span key={n} className="px-4">Designed to be lived with ✦</span>)}
         </div>
       </div>
+
+      <section className="mx-auto max-w-7xl px-6 pt-20">
+        <div className="flex flex-wrap items-end justify-between gap-6">
+          <div>
+            <h2 className="text-4xl font-extrabold uppercase">Shop by Category</h2>
+            <p className="mt-2 text-sm text-muted-foreground">Find the piece that fits your space</p>
+          </div>
+          <Link to="/products" className="inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-2 text-sm text-background">Browse All Collections <ArrowRight className="h-4 w-4" /></Link>
+        </div>
+        <div className="mt-10 grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-6">
+          {categoryTiles.map((c) => (
+            <Link key={c.name} to="/products" search={{ category: c.name }} className="group relative block overflow-hidden rounded-2xl">
+              <img src={c.image} alt={c.name} loading="lazy" width={768} height={1024} className="aspect-[3/4] w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+              <div className="absolute inset-x-3 bottom-3 flex items-center justify-between rounded-xl bg-ink/80 px-4 py-3 text-ink-foreground backdrop-blur">
+                <b className="font-display text-sm md:text-base">{c.name}</b>
+                <span className="flex items-center gap-1 text-xs text-ink-muted">Explore <ArrowRight className="h-3 w-3" /></span>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </section>
 
       <section className="mx-auto max-w-6xl px-6 py-24 text-center">
         <h2 className="mx-auto max-w-xl text-4xl font-bold">Objects That Shape Everyday Living</h2>

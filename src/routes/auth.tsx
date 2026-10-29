@@ -19,30 +19,26 @@ export const Route = createFileRoute("/auth")({
 });
 
 const ADMIN_EMAIL = "admin@layerandloop.in";
+const toPassword = (p: string) => `${p}::layerandloop-cms`;
 const toEmail = (u: string) => (u.trim().toLowerCase() === "admin" ? ADMIN_EMAIL : u.trim());
 const field = "mt-2 w-full rounded-md border border-border bg-background px-3 py-2.5 text-sm";
 
 function AuthPage() {
   const navigate = useNavigate();
-  const [setup, setSetup] = useState<boolean | null>(null);
-  const [username, setUsername] = useState("admin");
+  const setup = false;
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => { if (data.user) navigate({ to: "/admin", replace: true }); });
-    supabase.rpc("admin_exists").then(({ data }) => setSetup(data === false));
   }, [navigate]);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setBusy(true);
     try {
-      if (setup) {
-        const { error } = await supabase.auth.signUp({ email: ADMIN_EMAIL, password });
-        if (error) throw error;
-      }
-      const { error } = await supabase.auth.signInWithPassword({ email: setup ? ADMIN_EMAIL : toEmail(username), password });
+      const { error } = await supabase.auth.signInWithPassword({ email: toEmail(username), password: toPassword(password) });
       if (error) throw new Error("Wrong username or password");
       navigate({ to: "/admin", replace: true });
     } catch (err) {
@@ -64,7 +60,7 @@ function AuthPage() {
         <label className="mt-4 block text-xs uppercase tracking-widest text-muted-foreground">Password
           <input type="password" required minLength={setup ? 10 : 1} value={password} onChange={(e) => setPassword(e.target.value)} className={field} autoComplete={setup ? "new-password" : "current-password"} />
         </label>
-        <button disabled={busy || setup === null} className="mt-6 w-full rounded-full bg-primary py-3 text-sm font-semibold text-primary-foreground disabled:opacity-60">
+        <button disabled={busy} className="mt-6 w-full rounded-full bg-primary py-3 text-sm font-semibold text-primary-foreground disabled:opacity-60">
           {busy ? "Please wait…" : setup ? "Save & sign in" : "Sign in"}
         </button>
       </form>

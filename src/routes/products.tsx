@@ -1,7 +1,7 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { DarkHero, Page, ProductCard } from "@/components/site";
-import { categories, spaces, products } from "@/lib/products";
+import { DarkHero, Page } from "@/components/site";
+import { categories, spaces, products, slugify } from "@/lib/products";
 
 export const Route = createFileRoute("/products")({
   head: () => ({
@@ -53,9 +53,17 @@ function Products() {
         </aside>
         <div key={cats.join()+mats.join()} className="group/grid grid content-start gap-6 animate-in fade-in duration-500 sm:grid-cols-2 lg:grid-cols-3">
           {shown.map((p) => (
-            <div key={p.name} className="relative rounded-2xl transition-all duration-500 ease-out [@media(hover:hover)]:group-hover/grid:opacity-80 [@media(hover:hover)]:group-hover/grid:blur-[2px] [@media(hover:hover)]:hover:z-10 [@media(hover:hover)]:hover:scale-[1.07] [@media(hover:hover)]:hover:!opacity-100 [@media(hover:hover)]:hover:!blur-none [@media(hover:hover)]:hover:bg-background [@media(hover:hover)]:hover:shadow-2xl">
-              <ProductCard {...p} tall />
-            </div>
+            <Link
+              key={p.name}
+              to="/product/$slug"
+              params={{ slug: slugify(p.name) }}
+              aria-label={p.name}
+              className="relative block rounded-2xl transition-all duration-500 ease-out [@media(hover:hover)]:group-hover/grid:opacity-80 [@media(hover:hover)]:group-hover/grid:blur-[2px] [@media(hover:hover)]:hover:z-10 [@media(hover:hover)]:hover:scale-[1.07] [@media(hover:hover)]:hover:!opacity-100 [@media(hover:hover)]:hover:!blur-none [@media(hover:hover)]:hover:shadow-2xl"
+            >
+              <div className="aspect-[4/5] overflow-hidden rounded-xl">
+                <img src={p.image} alt={p.name} loading="lazy" className="h-full w-full object-cover" />
+              </div>
+            </Link>
           ))}
           {!shown.length && <p className="text-muted-foreground">No objects match these filters.</p>}
         </div>

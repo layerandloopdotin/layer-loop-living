@@ -30,7 +30,8 @@ const productOr404 = (slug: string): Product => {
 };
 
 function ProductDetail() {
-  const p = Route.useLoaderData();
+  const { slug } = Route.useParams();
+  const p = productOr404(slug);
   return (
     <Page>
       <section className="mx-auto grid max-w-7xl items-center gap-12 px-6 py-16 md:grid-cols-2">

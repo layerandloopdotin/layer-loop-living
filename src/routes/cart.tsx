@@ -27,6 +27,10 @@ function Cart() {
     return p ? [{ ...c, p }] : [];
   });
   const total = lines.reduce((s, l) => s + l.p.price * l.qty, 0);
+  const [code, setCode] = useState("");
+  const [coupon, setCoupon] = useState<string>();
+  const [msg, setMsg] = useState("");
+  const t = cartTotals(total, coupon);
 
   return (
     <Page>

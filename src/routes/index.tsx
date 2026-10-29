@@ -35,6 +35,7 @@ function Index() {
   const [i, setI] = useState(0);
   const s = slides[i] ?? slides[0];
   const edit = products.slice(0, 3);
+  if (!s) return null;
   return (
     <Page>
       <section className="bg-ink text-ink-foreground">

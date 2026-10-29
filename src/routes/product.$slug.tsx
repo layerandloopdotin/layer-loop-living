@@ -51,6 +51,7 @@ function ProductDetail() {
   const navigate = useNavigate();
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
+  const [colour, setColour] = useState(colours[0]!.name);
   const [pin, setPin] = useState("");
   const [delivery, setDelivery] = useState<DeliveryResult | null>(null);
 
@@ -77,6 +78,17 @@ function ProductDetail() {
 
           <p className="mt-8 text-xs uppercase tracking-widest text-muted-foreground">Made for</p>
           <p className="mt-2 text-sm">{p.spaces.join(" · ")}</p>
+
+          <p className="mt-8 text-xs uppercase tracking-widest text-muted-foreground">Colour — <span className="normal-case tracking-normal text-foreground">{colour}</span></p>
+          <div role="radiogroup" aria-label="Colour" className="mt-3 flex flex-wrap gap-3">
+            {colours.map((c) => (
+              <button key={c.name} type="button" role="radio" aria-checked={colour === c.name} aria-label={c.name} title={c.name} onClick={() => setColour(c.name)}
+                className={`h-11 w-11 rounded-lg border p-1 transition ${colour === c.name ? "border-foreground" : "border-border hover:border-muted-foreground"}`}>
+                <span className="block h-full w-full rounded-md" style={{ background: c.hex }} />
+              </button>
+            ))}
+          </div>
+
 
           <p className="mt-8 text-xs uppercase tracking-widest text-muted-foreground">Size &amp; specification</p>
           <dl className="mt-3 divide-y divide-border border-y border-border text-sm">

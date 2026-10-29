@@ -129,6 +129,8 @@ export function FieldInput({ field, value, onChange, products }: { field: Field;
   const str = typeof value === "string" ? value : "";
   const arr = Array.isArray(value) ? value : [];
   switch (field.t) {
+    case "select":
+      return <select aria-label={field.label} value={str} onChange={(e) => onChange(e.target.value)} className={inputCls}>{field.options.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}</select>;
     case "textarea":
       return <textarea value={str} rows={Math.min(10, Math.max(3, str.split("\n").length + 1))} onChange={(e) => onChange(e.target.value)} className={inputCls} />;
     case "image":

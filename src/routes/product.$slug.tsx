@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Check, CreditCard, Laugh, Smile, Landmark, MapPin, Minus, Plus, ShieldCheck, Smartphone, Truck, Wallet } from "lucide-react";
 import { Page } from "@/components/site";
 import { ProductGallery } from "@/components/product-gallery";
-import { galleryFor } from "@/lib/catalog";
+import { galleryFor, unitPrice } from "@/lib/catalog";
 import { formatPrice } from "@/lib/currency";
 import { shop, useShop } from "@/lib/shop";
 import { checkPincode, type DeliveryResult } from "@/lib/delivery";
@@ -53,11 +53,12 @@ function ProductDetail() {
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
   const [colour, setColour] = useState(p.colours[0]?.name ?? "");
+  const [variant, setVariant] = useState(p.variants[0]?.name);
   const [pin, setPin] = useState("");
   const [delivery, setDelivery] = useState<DeliveryResult | null>(null);
 
   const addToCart = () => {
-    shop.add(slug, qty);
+    shop.add(slug, qty, variant);
     setAdded(true);
     setTimeout(() => setAdded(false), 1800);
   };
@@ -72,7 +73,7 @@ function ProductDetail() {
           <p className="mt-2 text-muted-foreground">{p.note}</p>
           <p className="mt-5 max-w-md">{p.short}</p>
 
-          <p className="mt-8 font-display text-3xl font-semibold">{formatPrice(p.price)}{p.compareAt && p.compareAt > p.price && <s className="ml-3 text-lg font-normal text-muted-foreground">{formatPrice(p.compareAt)}</s>}</p>
+          <p className="mt-8 font-display text-3xl font-semibold">{formatPrice(unitPrice(p, variant))}{p.compareAt && p.compareAt > p.price && <s className="ml-3 text-lg font-normal text-muted-foreground">{formatPrice(p.compareAt)}</s>}</p>
           <p className="mt-1 text-xs text-muted-foreground">{c.taxNote}</p>
 
           {p.spaces.length > 0 && <><p className="mt-8 text-xs uppercase tracking-widest text-muted-foreground">{c.madeForLabel}</p>
@@ -88,6 +89,16 @@ function ProductDetail() {
             ))}
           </div></>}
 
+          {p.variants.length > 0 && <><p className="mt-8 text-xs uppercase tracking-widest text-muted-foreground">{c.variantLabel || "Variant"}</p>
+          <div role="radiogroup" aria-label="Variant" className="mt-3 grid gap-2 sm:grid-cols-2">
+            {p.variants.map((v) => (
+              <button key={v.name} type="button" role="radio" aria-checked={variant === v.name} onClick={() => setVariant(v.name)}
+                className={`flex items-center justify-between gap-3 rounded-lg border px-4 py-3 text-left text-sm transition ${variant === v.name ? "border-foreground bg-card" : "border-border hover:border-muted-foreground"}`}>
+                <span>{v.name}</span>
+                <span className="shrink-0 text-xs text-muted-foreground">{v.price > 0 ? `+ ${formatPrice(v.price)}` : "Included"}</span>
+              </button>
+            ))}
+          </div></>}
 
           {p.specs.length > 0 && <><p className="mt-8 text-xs uppercase tracking-widest text-muted-foreground">{c.specsLabel}</p>
           <dl className="mt-3 divide-y divide-border border-y border-border text-sm">
@@ -111,7 +122,7 @@ function ProductDetail() {
               {wished ? <Laugh className="h-5 w-5 text-primary" /> : <Smile className="h-5 w-5" />}
             </button>
           </div>
-          <button onClick={() => { shop.add(slug, qty); navigate({ to: "/cart" }); }} className="mt-3 w-full rounded-full bg-primary py-3.5 text-sm font-semibold text-primary-foreground">
+          <button onClick={() => { shop.add(slug, qty, variant); navigate({ to: "/cart" }); }} className="mt-3 w-full rounded-full bg-primary py-3.5 text-sm font-semibold text-primary-foreground">
             Buy now
           </button>
 

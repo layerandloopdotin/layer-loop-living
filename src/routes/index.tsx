@@ -66,9 +66,6 @@ function Index() {
         </div>
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-6 px-6 py-10 md:px-12 md:py-12">
           <p className="max-w-xl leading-relaxed text-ink-muted">{c.heroText}</p>
-          <div className="flex flex-wrap gap-2 text-xs">
-            {c.keywords.map((t, n) => <span key={t + n} className={`rounded-full px-3 py-1.5 ${n === 0 ? "bg-primary text-primary-foreground" : "border border-ink-line"}`}>{t}</span>)}
-          </div>
         </div>
       </section>
 

@@ -1,6 +1,7 @@
 import { useSyncExternalStore } from "react";
 
-export type CartLine = { slug: string; qty: number };
+export type CartLine = { slug: string; qty: number; variant?: string };
+const same = (c: CartLine, slug: string, variant?: string) => c.slug === slug && (c.variant ?? "") === (variant ?? "");
 type State = { cart: CartLine[]; wishlist: string[] };
 
 const KEY = "ll-shop-v1";
@@ -44,21 +45,21 @@ export function useShop() {
 }
 
 export const shop = {
-  add(slug: string, qty = 1) {
+  add(slug: string, qty = 1, variant?: string) {
     load();
-    const found = state.cart.find((c) => c.slug === slug);
+    const found = state.cart.find((c) => same(c, slug, variant));
     set({
       ...state,
       cart: found
-        ? state.cart.map((c) => (c.slug === slug ? { ...c, qty: Math.min(10, c.qty + qty) } : c))
-        : [...state.cart, { slug, qty }],
+        ? state.cart.map((c) => (same(c, slug, variant) ? { ...c, qty: Math.min(10, c.qty + qty) } : c))
+        : [...state.cart, variant ? { slug, qty, variant } : { slug, qty }],
     });
   },
-  setQty(slug: string, qty: number) {
+  setQty(slug: string, qty: number, variant?: string) {
     load();
     set({
       ...state,
-      cart: qty <= 0 ? state.cart.filter((c) => c.slug !== slug) : state.cart.map((c) => (c.slug === slug ? { ...c, qty: Math.min(10, qty) } : c)),
+      cart: qty <= 0 ? state.cart.filter((c) => !same(c, slug, variant)) : state.cart.map((c) => (same(c, slug, variant) ? { ...c, qty: Math.min(10, qty) } : c)),
     });
   },
   toggleWish(slug: string) {

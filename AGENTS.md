@@ -10,3 +10,4 @@
 <!-- LOVABLE:END -->
 
 - Format every product price through the shared currency formatter so the homepage and catalog always use the same currency presentation.
+- Keep each form's zod schema in a browser-safe module under `src/lib` and read submitted values through `fieldValue`, so a select left on its disabled placeholder still shows the friendly message and the rules stay testable.

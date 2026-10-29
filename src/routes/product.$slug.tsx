@@ -46,9 +46,9 @@ function VariantPeek({ src, name, x, y }: { src: string; name: string; x: number
   const size = 186;
   const vw = typeof window === "undefined" ? 1280 : window.innerWidth;
   const vh = typeof window === "undefined" ? 800 : window.innerHeight;
-  const below = y + 34 + size < vh;
   return (
-    <div aria-hidden className="pointer-events-none fixed z-50" style={{ left: Math.max(12, Math.min(x + 20, vw - size)), top: below ? y + 34 : Math.max(12, y - size - 12) }}>
+    <div aria-hidden className="pointer-events-none fixed z-50" style={{ left: Math.max(12, Math.min(x - size / 2, vw - size)), top: Math.min(y + 10, vh - size) }}>
+
 
       <img src={src} alt="" width={640} height={640} loading="lazy" className="h-40 w-40 rounded-xl border border-border object-cover shadow-2xl" />
       <p className="mt-1.5 rounded-md bg-foreground px-2 py-1 text-center text-[11px] font-semibold uppercase tracking-wide text-background">{name}</p>
@@ -108,11 +108,12 @@ function ProductDetail() {
           </div></>}
 
           {p.variants.length > 0 && <><p className="mt-8 text-xs uppercase tracking-widest text-muted-foreground">{c.variantLabel || "Variant"}{p.variants.some((v) => v.image) && <span className="ml-2 normal-case tracking-normal">— hover an option to see it</span>}</p>
-          <div role="radiogroup" aria-label="Variant" className="mt-3 grid gap-2 sm:grid-cols-2">
+          <div ref={variantGrid} role="radiogroup" aria-label="Variant" className="mt-3 grid gap-2 sm:grid-cols-2">
             {p.variants.map((v) => (
               <button key={v.name} type="button" role="radio" aria-checked={variant === v.name} onClick={() => setVariant(v.name)}
-                onPointerEnter={(e) => { if (v.image && e.pointerType === "mouse") setPeek({ src: v.image, name: v.name, x: e.clientX, y: e.clientY }); }}
-                onPointerMove={(e) => { if (v.image && e.pointerType === "mouse") setPeek({ src: v.image, name: v.name, x: e.clientX, y: e.clientY }); }}
+                onPointerEnter={(e) => { if (v.image && e.pointerType === "mouse") setPeek({ src: v.image, name: v.name, x: e.clientX, y: variantGrid.current?.getBoundingClientRect().bottom ?? e.clientY }); }}
+                onPointerMove={(e) => { if (v.image && e.pointerType === "mouse") setPeek({ src: v.image, name: v.name, x: e.clientX, y: variantGrid.current?.getBoundingClientRect().bottom ?? e.clientY }); }}
+
                 onPointerLeave={() => setPeek(null)}
                 className={`flex items-center justify-between gap-3 rounded-lg border px-4 py-3 text-left text-sm transition ${variant === v.name ? "border-foreground bg-card" : "border-border hover:border-muted-foreground"}`}>
                 <span>{v.name}</span>

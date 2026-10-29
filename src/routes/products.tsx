@@ -59,14 +59,14 @@ function Products() {
               to="/product/$slug"
               params={{ slug: slugify(p.name) }}
               aria-label={p.name}
-              className="group/tile block"
+              className="group block"
             >
-              <div className="aspect-[4/5] overflow-hidden rounded-xl transition-shadow duration-500 group-hover/tile:shadow-2xl">
+              <div className="aspect-[4/5] overflow-hidden rounded-xl transition-shadow duration-500 group-hover:shadow-2xl">
                 <img
                   src={p.image}
                   alt={p.name}
                   loading="lazy"
-                  className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover/tile:scale-105"
+                  className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
                 />
               </div>
               <div className="mt-3 flex items-start justify-between gap-3">

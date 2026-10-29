@@ -3,7 +3,7 @@ import { ArrowRight, Laugh, ShoppingBag, Smile } from "lucide-react";
 import { type ReactNode } from "react";
 import { formatPrice } from "@/lib/currency";
 import { shop, useShop } from "@/lib/shop";
-import { slugify } from "@/lib/products";
+import { categories, slugify } from "@/lib/products";
 
 /** Wishlist toggle — a smile that turns into a laugh when saved. */
 export function WishButton({ slug, name, className = "" }: { slug: string; name: string; className?: string }) {

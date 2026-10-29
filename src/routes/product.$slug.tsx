@@ -34,6 +34,15 @@ const productOr404 = (slug: string): Product => {
   return p;
 };
 
+// Swatch hexes are product data (filament colours), not UI theme colours.
+const colours = [
+  { name: "Bone White", hex: "#EDE6DA" },
+  { name: "Sandstone", hex: "#CDB79A" },
+  { name: "Terracotta", hex: "#B8643F" },
+  { name: "Sage", hex: "#8E9A7E" },
+  { name: "Charcoal", hex: "#2E2B28" },
+];
+
 const payments = [
   { icon: CreditCard, label: "Credit card" },
   { icon: CreditCard, label: "Debit card" },

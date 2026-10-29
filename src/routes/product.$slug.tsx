@@ -104,19 +104,21 @@ function ProductDetail() {
             ))}
           </div></>}
 
-          {p.variants.length > 0 && <><p className="mt-8 text-xs uppercase tracking-widest text-muted-foreground">{c.variantLabel || "Variant"}</p>
+          {p.variants.length > 0 && <><p className="mt-8 text-xs uppercase tracking-widest text-muted-foreground">{c.variantLabel || "Variant"}{p.variants.some((v) => v.image) && <span className="ml-2 normal-case tracking-normal">— hover an option to see it</span>}</p>
           <div role="radiogroup" aria-label="Variant" className="mt-3 grid gap-2 sm:grid-cols-2">
             {p.variants.map((v) => (
               <button key={v.name} type="button" role="radio" aria-checked={variant === v.name} onClick={() => setVariant(v.name)}
-                onPointerMove={(e) => { if (v.image && e.pointerType === "mouse") setPeek({ src: v.image, x: e.clientX, y: e.clientY }); }}
+                onPointerEnter={(e) => { if (v.image && e.pointerType === "mouse") setPeek({ src: v.image, name: v.name, x: e.clientX, y: e.clientY }); }}
+                onPointerMove={(e) => { if (v.image && e.pointerType === "mouse") setPeek({ src: v.image, name: v.name, x: e.clientX, y: e.clientY }); }}
                 onPointerLeave={() => setPeek(null)}
                 className={`flex items-center justify-between gap-3 rounded-lg border px-4 py-3 text-left text-sm transition ${variant === v.name ? "border-foreground bg-card" : "border-border hover:border-muted-foreground"}`}>
                 <span>{v.name}</span>
                 <span className="shrink-0 text-xs text-muted-foreground">{v.price > 0 ? `+ ${formatPrice(v.price)}` : "Included"}</span>
               </button>
             ))}
-          </div>
-          {peek && <img src={peek.src} alt="" aria-hidden className="pointer-events-none fixed z-50 h-40 w-40 rounded-xl border border-border object-cover shadow-xl" style={{ left: peek.x + 18, top: peek.y + 18 }} />}</>}
+          </div></>}
+          {peek && <VariantPeek {...peek} />}
+
 
           {p.specs.length > 0 && <><p className="mt-8 text-xs uppercase tracking-widest text-muted-foreground">{c.specsLabel}</p>
           <dl className="mt-3 divide-y divide-border border-y border-border text-sm">

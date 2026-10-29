@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { DarkHero, Page, ProductCard } from "@/components/site";
 import { categories, materials, products } from "@/lib/products";
 
@@ -14,11 +14,15 @@ export const Route = createFileRoute("/products")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
+  validateSearch: (s: Record<string, unknown>): { category?: string } =>
+    typeof s.category === "string" ? { category: s.category } : {},
   component: Products,
 });
 
 function Products() {
-  const [cats, setCats] = useState<string[]>([]);
+  const { category } = Route.useSearch();
+  const [cats, setCats] = useState<string[]>(category ? [category] : []);
+  useEffect(() => setCats(category ? [category] : []), [category]);
   const [mats, setMats] = useState<string[]>([]);
   const toggle = (list: string[], set: (v: string[]) => void, v: string) => set(list.includes(v) ? list.filter((x) => x !== v) : [...list, v]);
   const shown = products.filter((p) => (!cats.length || cats.includes(p.category)) && (!mats.length || mats.includes(p.material)));

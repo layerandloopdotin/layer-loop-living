@@ -43,20 +43,20 @@ const payIcon = (label: string) => {
 
 /** Small photo that trails the cursor while a variant option is hovered. */
 function VariantPeek({ src, name, x, gridTop, gridBottom }: { src: string; name: string; x: number; gridTop: number; gridBottom: number }) {
-  const size = 186;
+  const size = 140;
   const vw = typeof window === "undefined" ? 1280 : window.innerWidth;
   const vh = typeof window === "undefined" ? 800 : window.innerHeight;
   const top = gridBottom + 10 + size <= vh ? gridBottom + 10 : Math.max(12, gridTop - size - 10);
   return (
     <div aria-hidden className="pointer-events-none fixed z-50" style={{ left: Math.max(12, Math.min(x - size / 2, vw - size)), top }}>
-
-
-
-      <img src={src} alt="" width={640} height={640} loading="lazy" className="h-40 w-40 rounded-xl border border-border object-cover shadow-2xl" />
-      <p className="mt-1.5 rounded-md bg-foreground px-2 py-1 text-center text-[11px] font-semibold uppercase tracking-wide text-background">{name}</p>
+      <div className="relative h-32 w-32 overflow-hidden rounded-xl border border-border shadow-2xl">
+        <img src={src} alt="" width={640} height={640} loading="lazy" className="h-full w-full object-cover" />
+        <p className="absolute inset-x-1 bottom-1 truncate rounded-md bg-foreground/90 px-1.5 py-0.5 text-center text-[10px] font-semibold uppercase tracking-wide text-background">{name}</p>
+      </div>
     </div>
   );
 }
+
 
 
 function ProductDetail() {

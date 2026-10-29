@@ -5,7 +5,7 @@ import { Loader2, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { slugify, type Colour, type Pair } from "@/lib/catalog";
-import { ImagesInput, inputCls, labelCls, RowTools } from "@/components/admin/fields";
+import { ImagesInput, inputBase, inputCls, labelCls, RowTools } from "@/components/admin/fields";
 import type { Json } from "@/integrations/supabase/types";
 
 export const Route = createFileRoute("/_authenticated/admin/products/$id")({
@@ -47,7 +47,7 @@ function PairsEditor({ value, onChange, area }: { value: Pair[]; onChange: (v: P
     <div className="space-y-2">
       {value.map((p, i) => (
         <div key={i} className="flex items-start gap-2">
-          <input value={p.label} placeholder="Label" onChange={(e) => onChange(value.map((x, k) => (k === i ? { ...x, label: e.target.value } : x)))} className={`${inputCls} max-w-[11rem]`} />
+          <input value={p.label} placeholder="Label" onChange={(e) => onChange(value.map((x, k) => (k === i ? { ...x, label: e.target.value } : x)))} className={`${inputBase} w-44 shrink-0`} />
           {area
             ? <textarea value={p.value} rows={2} placeholder="Text" onChange={(e) => onChange(value.map((x, k) => (k === i ? { ...x, value: e.target.value } : x)))} className={inputCls} />
             : <input value={p.value} placeholder="Value" onChange={(e) => onChange(value.map((x, k) => (k === i ? { ...x, value: e.target.value } : x)))} className={inputCls} />}
@@ -166,8 +166,8 @@ function ProductEditor() {
             <div key={i} className="rounded-xl border border-border bg-background p-4">
               <div className="flex flex-wrap items-center gap-3">
                 <input type="color" value={/^#[0-9a-f]{6}$/i.test(c.hex) ? c.hex : "#cccccc"} onChange={(e) => setColour(i, { hex: e.target.value })} className="h-10 w-12 rounded border border-border" aria-label="Swatch colour" />
-                <input value={c.hex} onChange={(e) => setColour(i, { hex: e.target.value })} className={`${inputCls} w-28`} aria-label="Hex code" placeholder="#EDE6DA" />
-                <input value={c.name} onChange={(e) => setColour(i, { name: e.target.value })} className={`${inputCls} flex-1`} placeholder="Colour name, e.g. Bone White" />
+                <input value={c.hex} onChange={(e) => setColour(i, { hex: e.target.value })} className={`${inputBase} w-28`} aria-label="Hex code" placeholder="#EDE6DA" />
+                <input value={c.name} onChange={(e) => setColour(i, { name: e.target.value })} className={`${inputBase} flex-1`} placeholder="Colour name, e.g. Bone White" />
                 <RowTools onUp={() => set("colors", move(f.colors, i, -1))} onDown={() => set("colors", move(f.colors, i, 1))} onRemove={() => set("colors", f.colors.filter((_, k) => k !== i))} />
               </div>
               <div className="mt-4"><ImagesInput value={c.images} onChange={(v) => setColour(i, { images: v })} /></div>

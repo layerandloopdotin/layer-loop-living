@@ -3,7 +3,7 @@ import { Minus, Plus, Tag, X } from "lucide-react";
 import { useState } from "react";
 import { applyCoupon, cartTotals, FREE_SHIPPING_FROM } from "@/lib/pricing";
 import { DarkHero, Page } from "@/components/site";
-import { products, slugify } from "@/lib/products";
+import { useSite } from "@/lib/site";
 import { formatPrice } from "@/lib/currency";
 import { shop, useShop } from "@/lib/shop";
 
@@ -24,8 +24,9 @@ export const Route = createFileRoute("/cart")({
 
 function Cart() {
   const { cart } = useShop();
+  const site = useSite();
   const lines = cart.flatMap((c) => {
-    const p = products.find((x) => slugify(x.name) === c.slug);
+    const p = site.bySlug(c.slug);
     return p ? [{ ...c, p }] : [];
   });
   const total = lines.reduce((s, l) => s + l.p.price * l.qty, 0);

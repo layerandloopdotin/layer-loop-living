@@ -3,17 +3,22 @@ import { useState } from "react";
 import { Check, CreditCard, Laugh, Smile, Landmark, MapPin, Minus, Plus, ShieldCheck, Smartphone, Truck, Wallet } from "lucide-react";
 import { Page } from "@/components/site";
 import { ProductGallery } from "@/components/product-gallery";
-import { galleryFor, products, slugify, type Product } from "@/lib/products";
+import { galleryFor } from "@/lib/catalog";
 import { formatPrice } from "@/lib/currency";
-import { detailsFor } from "@/lib/product-details";
 import { shop, useShop } from "@/lib/shop";
 import { checkPincode, type DeliveryResult } from "@/lib/delivery";
+import { siteQuery, useSite } from "@/lib/site";
 
 export const Route = createFileRoute("/product/$slug")({
-  head: ({ params }) => {
-    const p = products.find((x) => slugify(x.name) === params.slug);
-    const title = p ? `${p.name} — Layer & Loop` : "Object — Layer & Loop";
-    const desc = p ? `${p.note}. ${p.category} for ${p.spaces.join(", ")}.` : "Objects by Layer & Loop.";
+  loader: async ({ context, params }) => {
+    const data = await context.queryClient.ensureQueryData(siteQuery);
+    const p = data.products.find((x) => x.slug === params.slug);
+    if (!p) throw notFound();
+    return { name: p.name, note: p.tagline, short: p.short_description };
+  },
+  head: ({ loaderData }) => {
+    const title = loaderData ? `${loaderData.name} — Layer & Loop` : "Object — Layer & Loop";
+    const desc = loaderData ? loaderData.short || loaderData.note : "Objects by Layer & Loop.";
     return {
       meta: [
         { title },
@@ -25,43 +30,29 @@ export const Route = createFileRoute("/product/$slug")({
       ],
     };
   },
-  loader: ({ params }) => productOr404(params.slug),
   component: ProductDetail,
 });
 
-const productOr404 = (slug: string): Product => {
-  const p = products.find((x) => slugify(x.name) === slug);
-  if (!p) throw notFound();
-  return p;
+const payIcon = (label: string) => {
+  const l = label.toLowerCase();
+  if (l.includes("upi")) return Smartphone;
+  if (l.includes("bank")) return Landmark;
+  if (l.includes("wallet")) return Wallet;
+  return CreditCard;
 };
-
-// Swatch hexes are product data (filament colours), not UI theme colours.
-const colours = [
-  { name: "Bone White", hex: "#EDE6DA" },
-  { name: "Sandstone", hex: "#CDB79A" },
-  { name: "Terracotta", hex: "#B8643F" },
-  { name: "Sage", hex: "#8E9A7E" },
-  { name: "Charcoal", hex: "#2E2B28" },
-];
-
-const payments = [
-  { icon: CreditCard, label: "Credit card" },
-  { icon: CreditCard, label: "Debit card" },
-  { icon: Smartphone, label: "UPI" },
-  { icon: Landmark, label: "Net banking" },
-  { icon: Wallet, label: "Wallets" },
-];
 
 function ProductDetail() {
   const { slug } = Route.useParams();
-  const p = productOr404(slug);
-  const d = detailsFor(p);
+  const site = useSite();
+  const c = site.content("catalog");
+  const p = site.bySlug(slug);
+  if (!p) throw notFound();
   const { wishlist } = useShop();
   const wished = wishlist.includes(slug);
   const navigate = useNavigate();
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
-  const [colour, setColour] = useState(colours[0]!.name);
+  const [colour, setColour] = useState(p.colours[0]?.name ?? "");
   const [pin, setPin] = useState("");
   const [delivery, setDelivery] = useState<DeliveryResult | null>(null);
 
@@ -74,38 +65,38 @@ function ProductDetail() {
   return (
     <Page>
       <section className="mx-auto grid max-w-7xl items-start gap-12 px-6 py-16 md:grid-cols-2">
-        <ProductGallery key={slug} name={p.name} images={galleryFor(p)} />
+        <ProductGallery key={slug + colour} name={p.name} images={galleryFor(p, colour)} />
         <div>
-          <p className="text-xs font-bold uppercase tracking-widest text-primary">{p.category}</p>
+          <p className="text-xs font-bold uppercase tracking-widest text-primary">{p.categories.join(" · ")}</p>
           <h1 className="mt-3 font-display text-5xl font-bold">{p.name}</h1>
           <p className="mt-2 text-muted-foreground">{p.note}</p>
-          <p className="mt-5 max-w-md">{d.short}</p>
+          <p className="mt-5 max-w-md">{p.short}</p>
 
-          <p className="mt-8 font-display text-3xl font-semibold">{formatPrice(p.price)}</p>
-          <p className="mt-1 text-xs text-muted-foreground">Inclusive of all taxes</p>
+          <p className="mt-8 font-display text-3xl font-semibold">{formatPrice(p.price)}{p.compareAt && p.compareAt > p.price && <s className="ml-3 text-lg font-normal text-muted-foreground">{formatPrice(p.compareAt)}</s>}</p>
+          <p className="mt-1 text-xs text-muted-foreground">{c.taxNote}</p>
 
-          <p className="mt-8 text-xs uppercase tracking-widest text-muted-foreground">Made for</p>
-          <p className="mt-2 text-sm">{p.spaces.join(" · ")}</p>
+          {p.spaces.length > 0 && <><p className="mt-8 text-xs uppercase tracking-widest text-muted-foreground">{c.madeForLabel}</p>
+          <p className="mt-2 text-sm">{p.spaces.join(" · ")}</p></>}
 
-          <p className="mt-8 text-xs uppercase tracking-widest text-muted-foreground">Colour — <span className="normal-case tracking-normal text-foreground">{colour}</span></p>
+          {p.colours.length > 0 && <><p className="mt-8 text-xs uppercase tracking-widest text-muted-foreground">{c.colourLabel} — <span className="normal-case tracking-normal text-foreground">{colour}</span></p>
           <div role="radiogroup" aria-label="Colour" className="mt-3 flex flex-wrap gap-3">
-            {colours.map((c) => (
-              <button key={c.name} type="button" role="radio" aria-checked={colour === c.name} aria-label={c.name} title={c.name} onClick={() => setColour(c.name)}
-                className={`h-11 w-11 rounded-lg border p-1 transition ${colour === c.name ? "border-foreground" : "border-border hover:border-muted-foreground"}`}>
-                <span className="block h-full w-full rounded-md" style={{ background: c.hex }} />
+            {p.colours.map((cl) => (
+              <button key={cl.name} type="button" role="radio" aria-checked={colour === cl.name} aria-label={cl.name} title={cl.name} onClick={() => setColour(cl.name)}
+                className={`h-11 w-11 rounded-lg border p-1 transition ${colour === cl.name ? "border-foreground" : "border-border hover:border-muted-foreground"}`}>
+                <span className="block h-full w-full rounded-md" style={{ background: cl.hex }} />
               </button>
             ))}
-          </div>
+          </div></>}
 
 
-          <p className="mt-8 text-xs uppercase tracking-widest text-muted-foreground">Size &amp; specification</p>
+          {p.specs.length > 0 && <><p className="mt-8 text-xs uppercase tracking-widest text-muted-foreground">{c.specsLabel}</p>
           <dl className="mt-3 divide-y divide-border border-y border-border text-sm">
-            {d.specs.map(([k, v]) => (
-              <div key={k} className="flex justify-between gap-4 py-2.5">
-                <dt className="text-muted-foreground">{k}</dt><dd className="text-right">{v}</dd>
+            {p.specs.map(({ label, value }) => (
+              <div key={label} className="flex justify-between gap-4 py-2.5">
+                <dt className="text-muted-foreground">{label}</dt><dd className="text-right">{value}</dd>
               </div>
             ))}
-          </dl>
+          </dl></>}
 
           <div className="mt-8 flex flex-wrap items-center gap-3">
             <div className="flex items-center rounded-full border border-border">
@@ -132,34 +123,34 @@ function ProductDetail() {
             </div>
             {delivery && <p className={`mt-2 text-xs ${delivery.ok ? "text-foreground" : "text-destructive"}`}>{delivery.message}</p>}
             <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-xs text-muted-foreground">
-              <span className="flex items-center gap-1.5"><Truck className="h-3.5 w-3.5" /> Ships across India</span>
-              <span className="flex items-center gap-1.5"><ShieldCheck className="h-3.5 w-3.5" /> 7-day easy returns</span>
+              <span className="flex items-center gap-1.5"><Truck className="h-3.5 w-3.5" /> {c.shipsNote}</span>
+              <span className="flex items-center gap-1.5"><ShieldCheck className="h-3.5 w-3.5" /> {c.returnsNote}</span>
             </div>
           </form>
 
           <div className="mt-6">
-            <p className="text-xs uppercase tracking-widest text-muted-foreground">Payment options</p>
+            <p className="text-xs uppercase tracking-widest text-muted-foreground">{c.paymentsLabel}</p>
             <div className="mt-3 flex flex-wrap gap-2">
-              {payments.map(({ icon: Icon, label }) => (
+              {c.payments.map((label) => { const Icon = payIcon(label); return (
                 <span key={label} className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs"><Icon className="h-3.5 w-3.5" />{label}</span>
-              ))}
+              ); })}
             </div>
           </div>
 
           <div className="mt-10 divide-y divide-border border-y border-border">
             <details open className="group py-4">
               <summary className="cursor-pointer list-none font-display font-semibold">About {p.name}</summary>
-              <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{d.long}</p>
+              <p className="mt-3 whitespace-pre-line text-sm leading-relaxed text-muted-foreground">{p.long}</p>
             </details>
             <details className="group py-4">
-              <summary className="cursor-pointer list-none font-display font-semibold">Object care &amp; wear</summary>
+              <summary className="cursor-pointer list-none font-display font-semibold">{c.careLabel}</summary>
               <dl className="mt-3 space-y-3 text-sm">
-                {d.care.map(([k, v]) => (<div key={k}><dt className="font-medium">{k}</dt><dd className="text-muted-foreground">{v}</dd></div>))}
+                {p.care.map(({ label, value }) => (<div key={label}><dt className="font-medium">{label}</dt><dd className="text-muted-foreground">{value}</dd></div>))}
               </dl>
             </details>
           </div>
 
-          <Link to="/products" className="mt-10 inline-flex text-sm font-semibold underline-offset-4 hover:underline">← Back to All Objects</Link>
+          <Link to="/products" className="mt-10 inline-flex text-sm font-semibold underline-offset-4 hover:underline">{c.backLabel}</Link>
         </div>
       </section>
     </Page>

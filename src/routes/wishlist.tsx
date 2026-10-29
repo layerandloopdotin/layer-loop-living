@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Laugh } from "lucide-react";
 import { DarkHero, Page } from "@/components/site";
-import { products, slugify } from "@/lib/products";
+import { useSite } from "@/lib/site";
 import { formatPrice } from "@/lib/currency";
 import { shop, useShop } from "@/lib/shop";
 
@@ -22,7 +22,8 @@ export const Route = createFileRoute("/wishlist")({
 
 function Wishlist() {
   const { wishlist } = useShop();
-  const items = products.filter((p) => wishlist.includes(slugify(p.name)));
+  const site = useSite();
+  const items = site.products.filter((p) => wishlist.includes(p.slug));
   return (
     <Page>
       <DarkHero eyebrow="Wishlist" title="Saved for later" />
@@ -35,7 +36,7 @@ function Wishlist() {
         ) : (
           <div className="grid gap-8 sm:grid-cols-2 md:grid-cols-3">
             {items.map((p) => {
-              const slug = slugify(p.name);
+              const slug = p.slug;
               return (
                 <div key={slug}>
                   <div className="relative overflow-hidden rounded-xl">

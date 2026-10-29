@@ -1,5 +1,8 @@
 import { z } from "zod";
 
+// A <select> left on its disabled placeholder submits no value at all, so FormData gives null.
+export const fieldValue = (f: FormData, key: string) => String(f.get(key) ?? "");
+
 export const roles = [
   "Product Designer",
   "3D Printing & Fabrication",

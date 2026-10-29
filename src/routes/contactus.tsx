@@ -3,7 +3,7 @@ import { useState } from "react";
 import { ArrowUpRight, Clock, Mail, MapPin, Phone } from "lucide-react";
 import storeImg from "@/assets/store-1.jpg";
 import { DarkHero, Page } from "@/components/site";
-import { careersSchema, roles } from "@/lib/contact";
+import { careersSchema, fieldValue, roles } from "@/lib/contact";
 
 export const Route = createFileRoute("/contactus")({
   head: () => ({
@@ -66,12 +66,12 @@ function Contact() {
     e.preventDefault();
     const f = new FormData(e.currentTarget);
     const r = careersSchema.safeParse({
-      name: f.get("name"),
-      email: f.get("email"),
-      phone: f.get("phone"),
-      role: f.get("role"),
-      portfolio: f.get("portfolio") || undefined,
-      offer: f.get("offer"),
+      name: fieldValue(f, "name"),
+      email: fieldValue(f, "email"),
+      phone: fieldValue(f, "phone"),
+      role: fieldValue(f, "role"),
+      portfolio: fieldValue(f, "portfolio") || undefined,
+      offer: fieldValue(f, "offer"),
     });
     if (!r.success) {
       const errs: Record<string, string> = {};

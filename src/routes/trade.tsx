@@ -58,9 +58,10 @@ function Trade() {
   const submit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const f = new FormData(e.currentTarget);
+    const v = (k: string) => String(f.get(k) ?? "");
     const r = schema.safeParse({
-      name: f.get("name"), company: f.get("company"), email: f.get("email"), phone: f.get("phone"),
-      type: f.get("type"), catalogues: picked, quantity: f.get("quantity"), message: f.get("message") || undefined,
+      name: v("name"), company: v("company"), email: v("email"), phone: v("phone"),
+      type: v("type"), catalogues: picked, quantity: v("quantity"), message: v("message") || undefined,
     });
     if (!r.success) {
       const errs: Record<string, string> = {};

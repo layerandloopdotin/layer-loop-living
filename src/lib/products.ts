@@ -19,6 +19,8 @@ export type Space = "The Lounge" | "The Suite" | "The Café" | "The Dining Room"
 
 export type Product = { name: string; note: string; price: number; image: string; category: Category; spaces: Space[] };
 
+export const slugify = (name: string) => name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+
 export const products: Product[] = [
   { name: "Terra", note: "Warm ceramic lighting", price: 280, image: terra, category: "Lighting", spaces: ["The Lounge", "The Suite"] },
   { name: "Noir", note: "Glazed ceramic sphere", price: 310, image: noir, category: "Lighting", spaces: ["The Lounge", "The Café"] },

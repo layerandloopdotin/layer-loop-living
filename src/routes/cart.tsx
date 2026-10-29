@@ -1,5 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Minus, Plus, X } from "lucide-react";
+import { Minus, Plus, Tag, X } from "lucide-react";
+import { useState } from "react";
+import { applyCoupon, cartTotals, FREE_SHIPPING_FROM } from "@/lib/pricing";
 import { DarkHero, Page } from "@/components/site";
 import { products, slugify } from "@/lib/products";
 import { formatPrice } from "@/lib/currency";
@@ -27,6 +29,10 @@ function Cart() {
     return p ? [{ ...c, p }] : [];
   });
   const total = lines.reduce((s, l) => s + l.p.price * l.qty, 0);
+  const [code, setCode] = useState("");
+  const [coupon, setCoupon] = useState<string>();
+  const [msg, setMsg] = useState("");
+  const t = cartTotals(total, coupon);
 
   return (
     <Page>
@@ -57,10 +63,25 @@ function Cart() {
                 </li>
               ))}
             </ul>
-            <aside className="h-fit rounded-2xl bg-card p-7">
-              <div className="flex justify-between text-sm"><span>Subtotal</span><span>{formatPrice(total)}</span></div>
-              <div className="mt-2 flex justify-between text-sm text-muted-foreground"><span>Shipping</span><span>Calculated at checkout</span></div>
-              <div className="mt-5 flex justify-between border-t border-border pt-5 font-display text-lg font-semibold"><span>Total</span><span>{formatPrice(total)}</span></div>
+            <aside className="h-fit rounded-2xl bg-card p-7 md:sticky md:top-24">
+              <p className="font-display text-lg font-semibold">Order summary</p>
+              <form onSubmit={(e) => { e.preventDefault(); const r = applyCoupon(code, total); if (r.ok) { setCoupon(r.code); setMsg(r.label + " applied."); setCode(""); } else setMsg(r.message); }} className="mt-5">
+                <label className="text-xs uppercase tracking-widest text-muted-foreground" htmlFor="coupon">Coupon code</label>
+                <div className="mt-2 flex gap-2">
+                  <input id="coupon" value={code} onChange={(e) => setCode(e.target.value)} placeholder="e.g. WELCOME10" className="min-w-0 flex-1 rounded-md border border-border bg-background px-3 py-2 text-sm uppercase" />
+                  <button className="rounded-md border border-foreground px-4 text-sm font-medium">Apply</button>
+                </div>
+                {msg && <p className="mt-2 text-xs text-muted-foreground">{msg}</p>}
+                {coupon && <button type="button" onClick={() => { setCoupon(undefined); setMsg(""); }} className="mt-2 inline-flex items-center gap-1 rounded-full bg-background px-3 py-1 text-xs"><Tag className="h-3 w-3" />{coupon}<X className="h-3 w-3" /></button>}
+              </form>
+              <div className="mt-6 space-y-2 border-t border-border pt-5 text-sm">
+                <div className="flex justify-between"><span>Subtotal</span><span>{formatPrice(t.subtotal)}</span></div>
+                {t.discount > 0 && <div className="flex justify-between text-primary"><span>Discount ({coupon})</span><span>− {formatPrice(t.discount)}</span></div>}
+                <div className="flex justify-between"><span>Shipping</span><span>{t.shipping === 0 ? "Free" : formatPrice(t.shipping)}</span></div>
+                <p className="text-xs text-muted-foreground">{t.shipping === 0 ? "You've unlocked free delivery." : `Add ${formatPrice(FREE_SHIPPING_FROM - t.subtotal)} more for free delivery.`} Delivery in 1–7 days depending on PIN code.</p>
+              </div>
+              <div className="mt-5 flex justify-between border-t border-border pt-5 font-display text-lg font-semibold"><span>Total</span><span>{formatPrice(t.total)}</span></div>
+              <p className="mt-1 text-xs text-muted-foreground">Inclusive of all taxes</p>
               <button disabled className="mt-6 w-full rounded-full bg-primary py-3.5 text-sm font-semibold text-primary-foreground opacity-60">Checkout — coming soon</button>
               <p className="mt-3 text-center text-xs text-muted-foreground">Cards, UPI, net banking &amp; wallets</p>
             </aside>

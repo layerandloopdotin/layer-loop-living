@@ -2,6 +2,7 @@
 import { img } from "@/lib/media";
 
 export type Pair = { label: string; value: string };
+export type Variant = { name: string; price: number };
 export type Colour = { name: string; hex: string; images: string[] };
 export type Category = { id: string; name: string; image: string; sort: number };
 export type Space = { id: string; name: string; sort: number };
@@ -9,14 +10,14 @@ export type Space = { id: string; name: string; sort: number };
 export type ProductRow = {
   id: string; slug: string; name: string; tagline: string; short_description: string; long_description: string;
   price: number; compare_at_price: number | null; featured: boolean; published: boolean; sort: number;
-  category_ids: string[]; space_ids: string[]; images: string[]; colors: unknown; specs: unknown; care: unknown;
+  category_ids: string[]; space_ids: string[]; images: string[]; colors: unknown; specs: unknown; care: unknown; variants?: unknown;
 };
 
 export type Product = {
   id: string; slug: string; name: string; note: string; short: string; long: string;
   price: number; compareAt: number | null; featured: boolean;
   image: string; images: string[]; colours: Colour[];
-  categories: string[]; spaces: string[]; specs: Pair[]; care: Pair[];
+  categories: string[]; spaces: string[]; specs: Pair[]; care: Pair[]; variants: Variant[];
 };
 
 const pairs = (v: unknown): Pair[] =>
@@ -30,6 +31,15 @@ const colours = (v: unknown): Colour[] =>
         images: Array.isArray(x.images) ? x.images.map(String).filter(Boolean) : [],
       }))
     : [];
+
+export const variants = (v: unknown): Variant[] =>
+  Array.isArray(v)
+    ? v.filter((x) => x && typeof x === "object" && String(x.name ?? "").trim()).map((x) => ({ name: String(x.name).trim(), price: Math.max(0, Number(x.price) || 0) }))
+    : [];
+
+/** Unit price including the chosen variant's extra cost. */
+export const unitPrice = (p: Pick<Product, "price" | "variants">, variant?: string) =>
+  p.price + (p.variants.find((v) => v.name === variant)?.price ?? 0);
 
 export const slugify = (name: string) =>
   name.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
@@ -46,7 +56,7 @@ export function toProduct(r: ProductRow, cats: Category[], spaces: Space[]): Pro
     colours: cs.map((c) => ({ ...c, images: c.images.map(img) })),
     categories: cats.filter((c) => r.category_ids?.includes(c.id)).map((c) => c.name),
     spaces: spaces.filter((s) => r.space_ids?.includes(s.id)).map((s) => s.name),
-    specs: pairs(r.specs), care: pairs(r.care),
+    specs: pairs(r.specs), care: pairs(r.care), variants: variants(r.variants),
   };
 }
 

@@ -81,6 +81,7 @@ const catalog = {
   taxNote: "Inclusive of all taxes",
   madeForLabel: "Made for",
   colourLabel: "Colour",
+  variantLabel: "Variant",
   specsLabel: "Size & specification",
   careLabel: "Object care & wear",
   shipsNote: "Ships across India",
@@ -239,7 +240,7 @@ export const sections: Record<ContentKey, { title: string; description: string; 
     title: "Homepage",
     description: "Cover, The Edit, Shop by Category and the closing image. The Edit shows every product marked Featured; category tiles come from Categories.",
     groups: [
-      { title: "Cover", fields: [ta("heroTitle", "Headline", "Each new line starts a new line on the page."), { k: "heroSlides", label: "Cover slides", t: "list", item: "slide", of: [{ k: "product", label: "Product", t: "product" }] }, t("badge1", "Photo badge 1"), t("badge2", "Photo badge 2"), t("slideCaption", "Slide caption"), ta("heroText", "Text under the cover"), { k: "keywords", label: "Keywords", t: "strings" }] },
+      { title: "Cover", fields: [ta("heroTitle", "Headline", "Each new line starts a new line on the page."), { k: "heroSlides", label: "Cover slides", t: "list", item: "slide", of: [{ k: "product", label: "Product", t: "product" }] }, t("badge1", "Photo badge 1"), t("badge2", "Photo badge 2"), t("slideCaption", "Slide caption"), ta("heroText", "Text under the cover")] },
       { title: "The Edit", fields: [t("editTitle", "Title"), t("editSubtitle", "Subtitle"), t("philosophyTitle", "Side heading"), ta("philosophyText", "Side text"), t("editButton", "Button label")] },
       { title: "Scrolling banner", fields: [t("marquee", "Banner text")] },
       { title: "Shop by Category", fields: [t("categoryTitle", "Title"), t("categorySubtitle", "Subtitle"), t("categoryButton", "Button label")] },
@@ -251,7 +252,7 @@ export const sections: Record<ContentKey, { title: string; description: string; 
     description: "Labels on the All Objects page and on every product page.",
     groups: [
       { title: "All Objects page", fields: [t("heroTitle", "Title"), ta("heroText", "Intro"), t("filtersTitle", "Filters heading"), t("categoryLabel", "Category heading"), t("allLabel", "“All” option"), t("spaceLabel", "Spaces heading"), t("emptyText", "No results text")] },
-      { title: "Product page", fields: [t("taxNote", "Under price"), t("madeForLabel", "Spaces label"), t("colourLabel", "Colour label"), t("specsLabel", "Specifications heading"), t("careLabel", "Care heading"), t("shipsNote", "Shipping note"), t("returnsNote", "Returns note"), t("paymentsLabel", "Payments heading"), { k: "payments", label: "Payment methods", t: "strings" }, t("backLabel", "Back link")] },
+      { title: "Product page", fields: [t("taxNote", "Under price"), t("madeForLabel", "Spaces label"), t("colourLabel", "Colour label"), t("variantLabel", "Variant label"), t("specsLabel", "Specifications heading"), t("careLabel", "Care heading"), t("shipsNote", "Shipping note"), t("returnsNote", "Returns note"), t("paymentsLabel", "Payments heading"), { k: "payments", label: "Payment methods", t: "strings" }, t("backLabel", "Back link")] },
     ],
   },
   about: {

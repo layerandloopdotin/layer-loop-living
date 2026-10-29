@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { unitPrice } from "@/lib/catalog";
 import { Minus, Plus, Tag, X } from "lucide-react";
 import { useState } from "react";
 import { applyCoupon, cartTotals, FREE_SHIPPING_FROM } from "@/lib/pricing";
@@ -29,7 +30,7 @@ function Cart() {
     const p = site.bySlug(c.slug);
     return p ? [{ ...c, p }] : [];
   });
-  const total = lines.reduce((s, l) => s + l.p.price * l.qty, 0);
+  const total = lines.reduce((s, l) => s + unitPrice(l.p, l.variant) * l.qty, 0);
   const [code, setCode] = useState("");
   const [coupon, setCoupon] = useState<string>();
   const [msg, setMsg] = useState("");
@@ -47,20 +48,21 @@ function Cart() {
         ) : (
           <div className="grid gap-12 md:grid-cols-[1.6fr_1fr]">
             <ul className="divide-y divide-border border-y border-border">
-              {lines.map(({ slug, qty, p }) => (
-                <li key={slug} className="flex items-center gap-5 py-5">
+              {lines.map(({ slug, qty, p, variant }) => (
+                <li key={slug + (variant ?? "")} className="flex items-center gap-5 py-5">
                   <Link to="/product/$slug" params={{ slug }} className="shrink-0"><img src={p.image} alt={p.name} className="h-24 w-24 rounded-lg object-cover" /></Link>
                   <div className="flex-1">
                     <p className="font-display font-semibold">{p.name}</p>
                     <p className="text-xs text-muted-foreground">{p.note}</p>
+                    {variant && <p className="mt-1 text-xs">{variant}</p>}
                     <div className="mt-3 inline-flex items-center rounded-full border border-border">
-                      <button aria-label="Decrease" onClick={() => shop.setQty(slug, qty - 1)} className="p-2"><Minus className="h-3.5 w-3.5" /></button>
+                      <button aria-label="Decrease" onClick={() => shop.setQty(slug, qty - 1, variant)} className="p-2"><Minus className="h-3.5 w-3.5" /></button>
                       <span className="w-6 text-center text-sm">{qty}</span>
-                      <button aria-label="Increase" onClick={() => shop.setQty(slug, qty + 1)} className="p-2"><Plus className="h-3.5 w-3.5" /></button>
+                      <button aria-label="Increase" onClick={() => shop.setQty(slug, qty + 1, variant)} className="p-2"><Plus className="h-3.5 w-3.5" /></button>
                     </div>
                   </div>
-                  <span className="font-display font-semibold">{formatPrice(p.price * qty)}</span>
-                  <button aria-label={`Remove ${p.name}`} onClick={() => shop.setQty(slug, 0)} className="p-2 text-muted-foreground hover:text-foreground"><X className="h-4 w-4" /></button>
+                  <span className="font-display font-semibold">{formatPrice(unitPrice(p, variant) * qty)}</span>
+                  <button aria-label={`Remove ${p.name}`} onClick={() => shop.setQty(slug, 0, variant)} className="p-2 text-muted-foreground hover:text-foreground"><X className="h-4 w-4" /></button>
                 </li>
               ))}
             </ul>

@@ -59,6 +59,7 @@ export type Database = {
           specs: Json
           tagline: string
           updated_at: string
+          variants: Json
         }
         Insert: {
           care?: Json
@@ -80,6 +81,7 @@ export type Database = {
           specs?: Json
           tagline?: string
           updated_at?: string
+          variants?: Json
         }
         Update: {
           care?: Json
@@ -101,6 +103,7 @@ export type Database = {
           specs?: Json
           tagline?: string
           updated_at?: string
+          variants?: Json
         }
         Relationships: []
       }

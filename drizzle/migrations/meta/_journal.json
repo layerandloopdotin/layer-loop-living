@@ -15,6 +15,13 @@
       "when": 1793287331927,
       "tag": "0001_single_admin_only",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1793291475787,
+      "tag": "0002_product_variants",
+      "breakpoints": true
     }
   ]
 }

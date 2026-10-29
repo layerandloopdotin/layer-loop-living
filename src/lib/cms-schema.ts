@@ -81,6 +81,7 @@ const catalog = {
   taxNote: "Inclusive of all taxes",
   madeForLabel: "Made for",
   colourLabel: "Colour",
+  variantLabel: "Variant",
   specsLabel: "Size & specification",
   careLabel: "Object care & wear",
   shipsNote: "Ships across India",
@@ -251,7 +252,7 @@ export const sections: Record<ContentKey, { title: string; description: string; 
     description: "Labels on the All Objects page and on every product page.",
     groups: [
       { title: "All Objects page", fields: [t("heroTitle", "Title"), ta("heroText", "Intro"), t("filtersTitle", "Filters heading"), t("categoryLabel", "Category heading"), t("allLabel", "“All” option"), t("spaceLabel", "Spaces heading"), t("emptyText", "No results text")] },
-      { title: "Product page", fields: [t("taxNote", "Under price"), t("madeForLabel", "Spaces label"), t("colourLabel", "Colour label"), t("specsLabel", "Specifications heading"), t("careLabel", "Care heading"), t("shipsNote", "Shipping note"), t("returnsNote", "Returns note"), t("paymentsLabel", "Payments heading"), { k: "payments", label: "Payment methods", t: "strings" }, t("backLabel", "Back link")] },
+      { title: "Product page", fields: [t("taxNote", "Under price"), t("madeForLabel", "Spaces label"), t("colourLabel", "Colour label"), t("variantLabel", "Variant label"), t("specsLabel", "Specifications heading"), t("careLabel", "Care heading"), t("shipsNote", "Shipping note"), t("returnsNote", "Returns note"), t("paymentsLabel", "Payments heading"), { k: "payments", label: "Payment methods", t: "strings" }, t("backLabel", "Back link")] },
     ],
   },
   about: {

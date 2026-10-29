@@ -32,7 +32,7 @@ export const galleryFor = (p: Product) => [p.image, ...(p.gallery ?? [])];
 export const slugify = (name: string) => name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
 
 export const products: Product[] = [
-  { name: "The Stack Lamp", note: "Layered sculptural table lamp", price: 340, image: heroLamp, category: "Lighting", spaces: ["The Lounge", "The Study"] },
+  { name: "The Stack Lamp", note: "Layered sculptural table lamp", price: 340, image: heroLamp, category: "Lighting", spaces: ["The Lounge", "The Study"], gallery: [stack2, stack3, stack4] },
   { name: "Terra", note: "Warm ceramic lighting", price: 280, image: terra, category: "Lighting", spaces: ["The Lounge", "The Suite"], gallery: [terra2, terra3, terra4] },
   { name: "Noir", note: "Glazed ceramic sphere", price: 310, image: noir, category: "Lighting", spaces: ["The Lounge", "The Café"] },
   { name: "Haze", note: "Arched floor light", price: 265, image: haze, category: "Lighting", spaces: ["The Lounge"] },

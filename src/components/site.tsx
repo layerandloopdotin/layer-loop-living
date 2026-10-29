@@ -36,9 +36,13 @@ export function SiteHeader() {
             ))}
           </nav>
         </div>
-        <Link to="/contactus" className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2 text-sm font-medium text-primary-foreground">
-          Contact us <ArrowRight className="h-4 w-4" />
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link to="/contactus" className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2 text-sm font-medium text-primary-foreground">
+            Contact us <ArrowRight className="h-4 w-4" />
+          </Link>
+          <HeaderIcon to="/wishlist" label="Wishlist" count={wishlist.length}><Heart className="h-4 w-4" /></HeaderIcon>
+          <HeaderIcon to="/cart" label="Cart" count={cart.reduce((s, c) => s + c.qty, 0)}><ShoppingBag className="h-4 w-4" /></HeaderIcon>
+        </div>
       </div>
     </header>
   );

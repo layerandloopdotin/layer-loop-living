@@ -108,7 +108,7 @@ function Index() {
                 <img src={x.image} alt={x.name} loading="lazy" width={960} height={1280} className="aspect-[3/4] w-full object-cover transition-transform duration-700 group-hover:scale-105" />
               </div>
               <div className="mt-3 flex items-center justify-between gap-2">
-                <p className="font-display font-semibold">{x.name}</p>
+                <p className="font-display text-sm leading-snug font-semibold md:text-base">{x.name}</p>
                 <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground transition-all duration-300 group-hover:translate-x-1 group-hover:text-foreground" />
               </div>
             </Link>

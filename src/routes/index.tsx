@@ -100,14 +100,15 @@ function Index() {
           </div>
           <Link to="/products" className="inline-flex items-center gap-2 rounded-full border border-foreground px-5 py-2 text-sm">{c.categoryButton} <ArrowRight className="h-4 w-4" /></Link>
         </div>
-        <div className="mt-10 grid grid-cols-2 gap-6 md:grid-cols-4">
+        <div className="mt-10 flex snap-x gap-4 overflow-x-auto pb-2 [scrollbar-width:none] md:gap-5">
           {site.categories.filter((x) => x.image).map((x) => (
-            <Link key={x.id} to="/products" search={{ category: x.name }} className="group block">
+            <Link key={x.id} to="/products" search={{ category: x.name }} className="group block w-[44%] shrink-0 snap-start sm:w-[30%] md:w-auto md:min-w-[9rem] md:flex-1 md:shrink">
+
               <div className="overflow-hidden rounded-xl">
                 <img src={x.image} alt={x.name} loading="lazy" width={960} height={1280} className="aspect-[3/4] w-full object-cover transition-transform duration-700 group-hover:scale-105" />
               </div>
               <div className="mt-3 flex items-center justify-between gap-2">
-                <p className="font-display font-semibold">{x.name}</p>
+                <p className="font-display text-sm leading-snug font-semibold md:text-base">{x.name}</p>
                 <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground transition-all duration-300 group-hover:translate-x-1 group-hover:text-foreground" />
               </div>
             </Link>

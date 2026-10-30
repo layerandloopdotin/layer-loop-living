@@ -29,7 +29,7 @@ function Index() {
   const slides = c.heroSlides.map((x) => site.bySlug(x.product)).filter((p) => p !== undefined);
   const [i, setI] = useState(0);
   const s = slides[i] ?? slides[0];
-  const edit = featuredProducts(site.products);
+  const edit = featuredProducts(site.products).slice(0, 3);
   return (
     <Page>
       <section className="bg-ink text-ink-foreground">
@@ -79,7 +79,7 @@ function Index() {
             <p className="text-xs font-bold uppercase tracking-widest">{c.philosophyTitle}</p>
             <p className="mt-2 text-sm text-muted-foreground">{c.philosophyText}</p>
           </div>
-          <Link to="/products" className="inline-flex items-center gap-2 rounded-full border border-foreground px-5 py-2 text-sm">{c.editButton} <ArrowRight className="h-4 w-4" /></Link>
+          <Link to="/products" search={{ featured: true }} className="inline-flex items-center gap-2 rounded-full border border-foreground px-5 py-2 text-sm">{c.editButton} <ArrowRight className="h-4 w-4" /></Link>
         </div>
         <div className="mt-12 grid gap-6 md:grid-cols-3">
           {edit.map((p) => <ProductCard key={p.slug} slug={p.slug} name={p.name} note={p.note} price={p.price} image={p.image} />)}

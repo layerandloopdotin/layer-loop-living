@@ -116,7 +116,7 @@ function Products() {
             </div>
           </>}
         </aside>
-        <div key={cats.join() + spaces.join() + featured + cols} ref={grid} className={`product-grid grid content-start animate-in fade-in duration-500 md:grid-cols-2 md:gap-6 lg:grid-cols-3 ${cols === 3 ? "grid-cols-3 gap-x-2 gap-y-4" : cols === 2 ? "grid-cols-2 gap-x-3 gap-y-6" : "grid-cols-1 gap-8"}`}>
+        <div key={cats.join() + spaces.join() + featured + cols} ref={grid} data-density={cols} className={`product-grid grid content-start animate-in fade-in duration-500 md:grid-cols-2 md:gap-6 lg:grid-cols-3 ${cols === 3 ? "grid-cols-3 gap-x-2 gap-y-4" : cols === 2 ? "grid-cols-2 gap-x-3 gap-y-6" : "grid-cols-1 gap-8 max-md:px-4"}`}>
           {shown.map((p) => (
             <div key={p.id} className="product-card group relative">
               <Link to="/product/$slug" params={{ slug: p.slug }} aria-label={p.name} className="block">

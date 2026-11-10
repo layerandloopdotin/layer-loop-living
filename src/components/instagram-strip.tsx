@@ -1,6 +1,7 @@
 import { Instagram } from "lucide-react";
 import { useContent } from "@/lib/site";
 import { img } from "@/lib/media";
+import { CenterRail } from "@/components/center-rail";
 
 export function InstagramStrip() {
   const c = useContent("instagram");
@@ -16,17 +17,17 @@ export function InstagramStrip() {
           <Instagram className="h-4 w-4" /> {c.buttonLabel}
         </a>
       </div>
-      <div className="mt-10 flex snap-x gap-3 overflow-x-auto px-6 pb-2 [scrollbar-width:none] md:px-[max(1.5rem,calc((100vw-80rem)/2+1.5rem))]">
+      <CenterRail dark className="mt-8" itemClass="w-[60%] sm:w-64">
         {c.posts.map((src, n) => (
           <a key={n} href={c.url} target="_blank" rel="noreferrer" aria-label={`Instagram post ${n + 1}`}
-            className="group relative aspect-square w-52 shrink-0 snap-start overflow-hidden rounded-xl md:w-64">
+            className="group relative block aspect-square overflow-hidden rounded-xl">
             <img src={img(src)} alt="" loading="lazy" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
             <span className="absolute inset-0 flex items-center justify-center bg-ink/0 opacity-0 transition group-hover:bg-ink/40 group-hover:opacity-100">
               <Instagram className="h-6 w-6" />
             </span>
           </a>
         ))}
-      </div>
+      </CenterRail>
     </section>
   );
 }

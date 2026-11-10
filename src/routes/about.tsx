@@ -4,6 +4,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { StoreWheel } from "@/components/store-wheel";
 import { DarkHero, Page } from "@/components/site";
 import { InstagramStrip } from "@/components/instagram-strip";
+import { CenterRail } from "@/components/center-rail";
 import { useContent } from "@/lib/site";
 import { img } from "@/lib/media";
 
@@ -40,12 +41,21 @@ function About() {
         <div className="mx-auto max-w-7xl px-6">
           <div className="flex items-center justify-between gap-4">
             <h2 className="text-3xl font-bold">{c.materialsTitle}</h2>
-            <div className="flex gap-2">
+            <div className="hidden gap-2 md:flex">
               <button aria-label="Previous material" onClick={() => slide(-1)} className="rounded-full border border-ink-muted p-2 transition-colors hover:bg-ink-soft"><ChevronLeft className="h-4 w-4" /></button>
               <button aria-label="Next material" onClick={() => slide(1)} className="rounded-full border border-ink-muted p-2 transition-colors hover:bg-ink-soft"><ChevronRight className="h-4 w-4" /></button>
             </div>
           </div>
-          <div ref={rail} className="mt-12 flex snap-x snap-mandatory gap-6 overflow-x-auto pb-2 [scrollbar-width:none]">
+          <CenterRail dark className="-mx-6 mt-8 md:hidden" itemClass="w-[75%]">
+            {c.materials.map((m) => (
+              <div key={m.name} className="rounded-2xl bg-ink-soft p-5">
+                <img src={img(m.image)} alt={m.name} loading="lazy" className="aspect-[3/1.2] w-full rounded-lg object-cover" />
+                <h3 className="mt-5 font-bold">{m.name}</h3>
+                <p className="mt-2 text-sm text-ink-muted">{m.text}</p>
+              </div>
+            ))}
+          </CenterRail>
+          <div ref={rail} className="mt-12 hidden md:flex snap-x snap-mandatory gap-6 overflow-x-auto pb-2 [scrollbar-width:none]">
             {c.materials.map((m) => (
               <div key={m.name} className="shrink-0 basis-[85%] snap-start rounded-2xl bg-ink-soft p-5 sm:basis-[calc((100%-1.5rem)/2)] md:basis-[calc((100%-3rem)/3)]">
                 <img src={img(m.image)} alt={m.name} loading="lazy" className="aspect-[3/1.2] w-full rounded-lg object-cover" />
@@ -72,7 +82,7 @@ function About() {
         <img src={img(c.atmosphereImage)} alt={c.atmosphereTitle} loading="lazy" width={1600} height={768} className="mt-10 w-full rounded-2xl" />
       </section>
       <InstagramStrip />
-      <section className="mx-auto flex min-h-screen max-w-7xl items-center px-6 pb-20">
+      <section className="mx-auto flex min-h-screen max-w-7xl items-center px-6 pb-20 pt-20 md:pt-24">
         <div className="grid w-full items-center gap-10 md:grid-cols-[1fr_1.8fr]">
           <div>
             <p className="text-xs font-bold uppercase tracking-widest text-primary">{c.storeEyebrow}</p>

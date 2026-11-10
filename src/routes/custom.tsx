@@ -267,7 +267,7 @@ function Sandbox({ design: d, setDesign, rates, note, sendLabel, onSend }: { des
       <div className="space-y-5 rounded-2xl border border-ink-line p-5">
         <div className="flex flex-wrap gap-2">
           {FORMS.map((f) => (
-            <button key={f.id} type="button" aria-pressed={d.form === f.id} onClick={() => set({ form: f.id, light: f.light ? d.light : false, waterproof: f.water ? d.waterproof : false })}
+            <button key={f.id} type="button" aria-pressed={d.form === f.id} onClick={() => set({ form: f.id, stack: f.id === "stack" && d.stack < 2 ? 3 : d.stack, light: f.light ? d.light : false, waterproof: f.water ? d.waterproof : false })}
               className={`rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${d.form === f.id ? "bg-ink-foreground text-ink" : "border border-ink-line text-ink-muted hover:text-ink-foreground"}`}>{f.label}</button>
           ))}
         </div>

@@ -20,3 +20,5 @@
 - Product galleries share one selected-photo view with scrollable thumbnails across screen sizes, so mobile and desktop retain the same photo navigation.
 - Use the shared centered rail for featured objects, categories and materials on every screen size; responsive item and edge widths keep both directions reachable.
 - Catalog density controls apply at every breakpoint; the compact three-column view must not blur sibling products.
+- Custom page 3D (three/R3F) lives in `src/components/custom/studio-3d.tsx`, loaded only via `React.lazy` behind `<ClientOnly>`; sandbox rules/estimates stay in `src/lib/custom.ts` so they are testable and SSR-safe.
+- Customer brief uploads go to the private `custom-briefs` bucket (anon insert under `briefs/`, admin-only read via signed URLs) so customer files are never public.

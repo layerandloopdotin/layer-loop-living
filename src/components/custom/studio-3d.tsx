@@ -183,17 +183,25 @@ function Lights() {
   );
 }
 
+/** Pulls the camera back or in when the model's size changes, keeping its current viewing angle. */
+function CameraFit({ dist }: { dist: number }) {
+  const { camera } = useThree();
+  useEffect(() => { camera.position.setLength(dist); camera.updateProjectionMatrix(); }, [camera, dist]);
+  return null;
+}
+
 export function StudioModel({ design, spin = false, interactive = true, onPoints }: { design: Design; spin?: boolean; interactive?: boolean; onPoints?: (p: TouchPoint[]) => void }) {
   const tall = parts(design).reduce((s, p) => s + p.height / 10, 0);
-  const dist = Math.max(5.5, tall * 2.1, (design.width / 10) * 3.2);
+  const dist = Math.max(5.5, tall * 2.4, (design.width / 10) * 3.2);
   const [dragging, setDragging] = useState(false);
   return (
     <div className="h-full w-full touch-none" data-scene-ready>
       <Canvas shadows dpr={[1, 1.75]} camera={{ position: [0, tall * 0.15, dist], fov: 38 }} gl={{ antialias: true, alpha: true }}>
         <Lights />
+        <CameraFit dist={Math.hypot(dist, tall * 0.15)} />
         <Piece d={design} spin={spin} onPoints={onPoints} setDragging={setDragging} />
         <ContactShadows position={[0, -tall / 2 - 0.01, 0]} opacity={0.5} blur={2.4} scale={8} />
-        {interactive && <OrbitControls enabled={!dragging} enablePan={false} minDistance={2.5} maxDistance={18} autoRotate={!dragging && !onPoints?.length} autoRotateSpeed={0.6} />}
+        {interactive && <OrbitControls enabled={!dragging} enablePan={false} minDistance={2.5} maxDistance={24} autoRotate={!dragging && !onPoints?.length} autoRotateSpeed={0.6} />}
       </Canvas>
     </div>
   );

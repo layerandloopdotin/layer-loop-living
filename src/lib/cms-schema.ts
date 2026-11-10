@@ -219,6 +219,7 @@ const returns = {
 const custom = {
   heroEyebrow: "The Bespoke Lab",
   heroTitle: "Make it yours.",
+  heroImage: "asset:custom-hero.jpg",
   heroText: "Engrave a name, choose any colour, change the scale, print from your photo or stack a floor lamp. Play with it here — we'll make it real.",
   tweakLabel: "Tweak one of ours",
   scratchLabel: "Start from scratch",
@@ -241,7 +242,7 @@ const custom = {
   waterproofLoops: "3",
   photoEyebrow: "Photo to 3D",
   photoTitle: "Turn a photo into an object.",
-  photoText: "Upload any photo and watch it become a 3D relief. Bright areas rise, dark areas sink — just like a printed lithophane.",
+  photoText: "Upload a photo and choose what it becomes: a 3D object our AI recognises and models, a raised relief, or a lithophane that reveals the picture when lit.",
   photoNote: "This is an instant preview. Our designers make the final model by hand.",
   sketchEyebrow: "From sketch to print",
   sketchTitle: "Drag to see the idea become the object.",
@@ -303,7 +304,7 @@ export const sections: Record<ContentKey, { title: string; description: string; 
     title: "Products page & product details",
     description: "Labels on the All Objects page and on every product page.",
     groups: [
-      { title: "All Objects page", fields: [t("heroTitle", "Title"), ta("heroText", "Intro"), t("filtersTitle", "Filters heading"), t("categoryLabel", "Category heading"), t("allLabel", "“All” option"), t("spaceLabel", "Spaces heading"), t("emptyText", "No results text")] },
+      { title: "All Objects page", fields: [t("heroTitle", "Title"), im("heroImage", "Cover photo"), ta("heroText", "Intro"), t("filtersTitle", "Filters heading"), t("categoryLabel", "Category heading"), t("allLabel", "“All” option"), t("spaceLabel", "Spaces heading"), t("emptyText", "No results text")] },
       { title: "Product page", fields: [t("taxNote", "Under price"), t("madeForLabel", "Spaces label"), t("colourLabel", "Colour label"), t("variantLabel", "Variant label"), t("specsLabel", "Specifications heading"), t("careLabel", "Care heading"), t("shipsNote", "Shipping note"), t("returnsNote", "Returns note"), t("paymentsLabel", "Payments heading"), { k: "payments", label: "Payment methods", t: "strings" }, t("backLabel", "Back link")] },
     ],
   },
@@ -323,7 +324,7 @@ export const sections: Record<ContentKey, { title: string; description: string; 
     title: "Trade page",
     description: "Partner panels, contact block and the catalogue request form. Email and phone come from Site settings.",
     groups: [
-      { title: "Header", fields: [t("heroEyebrow", "Small label"), t("heroTitle", "Title"), ta("heroText", "Intro")] },
+      { title: "Header", fields: [t("heroEyebrow", "Small label"), t("heroTitle", "Title"), im("heroImage", "Cover photo"), ta("heroText", "Intro")] },
       { title: "Who we work with", fields: [t("partnersEyebrow", "Small label"), t("partnersTitle", "Heading"), { k: "partners", label: "Partner panels", t: "list", item: "panel", of: [t("name", "Title"), ta("text", "Description"), im("image", "Photo")] }] },
       { title: "Contact block", fields: [t("contactTitle", "Heading"), ta("contactText", "Text")] },
       { title: "Catalogue form", fields: [t("catalogueEyebrow", "Small label"), t("catalogueTitle", "Heading"), t("catalogueSubtitle", "Subheading"), ta("catalogueText", "Text"), { k: "catalogues", label: "Catalogue options", t: "strings" }, { k: "quantities", label: "Quantity options", t: "strings" }, t("submitLabel", "Button label"), ta("thankYou", "Thank-you message")] },
@@ -333,7 +334,7 @@ export const sections: Record<ContentKey, { title: string; description: string; 
     title: "Contact page",
     description: "Store block, contact cards and the careers form. Address, email and phone come from Site settings.",
     groups: [
-      { title: "Header", fields: [t("heroEyebrow", "Small label"), t("heroTitle", "Title"), ta("heroText", "Intro")] },
+      { title: "Header", fields: [t("heroEyebrow", "Small label"), t("heroTitle", "Title"), im("heroImage", "Cover photo"), ta("heroText", "Intro")] },
       { title: "Store", fields: [t("storeEyebrow", "Small label"), t("storeTitle", "Heading"), ta("storeText", "Text"), im("storeImage", "Store photo"), t("directionsLabel", "Directions button")] },
       { title: "Reach us", fields: [t("reachTitle", "Heading"), ta("reachText", "Text"), t("emailNote", "Email card note"), t("phoneNote", "Phone card note"), t("postNote", "Post card note")] },
       { title: "Careers", fields: [t("careersEyebrow", "Small label"), t("careersTitle", "Heading"), ta("careersText", "Text"), t("careersNote", "Small note"), t("submitLabel", "Button label"), ta("thankYou", "Thank-you message")] },
@@ -343,7 +344,7 @@ export const sections: Record<ContentKey, { title: string; description: string; 
     title: "Custom page",
     description: "The Bespoke Lab: customisation options, 3D sandbox, photo to 3D, sketch slider, steps and the custom brief form.",
     groups: [
-      { title: "Header", fields: [t("heroEyebrow", "Small label"), t("heroTitle", "Title"), ta("heroText", "Intro"), t("tweakLabel", "Button 1"), t("scratchLabel", "Button 2")] },
+      { title: "Header", fields: [t("heroEyebrow", "Small label"), t("heroTitle", "Title"), im("heroImage", "Cover photo"), ta("heroText", "Intro"), t("tweakLabel", "Button 1"), t("scratchLabel", "Button 2")] },
       { title: "What we customise", fields: [t("offersTitle", "Heading"), { k: "offers", label: "Options", t: "list", item: "option", of: [t("name", "Title"), ta("text", "Text")] }] },
       { title: "3D sandbox", fields: [t("sandboxEyebrow", "Small label"), t("sandboxTitle", "Heading"), ta("sandboxText", "Text"), ta("sandboxNote", "Estimate note"), t("sendLabel", "Send button")] },
       { title: "Estimate settings (₹)", fields: [t("gramPrice", "Price per gram", "Numbers only"), t("basePrice", "Base fee"), t("lightKitPrice", "Light kit price"), t("waterproofLoops", "Extra wall loops for waterproofing")] },

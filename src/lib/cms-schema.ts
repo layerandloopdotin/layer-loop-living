@@ -304,7 +304,7 @@ export const sections: Record<ContentKey, { title: string; description: string; 
     title: "Products page & product details",
     description: "Labels on the All Objects page and on every product page.",
     groups: [
-      { title: "All Objects page", fields: [t("heroTitle", "Title"), im("heroImage", "Cover photo"), ta("heroText", "Intro"), t("filtersTitle", "Filters heading"), t("categoryLabel", "Category heading"), t("allLabel", "“All” option"), t("spaceLabel", "Spaces heading"), t("emptyText", "No results text")] },
+      { title: "All Objects page", fields: [t("heroTitle", "Title"), ta("heroText", "Intro"), t("filtersTitle", "Filters heading"), t("categoryLabel", "Category heading"), t("allLabel", "“All” option"), t("spaceLabel", "Spaces heading"), t("emptyText", "No results text")] },
       { title: "Product page", fields: [t("taxNote", "Under price"), t("madeForLabel", "Spaces label"), t("colourLabel", "Colour label"), t("variantLabel", "Variant label"), t("specsLabel", "Specifications heading"), t("careLabel", "Care heading"), t("shipsNote", "Shipping note"), t("returnsNote", "Returns note"), t("paymentsLabel", "Payments heading"), { k: "payments", label: "Payment methods", t: "strings" }, t("backLabel", "Back link")] },
     ],
   },
@@ -324,7 +324,7 @@ export const sections: Record<ContentKey, { title: string; description: string; 
     title: "Trade page",
     description: "Partner panels, contact block and the catalogue request form. Email and phone come from Site settings.",
     groups: [
-      { title: "Header", fields: [t("heroEyebrow", "Small label"), t("heroTitle", "Title"), im("heroImage", "Cover photo"), ta("heroText", "Intro")] },
+      { title: "Header", fields: [t("heroEyebrow", "Small label"), t("heroTitle", "Title"), ta("heroText", "Intro")] },
       { title: "Who we work with", fields: [t("partnersEyebrow", "Small label"), t("partnersTitle", "Heading"), { k: "partners", label: "Partner panels", t: "list", item: "panel", of: [t("name", "Title"), ta("text", "Description"), im("image", "Photo")] }] },
       { title: "Contact block", fields: [t("contactTitle", "Heading"), ta("contactText", "Text")] },
       { title: "Catalogue form", fields: [t("catalogueEyebrow", "Small label"), t("catalogueTitle", "Heading"), t("catalogueSubtitle", "Subheading"), ta("catalogueText", "Text"), { k: "catalogues", label: "Catalogue options", t: "strings" }, { k: "quantities", label: "Quantity options", t: "strings" }, t("submitLabel", "Button label"), ta("thankYou", "Thank-you message")] },
@@ -334,7 +334,7 @@ export const sections: Record<ContentKey, { title: string; description: string; 
     title: "Contact page",
     description: "Store block, contact cards and the careers form. Address, email and phone come from Site settings.",
     groups: [
-      { title: "Header", fields: [t("heroEyebrow", "Small label"), t("heroTitle", "Title"), im("heroImage", "Cover photo"), ta("heroText", "Intro")] },
+      { title: "Header", fields: [t("heroEyebrow", "Small label"), t("heroTitle", "Title"), ta("heroText", "Intro")] },
       { title: "Store", fields: [t("storeEyebrow", "Small label"), t("storeTitle", "Heading"), ta("storeText", "Text"), im("storeImage", "Store photo"), t("directionsLabel", "Directions button")] },
       { title: "Reach us", fields: [t("reachTitle", "Heading"), ta("reachText", "Text"), t("emailNote", "Email card note"), t("phoneNote", "Phone card note"), t("postNote", "Post card note")] },
       { title: "Careers", fields: [t("careersEyebrow", "Small label"), t("careersTitle", "Heading"), ta("careersText", "Text"), t("careersNote", "Small note"), t("submitLabel", "Button label"), ta("thankYou", "Thank-you message")] },

@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { LayoutGrid, Square, SlidersHorizontal } from "lucide-react";
+import { Grid3x3, LayoutGrid, Square, SlidersHorizontal } from "lucide-react";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { DarkHero, Page, WishButton } from "@/components/site";
 import { formatPrice } from "@/lib/currency";

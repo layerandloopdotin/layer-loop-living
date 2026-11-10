@@ -1,6 +1,4 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useRef } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import { StoreWheel } from "@/components/store-wheel";
 import { DarkHero, Page } from "@/components/site";
 import { InstagramStrip } from "@/components/instagram-strip";
@@ -23,9 +21,7 @@ export const Route = createFileRoute("/about")({
 });
 
 function About() {
-  const rail = useRef<HTMLDivElement>(null);
   const c = useContent("about");
-  const slide = (d: number) => rail.current?.scrollBy({ left: d * rail.current.clientWidth / 3, behavior: "smooth" });
   return (
     <Page>
       <DarkHero eyebrow={c.heroEyebrow} title={c.heroTitle} />
@@ -41,12 +37,8 @@ function About() {
         <div className="mx-auto max-w-7xl px-6">
           <div className="flex items-center justify-between gap-4">
             <h2 className="text-3xl font-bold">{c.materialsTitle}</h2>
-            <div className="hidden gap-2 md:flex">
-              <button aria-label="Previous material" onClick={() => slide(-1)} className="rounded-full border border-ink-muted p-2 transition-colors hover:bg-ink-soft"><ChevronLeft className="h-4 w-4" /></button>
-              <button aria-label="Next material" onClick={() => slide(1)} className="rounded-full border border-ink-muted p-2 transition-colors hover:bg-ink-soft"><ChevronRight className="h-4 w-4" /></button>
-            </div>
           </div>
-          <CenterRail dark className="-mx-6 mt-8 md:hidden" itemClass="w-[75%]">
+          <CenterRail dark className="-mx-6 mt-8" itemClass="w-[75%] md:w-[44%] lg:w-[36%]" edgeClass="w-[12.5%] md:w-[28%] lg:w-[32%]">
             {c.materials.map((m) => (
               <div key={m.name} className="rounded-2xl bg-ink-soft p-5">
                 <img src={img(m.image)} alt={m.name} loading="lazy" className="aspect-[3/1.2] w-full rounded-lg object-cover" />
@@ -55,15 +47,6 @@ function About() {
               </div>
             ))}
           </CenterRail>
-          <div ref={rail} className="mt-12 hidden md:flex snap-x snap-mandatory gap-6 overflow-x-auto pb-2 [scrollbar-width:none]">
-            {c.materials.map((m) => (
-              <div key={m.name} className="shrink-0 basis-[85%] snap-start rounded-2xl bg-ink-soft p-5 sm:basis-[calc((100%-1.5rem)/2)] md:basis-[calc((100%-3rem)/3)]">
-                <img src={img(m.image)} alt={m.name} loading="lazy" className="aspect-[3/1.2] w-full rounded-lg object-cover" />
-                <h3 className="mt-5 font-bold">{m.name}</h3>
-                <p className="mt-2 text-sm text-ink-muted">{m.text}</p>
-              </div>
-            ))}
-          </div>
         </div>
       </section>
       <section className="mx-auto max-w-7xl px-6 pt-20">

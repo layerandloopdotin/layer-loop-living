@@ -91,7 +91,7 @@ function ProductDetail() {
 
   return (
     <Page>
-      <section className="mx-auto grid max-w-7xl items-start gap-8 px-4 pb-12 md:gap-12 md:px-6 md:py-16 md:grid-cols-2">
+      <section className="mx-auto grid max-w-7xl items-start gap-8 px-4 pb-12 pt-8 md:gap-12 md:px-6 md:py-16 md:grid-cols-2">
         <ProductGallery key={slug + colour} name={p.name} images={galleryFor(p, colour)} />
         <div>
           <p className="text-xs font-bold uppercase tracking-widest text-primary">{p.categories.join(" · ")}</p>

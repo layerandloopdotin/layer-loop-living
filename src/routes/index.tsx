@@ -105,12 +105,9 @@ function Index() {
           </div>
           <Link to="/products" search={{ featured: true }} className="inline-flex items-center gap-2 rounded-full border border-foreground px-5 py-2 text-sm">{c.editButton} <ArrowRight className="h-4 w-4" /></Link>
         </div>
-        <CenterRail className="-mx-4 mt-6 md:hidden" itemClass="w-[70%]" start={1}>
+        <CenterRail className="-mx-4 mt-6 md:-mx-6 md:mt-10" itemClass="w-[70%] md:w-[44%] lg:w-[36%]" edgeClass="w-[15%] md:w-[28%] lg:w-[32%]" start={1}>
           {edit.map((p) => <ProductCard key={p.slug} slug={p.slug} name={p.name} note={p.note} price={p.price} image={p.image} />)}
         </CenterRail>
-        <div className="mt-12 hidden grid-cols-3 gap-6 md:grid">
-          {edit.map((p) => <ProductCard key={p.slug} slug={p.slug} name={p.name} note={p.note} price={p.price} image={p.image} />)}
-        </div>
       </section>
 
       <div className="overflow-hidden bg-ink py-4 text-ink-foreground">
@@ -127,7 +124,7 @@ function Index() {
           </div>
           <Link to="/products" className="inline-flex shrink-0 items-center gap-2 rounded-full border border-foreground px-4 py-2 text-xs md:px-5 md:text-sm">{c.categoryButton} <ArrowRight className="h-4 w-4" /></Link>
         </div>
-        <CenterRail className="-mx-4 mt-4 md:hidden" itemClass="w-[55%]" start={Math.max(cats.findIndex((x) => /collect/i.test(x.name)), 0)}>
+        <CenterRail className="-mx-4 mt-4 md:-mx-6 md:mt-10" itemClass="w-[55%] md:w-[40%] lg:w-[32%]" edgeClass="w-[22.5%] md:w-[30%] lg:w-[34%]" start={Math.max(cats.findIndex((x) => /collect/i.test(x.name)), 0)}>
           {cats.map((x) => (
             <Link key={x.id} to="/products" search={{ category: x.name }} className="block">
               <img src={x.image} alt={x.name} loading="lazy" className="aspect-[3/4] w-full rounded-xl object-cover" />
@@ -135,20 +132,6 @@ function Index() {
             </Link>
           ))}
         </CenterRail>
-        <div className="mt-10 hidden gap-5 overflow-x-auto pb-2 [scrollbar-width:none] md:flex">
-          {cats.map((x) => (
-            <Link key={x.id} to="/products" search={{ category: x.name }} className="group block min-w-[9rem] flex-1">
-
-              <div className="overflow-hidden rounded-xl">
-                <img src={x.image} alt={x.name} loading="lazy" width={960} height={1280} className="aspect-[3/4] w-full object-cover transition-transform duration-700 group-hover:scale-105" />
-              </div>
-              <div className="mt-3 flex items-center justify-between gap-2">
-                <p className="font-display text-sm leading-snug font-semibold md:text-base">{x.name}</p>
-                <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground transition-all duration-300 group-hover:translate-x-1 group-hover:text-foreground" />
-              </div>
-            </Link>
-          ))}
-        </div>
       </section>
 
       <section className="mx-auto max-w-6xl px-4 py-14 text-center md:px-6 md:py-24">

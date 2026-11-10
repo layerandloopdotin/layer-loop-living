@@ -5,6 +5,20 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { type Design, type PhotoMode, type PhotoObject, type ShapeId, type TouchPoint, parts, pinch, wallLoops } from "@/lib/custom";
 
+// Dev-only: the source-inspector adds a `data-tsd-source` prop to every JSX tag, which R3F reads as the
+// nested path object.data.tsd.source and crashes on when a mesh is swapped (e.g. picking Donut or Box).
+// Give three objects a harmless `data.tsd` target so that prop is simply absorbed.
+if (import.meta.env.DEV) {
+  for (const proto of [THREE.Object3D.prototype, THREE.Material.prototype, THREE.BufferGeometry.prototype] as object[]) {
+    if (!Object.getOwnPropertyDescriptor(proto, "data")) {
+      Object.defineProperty(proto, "data", {
+        configurable: true,
+        get(this: { __tsd?: object }) { return (this.__tsd ??= { tsd: {} }); },
+      });
+    }
+  }
+}
+
 const SEG = 160;
 const RINGS = 90;
 

@@ -1,5 +1,5 @@
 # Roadmap
-- [ ] Add space above product photos and extend grid choices and centered rails to tablet/desktop
+- [x] Add space above product photos and extend grid choices and centered rails to tablet/desktop
 - [x] Keep the compact mobile product grid sharp, inset single-column images, and restore product gallery thumbnails on phones
 - [x] Private inventory quantity per product in the CMS
 - [x] CMS logo: image or text selection, SVG/PNG support in header and footer

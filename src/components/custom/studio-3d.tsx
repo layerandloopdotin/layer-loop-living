@@ -3,7 +3,7 @@ import { Canvas, useFrame, useThree, type ThreeEvent } from "@react-three/fiber"
 import { ContactShadows, Environment, Lightformer, OrbitControls } from "@react-three/drei";
 import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
-import { type Design, type PhotoMode, type PhotoObject, type ShapeId, type TouchPoint, parts, pinch, wallLoops } from "@/lib/custom";
+import { type Design, type PhotoMode, type PhotoObject, type ShapeId, type TouchPoint, lightFitting, parts, pinch, wallLoops } from "@/lib/custom";
 
 // Dev-only: the source-inspector adds a `data-tsd-source` prop to every JSX tag, which R3F reads as the
 // nested path object.data.tsd.source and crashes on when a mesh is swapped (e.g. picking Donut or Box).
@@ -37,8 +37,9 @@ function formProfile(form: Design["form"], t: number, taper: number) {
   }
 }
 
-function shapeProfile(shape: ShapeId, d: Design, t: number) {
+function shapeProfile(shape: ShapeId, d: Design, t: number, taper = 0) {
   switch (shape) {
+    case "custom": return 1 - taper * 0.45 * t;
     case "classic": return formProfile(d.form, t, d.taper);
     case "cylinder": return 1;
     case "sphere": return Math.max(0.12, Math.sqrt(Math.max(0, 1 - (2 * t - 1) ** 2)));
@@ -49,13 +50,13 @@ function shapeProfile(shape: ShapeId, d: Design, t: number) {
 }
 
 /** One printed lathe part: ribbed (vertical + horizontal), twisted, fuzzy-skinned surface of revolution. */
-function buildLathe(d: Design, shape: ShapeId, hCm: number, wCm: number, points: TouchPoint[], inset = 0) {
+function buildLathe(d: Design, shape: ShapeId, hCm: number, wCm: number, points: TouchPoint[], inset = 0, taper = 0) {
   const h = hCm / 10, R = wCm / 20;
   const twist = (d.twist * Math.PI) / 180;
   const pos: number[] = [];
   for (let j = 0; j <= RINGS; j++) {
     const t = j / RINGS;
-    const base = R * shapeProfile(shape, d, t) * pinch(points, t);
+    const base = R * shapeProfile(shape, d, t, taper) * pinch(points, t);
     for (let i = 0; i <= SEG; i++) {
       const a = (i / SEG) * Math.PI * 2;
       const rib = d.layers ? Math.cos(d.layers * a + twist * t) * 0.035 : 0;
@@ -79,13 +80,13 @@ function buildLathe(d: Design, shape: ShapeId, hCm: number, wCm: number, points:
   return g;
 }
 
-type PartProps = { d: Design; shape: ShapeId; h: number; w: number; color: string; points: TouchPoint[]; lit: boolean; glow: string };
+type PartProps = { d: Design; shape: ShapeId; h: number; w: number; color: string; points: TouchPoint[]; taper: number; lit: boolean; glow: string };
 
-function Part({ d, shape, h, w, color, points, lit, glow }: PartProps) {
+function Part({ d, shape, h, w, color, points, taper, lit, glow }: PartProps) {
   const loops = wallLoops(d);
   const lathe = shape !== "box" && shape !== "donut";
-  const outer = useMemo(() => (lathe ? buildLathe(d, shape, h, w, points) : null), [d, shape, h, w, points, lathe]);
-  const inner = useMemo(() => (lathe ? buildLathe(d, shape, h, w, points, 0.012 * loops) : null), [d, shape, h, w, points, loops, lathe]);
+  const outer = useMemo(() => (lathe ? buildLathe(d, shape, h, w, points, 0, taper) : null), [d, shape, h, w, points, lathe, taper]);
+  const inner = useMemo(() => (lathe ? buildLathe(d, shape, h, w, points, 0.012 * loops, taper) : null), [d, shape, h, w, points, loops, lathe, taper]);
   const rough = 0.55 + d.fuzzy * 0.4;
   const H = h / 10, R = w / 20;
   const mat = <meshStandardMaterial color={color} roughness={rough} emissive={lit ? glow : "#000"} emissiveIntensity={lit ? 0.18 : 0} />;
@@ -105,12 +106,13 @@ function Part({ d, shape, h, w, color, points, lit, glow }: PartProps) {
 }
 
 /** Draggable touch-point handles, always turned to face the camera. */
-function Handles({ d, y0, onPoints, setDragging }: { d: Design; y0: number; onPoints: (p: TouchPoint[]) => void; setDragging: (b: boolean) => void }) {
+type HandleProps = { points: TouchPoint[]; hCm: number; wCm: number; prof: (t: number) => number; y0: number; onPoints: (p: TouchPoint[]) => void; setDragging: (b: boolean) => void };
+function Handles({ points, hCm, wCm, prof, y0, onPoints, setDragging }: HandleProps) {
   const ref = useRef<THREE.Group>(null);
   const { camera } = useThree();
   const drag = useRef<number | null>(null);
   const [hover, setHover] = useState<number | null>(null);
-  const h = d.height / 10, R = d.width / 20;
+  const h = hCm / 10, R = wCm / 20;
   useFrame(() => { if (ref.current) ref.current.rotation.y = Math.atan2(camera.position.x, camera.position.z); });
   const plane = useMemo(() => new THREE.Plane(), []);
   const hit = useMemo(() => new THREE.Vector3(), []);
@@ -124,14 +126,14 @@ function Handles({ d, y0, onPoints, setDragging }: { d: Design; y0: number; onPo
     if (!e.ray.intersectPlane(plane, hit)) return;
     const local = ref.current.worldToLocal(hit.clone());
     const t = Math.min(0.92, Math.max(0.08, (local.y - y0) / h));
-    const s = Math.min(1.6, Math.max(0.25, Math.abs(local.x) / Math.max(0.01, R * formProfile(d.form, t, d.taper))));
-    onPoints(d.points.map((p, k) => (k === i ? { t: +t.toFixed(3), s: +s.toFixed(3) } : p)));
+    const s = Math.min(1.6, Math.max(0.25, Math.abs(local.x) / Math.max(0.01, R * prof(t))));
+    onPoints(points.map((p, k) => (k === i ? { t: +t.toFixed(3), s: +s.toFixed(3) } : p)));
   };
 
   return (
     <group ref={ref}>
-      {d.points.map((p, i) => {
-        const r = R * formProfile(d.form, p.t, d.taper) * pinch(d.points, p.t) * 1.08 + 0.06;
+      {points.map((p, i) => {
+        const r = R * prof(p.t) * pinch(points, p.t) * 1.08 + 0.06;
         return (
           <mesh key={i} position={[r, y0 + p.t * h, 0]} renderOrder={10}
             onPointerOver={(e) => { e.stopPropagation(); setHover(i); document.body.style.cursor = "grab"; }}
@@ -148,7 +150,8 @@ function Handles({ d, y0, onPoints, setDragging }: { d: Design; y0: number; onPo
   );
 }
 
-function Piece({ d, spin, onPoints, setDragging }: { d: Design; spin: boolean; onPoints?: ((p: TouchPoint[]) => void) | undefined; setDragging: (b: boolean) => void }) {
+type PieceProps = { d: Design; spin: boolean; onPoints?: ((p: TouchPoint[]) => void) | undefined; active?: number | undefined; onModulePoints?: ((i: number, p: TouchPoint[]) => void) | undefined; setDragging: (b: boolean) => void };
+function Piece({ d, spin, onPoints, active, onModulePoints, setDragging }: PieceProps) {
   const group = useRef<THREE.Group>(null);
   const ps = parts(d);
   const lit = d.light && (d.form === "pendant" || d.form === "table-lamp" || d.form === "stack");
@@ -157,6 +160,12 @@ function Piece({ d, spin, onPoints, setDragging }: { d: Design; spin: boolean; o
   const offsets = ps.reduce<number[]>((acc, p, i) => [...acc, i ? acc[i - 1]! + ps[i - 1]!.height / 10 : 0], []);
   const total = ps.reduce((s, p) => s + p.height / 10, 0);
   const mainIndex = ps.length - 1;
+  const stack = d.form === "stack";
+  const fit = stack ? lightFitting(d) : null;
+  const litModule = (i: number) => !fit || (i >= fit.from && i <= fit.to);
+  const am = stack && active !== undefined ? ps[active] : undefined;
+  const amLathe = am && am.shape !== "box" && am.shape !== "donut";
+  const lightY = fit ? (offsets[fit.from]! + offsets[fit.to]! + ps[fit.to]!.height / 10) / 2 : total * 0.6;
   return (
     <group position={[0, -total / 2, 0]}>
       <group ref={group}>
@@ -166,13 +175,20 @@ function Piece({ d, spin, onPoints, setDragging }: { d: Design; spin: boolean; o
           return (
             <group key={i} position={[0, offsets[i]!, 0]}>
               <Part d={d} shape={p.shape} h={p.height} w={p.width} color={p.color ?? (isBase ? shade(d.color, -0.25) : d.color)}
-                points={isMain ? d.points : []} lit={lit && !isBase} glow={glow} />
+                points={isMain ? d.points : stack ? (p.points ?? []) : []} taper={p.taper ?? 0} lit={lit && !isBase && litModule(i)} glow={glow} />
             </group>
           );
         })}
       </group>
-      {onPoints && d.form !== "stack" && <Handles d={d} y0={offsets[mainIndex]!} onPoints={onPoints} setDragging={setDragging} />}
-      {lit && <pointLight position={[0, total * 0.6, 0]} intensity={6} distance={8} color={glow} />}
+      {onPoints && !stack && <Handles points={d.points} hCm={d.height} wCm={d.width} prof={(t) => formProfile(d.form, t, d.taper)} y0={offsets[mainIndex]!} onPoints={onPoints} setDragging={setDragging} />}
+      {am && amLathe && onModulePoints && active !== undefined && (
+        <Handles points={am.points ?? []} hCm={am.height} wCm={am.width} prof={(t) => shapeProfile(am.shape, d, t, am.taper ?? 0)} y0={offsets[active]!}
+          onPoints={(p) => onModulePoints(active, p)} setDragging={setDragging} />
+      )}
+      {lit && fit && (fit.count === 1
+        ? <mesh position={[0, lightY, 0]}><sphereGeometry args={[0.16, 24, 24]} /><meshBasicMaterial color={glow} /></mesh>
+        : <mesh position={[0, lightY, 0]}><cylinderGeometry args={[fit.count && d.lightKind === "tube" ? 0.07 : 0.035, d.lightKind === "tube" ? 0.07 : 0.035, offsets[fit.to]! + ps[fit.to]!.height / 10 - offsets[fit.from]! - 0.1, 16]} /><meshBasicMaterial color={glow} /></mesh>)}
+      {lit && <pointLight position={[0, lightY, 0]} intensity={6} distance={8} color={glow} />}
       {d.form === "pendant" && <mesh position={[0, total + 1.5, 0]}><cylinderGeometry args={[0.015, 0.015, 3]} /><meshStandardMaterial color="#222" /></mesh>}
     </group>
   );
@@ -204,7 +220,7 @@ function CameraFit({ dist }: { dist: number }) {
   return null;
 }
 
-export function StudioModel({ design, spin = false, interactive = true, onPoints }: { design: Design; spin?: boolean; interactive?: boolean; onPoints?: (p: TouchPoint[]) => void }) {
+export function StudioModel({ design, spin = false, interactive = true, onPoints, active, onModulePoints }: { design: Design; spin?: boolean; interactive?: boolean; onPoints?: (p: TouchPoint[]) => void; active?: number; onModulePoints?: (i: number, p: TouchPoint[]) => void }) {
   const tall = parts(design).reduce((s, p) => s + p.height / 10, 0);
   const dist = Math.max(5.5, tall * 2.4, (design.width / 10) * 3.2);
   const [dragging, setDragging] = useState(false);
@@ -213,9 +229,9 @@ export function StudioModel({ design, spin = false, interactive = true, onPoints
       <Canvas shadows dpr={[1, 1.75]} camera={{ position: [0, tall * 0.15, dist], fov: 38 }} gl={{ antialias: true, alpha: true }}>
         <Lights />
         <CameraFit dist={Math.hypot(dist, tall * 0.15)} />
-        <Piece d={design} spin={spin} onPoints={onPoints} setDragging={setDragging} />
+        <Piece d={design} spin={spin} onPoints={onPoints} active={active} onModulePoints={onModulePoints} setDragging={setDragging} />
         <ContactShadows position={[0, -tall / 2 - 0.01, 0]} opacity={0.5} blur={2.4} scale={8} />
-        {interactive && <OrbitControls enabled={!dragging} enablePan={false} minDistance={2.5} maxDistance={24} autoRotate={!dragging && !onPoints?.length} autoRotateSpeed={0.6} />}
+        {interactive && <OrbitControls enabled={!dragging} enablePan={false} minDistance={2.5} maxDistance={24} autoRotate={!dragging && !onPoints} autoRotateSpeed={0.6} />}
       </Canvas>
     </div>
   );
@@ -314,6 +330,26 @@ export function PhotoRelief({ src, depth, color, tinted, mode, model }: { src: s
         {mode === "object" ? (model && <><ObjectModel model={model} /><ContactShadows position={[0, -1.61, 0]} opacity={0.5} blur={2.4} scale={8} /></>)
           : <PhotoPanel src={src} depth={depth} color={color} tinted={tinted} mode={mode} />}
         <OrbitControls enablePan={false} autoRotate autoRotateSpeed={0.8} minDistance={3} maxDistance={12} />
+      </Canvas>
+    </div>
+  );
+}
+
+/* ---------- Sketch to 3D ---------- */
+
+/** A turned object built from a sketch's outline (radii bottom→top, aspect = height / width). */
+export function SketchModel({ radii, aspect, color }: { radii: number[]; aspect: number; color: string }) {
+  const geo = useMemo(() => latheFromProfile(radii), [radii]);
+  const H = 3, sy = H, sx = H / Math.min(3, Math.max(0.35, aspect));
+  return (
+    <div className="h-full w-full" data-scene-ready>
+      <Canvas shadows dpr={[1, 1.75]} camera={{ position: [0, 0.8, 7.5], fov: 38 }} gl={{ alpha: true }}>
+        <Lights />
+        <mesh geometry={geo} scale={[Math.min(sx, 4.2), sy, Math.min(sx, 4.2)]} castShadow>
+          <meshStandardMaterial color={color} roughness={0.7} side={THREE.DoubleSide} />
+        </mesh>
+        <ContactShadows position={[0, -1.51, 0]} opacity={0.5} blur={2.4} scale={8} />
+        <OrbitControls enablePan={false} autoRotate autoRotateSpeed={0.8} minDistance={3} maxDistance={14} />
       </Canvas>
     </div>
   );

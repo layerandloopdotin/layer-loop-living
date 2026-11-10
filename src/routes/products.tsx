@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { Grid3x3, LayoutGrid, Square, SlidersHorizontal } from "lucide-react";
+import { Grid3x3, LayoutGrid, SlidersHorizontal } from "lucide-react";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { DarkHero, Page, WishButton } from "@/components/site";
 import { formatPrice } from "@/lib/currency";
@@ -37,9 +37,9 @@ function Products() {
   const toggle = (list: string[], set: (v: string[]) => void, v: string) => set(list.includes(v) ? list.filter((x) => x !== v) : [...list, v]);
   const shown = site.products.filter((p) => (!featured || p.featured) && (!cats.length || p.categories.some((x) => cats.includes(x))) && (!spaces.length || p.spaces.some((x) => spaces.includes(x))));
 
-  const [cols, setCols] = useState<1 | 2 | 3>(2);
-  useEffect(() => { const g = localStorage.getItem("ll-grid"); if (g === "1" || g === "3") setCols(Number(g) as 1 | 3); }, []);
-  const setDensity = (v: 1 | 2 | 3) => { setCols(v); localStorage.setItem("ll-grid", String(v)); };
+  const [cols, setCols] = useState<2 | 3>(2);
+  useEffect(() => { const g = localStorage.getItem("ll-grid"); if (g === "3") setCols(3); else if (g === "1") setCols(2); }, []);
+  const setDensity = (v: 2 | 3) => { setCols(v); localStorage.setItem("ll-grid", String(v)); };
   const grid = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const el = grid.current;

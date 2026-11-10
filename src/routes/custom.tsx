@@ -1,12 +1,12 @@
 import { ClientOnly, createFileRoute } from "@tanstack/react-router";
 import { Suspense, lazy, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { ArrowRight, Check, ChevronDown, ChevronUp, Droplets, GripVertical, Lightbulb, Minus, Plus, Shuffle, Upload, X } from "lucide-react";
+import { ArrowRight, Check, ChevronDown, ChevronUp, Copy, Droplets, Eraser, GripVertical, Lightbulb, Minus, PencilLine, Plus, Shuffle, Upload, X } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { fieldValue } from "@/lib/contact";
 import {
-  BRIEF_KINDS, DEFAULT_DESIGN, FORMS, MAX_MODULES, MAX_POINTS, PHOTO_MODES, POINT_PRESETS, SHAPES, STUDIO_PALETTE, TIMELINES, briefSchema, closestSwatches, estimate,
-  hexToRgb, rgbToHex, wallLoops, type Design, type PhotoMode, type PhotoObject, type Rates, type ShapeId, type StackModule,
+  BRIEF_KINDS, CUSTOM_MODULE, DEFAULT_DESIGN, FORMS, MAX_MODULES, MAX_POINTS, PHOTO_MODES, POINT_PRESETS, SHAPES, STUDIO_PALETTE, TIMELINES, briefSchema, closestSwatches, estimate,
+  hexToRgb, lightFitting, rgbToHex, sketchProfile, wallLoops, type Design, type PhotoMode, type PhotoObject, type Rates, type ShapeId, type StackModule, type TouchPoint,
 } from "@/lib/custom";
 import { formatPrice } from "@/lib/currency";
 import { img } from "@/lib/media";
@@ -17,6 +17,7 @@ import { HexColorPicker } from "react-colorful";
 import { analyzeObjectPhoto } from "@/lib/photo-object.functions";
 
 const StudioModel = lazy(() => import("@/components/custom/studio-3d").then((m) => ({ default: m.StudioModel })));
+const SketchModel = lazy(() => import("@/components/custom/studio-3d").then((m) => ({ default: m.SketchModel })));
 const PhotoRelief = lazy(() => import("@/components/custom/studio-3d").then((m) => ({ default: m.PhotoRelief })));
 
 export const Route = createFileRoute("/custom")({
@@ -71,7 +72,6 @@ function Custom() {
         <img src={img(c.heroImage) || heroFallback} alt="" width={1920} height={1088} className="custom-hero-img absolute inset-0 -z-10 h-full w-full object-cover object-[70%_center]" />
         <div aria-hidden className="absolute inset-0 -z-10 bg-gradient-to-r from-ink via-ink/80 to-ink/10 md:via-ink/60 md:to-transparent" />
         <div aria-hidden className="absolute inset-x-0 bottom-0 -z-10 h-32 bg-gradient-to-t from-ink to-transparent" />
-        <div aria-hidden className="custom-hero-lines absolute inset-0 -z-10 opacity-[0.07]" />
         <div className="mx-auto flex min-h-[78vh] max-w-7xl items-end px-6 pb-16 pt-28 md:min-h-[88vh] md:items-center md:pb-24">
           <div className="max-w-2xl">
             <p className={eyebrow}>{c.heroEyebrow}</p>
@@ -92,11 +92,6 @@ function Custom() {
                 {c.tweakLabel} <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
               </button>
               <button onClick={() => go("brief")} className="rounded-full border border-ink-line px-6 py-3 text-sm font-semibold transition-colors hover:border-ink-foreground">{c.scratchLabel}</button>
-            </div>
-            <div className="mt-12 flex gap-8 border-t border-ink-line pt-6 text-xs uppercase tracking-widest text-ink-muted">
-              <span><span className="block font-display text-2xl font-bold text-ink-foreground">0.2 mm</span>layer lines</span>
-              <span><span className="block font-display text-2xl font-bold text-ink-foreground">Any</span>hex colour</span>
-              <span><span className="block font-display text-2xl font-bold text-ink-foreground">48 h</span>render preview</span>
             </div>
           </div>
         </div>
@@ -153,7 +148,7 @@ function Custom() {
             <p className={eyebrow}>{c.sketchEyebrow}</p>
             <h2 className="mt-3 font-display text-3xl font-bold md:text-4xl">{c.sketchTitle}</h2>
           </Reveal>
-          <Reveal delay={150}><BeforeAfter before={img(c.sketchImage)} after={img(c.printImage)} /></Reveal>
+          <Reveal delay={150}><SketchLab before={img(c.sketchImage)} after={img(c.printImage)} color={design.color} /></Reveal>
         </div>
       </section>
 
@@ -211,7 +206,7 @@ function OfferDemo({ i, onPhoto }: { i: number; onPhoto: () => void }) {
     const near = closestSwatches(hex, STUDIO_PALETTE, 3);
     return (
       <div className="flex flex-col items-center gap-2">
-        <label className="flex items-center gap-2 text-xs"><input type="color" value={hex} onChange={(e) => setHex(e.target.value)} className="h-9 w-9 cursor-pointer rounded-full border-0 bg-transparent" aria-label="Pick any colour" />{hex}</label>
+        <label className="flex items-center gap-2 text-xs"><input type="color" value={hex} onChange={(e) => setHex(e.target.value)} className="h-9 w-9 cursor-pointer rounded-full border-0 bg-transparent" aria-label="Pick your colour" />Pick yours</label>
         <div className="flex gap-1.5">{near.map((s) => <span key={s.hex} title={s.name} className="h-7 w-7 rounded-full border border-border transition-transform hover:scale-125" style={{ background: s.hex }} />)}</div>
         <span className="text-[10px] uppercase tracking-widest text-muted-foreground">Closest: {near[0]?.name}</span>
       </div>
@@ -298,6 +293,7 @@ function Chip({ on, onClick, children, title }: { on: boolean; onClick: () => vo
 
 function ShapeIcon({ shape }: { shape: ShapeId }) {
   const p: Record<ShapeId, ReactNode> = {
+    custom: <path d="M8 4h8M9 4c-3 5 3 7 0 16M15 4c3 5-3 7 0 16M8 20h8" />,
     classic: <path d="M7 20h10M8 20c-2-5 0-9 1-12h6c1 3 3 7 1 12" />,
     cylinder: <rect x="6" y="5" width="12" height="15" rx="1" />,
     sphere: <circle cx="12" cy="12" r="7.5" />,
@@ -313,7 +309,7 @@ function ShapePicker({ value, onChange, allowNone }: { value: ShapeId | "none"; 
   return (
     <div className="flex flex-wrap gap-1.5">
       {allowNone && <Chip on={value === "none"} onClick={() => onChange("none")}>No base</Chip>}
-      {SHAPES.map((s) => (
+      {SHAPES.filter((s) => !allowNone || s.id !== "custom").map((s) => (
         <button key={s.id} type="button" aria-pressed={value === s.id} title={s.label} onClick={() => onChange(s.id)}
           className={`flex flex-col items-center gap-0.5 rounded-lg border px-2 py-1.5 text-[10px] transition-colors ${value === s.id ? "border-primary bg-primary/15 text-ink-foreground" : "border-ink-line text-ink-muted hover:text-ink-foreground"}`}>
           <ShapeIcon shape={s.id} />{s.label}
@@ -323,14 +319,15 @@ function ShapePicker({ value, onChange, allowNone }: { value: ShapeId | "none"; 
   );
 }
 
-function ModuleEditor({ d, set }: { d: Design; set: (p: Partial<Design>) => void }) {
-  const [sel, setSel] = useState(0);
+function ModuleEditor({ d, set, sel, setSel }: { d: Design; set: (p: Partial<Design>) => void; sel: number; setSel: (i: number) => void }) {
   const [dragFrom, setDragFrom] = useState<number | null>(null);
   const mods = d.modules;
   const idx = Math.min(sel, mods.length - 1);
   const cur = mods[idx];
   const update = (p: Partial<StackModule>) => set({ modules: mods.map((m, i) => (i === idx ? { ...m, ...p } : m)) });
-  const add = (shape: ShapeId) => { if (mods.length < MAX_MODULES) { set({ modules: [...mods, { shape, height: shape === "donut" ? 6 : 12, width: cur?.width ?? 18, color: null }] }); setSel(mods.length); } };
+  const push = (m: StackModule) => { if (mods.length < MAX_MODULES) { set({ modules: [...mods, m] }); setSel(mods.length); } };
+  const add = (shape: ShapeId) => push(shape === "custom" ? { ...CUSTOM_MODULE, width: cur?.width ?? 18 } : { shape, height: shape === "donut" ? 6 : 12, width: cur?.width ?? 18, color: null });
+  const lathe = cur && cur.shape !== "box" && cur.shape !== "donut";
   // Modules are stored bottom→top; the list shows them top→bottom like the real stack.
   const move = (from: number, to: number) => {
     if (to < 0 || to >= mods.length || from === to) return;
@@ -344,8 +341,12 @@ function ModuleEditor({ d, set }: { d: Design; set: (p: Partial<Design>) => void
     <div className="space-y-4">
       <div>
         <p className="mb-2 text-xs uppercase tracking-widest text-ink-muted">Add a module</p>
+        <button type="button" disabled={mods.length >= MAX_MODULES} onClick={() => add("custom")}
+          className="mb-2 flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-primary px-3 py-2.5 text-xs font-semibold text-ink-foreground transition-colors hover:bg-primary/15 disabled:opacity-30">
+          <PencilLine className="h-3.5 w-3.5" /> Design my own module
+        </button>
         <div className="flex flex-wrap gap-1.5">
-          {SHAPES.map((s) => (
+          {SHAPES.filter((s) => s.id !== "custom").map((s) => (
             <button key={s.id} type="button" disabled={mods.length >= MAX_MODULES} onClick={() => add(s.id)} title={`Add ${s.label}`}
               className="flex items-center gap-1 rounded-lg border border-ink-line px-2 py-1.5 text-[11px] text-ink-muted transition-colors hover:border-primary hover:text-ink-foreground disabled:opacity-30">
               <Plus className="h-3 w-3" /><ShapeIcon shape={s.id} />{s.label}
@@ -380,10 +381,13 @@ function ModuleEditor({ d, set }: { d: Design; set: (p: Partial<Design>) => void
           <ShapePicker value={cur.shape} onChange={(s) => s !== "none" && update({ shape: s })} />
           <Slider label="Height" value={cur.height} min={3} max={40} step={1} onChange={(v) => update({ height: v })} show={`${cur.height} cm`} />
           <Slider label="Width" value={cur.width} min={6} max={40} step={1} onChange={(v) => update({ width: v })} show={`${cur.width} cm`} />
+          {cur.shape === "custom" && <Slider label="Taper" value={cur.taper ?? 0} min={-0.7} max={0.7} step={0.01} onChange={(v) => update({ taper: v })} show={(cur.taper ?? 0).toFixed(2)} />}
+          {lathe && <PointsEditor pts={cur.points ?? []} onChange={(points) => update({ points })} />}
           <div className="flex items-center gap-3 text-xs text-ink-muted">
             <label className="flex items-center gap-2"><input type="checkbox" checked={cur.color !== null} onChange={(e) => update({ color: e.target.checked ? d.color : null })} className="accent-primary" /> Own colour</label>
             {cur.color && <input type="color" value={cur.color} onChange={(e) => update({ color: e.target.value })} aria-label="Module colour" className="h-6 w-6 cursor-pointer rounded-full border-0 bg-transparent" />}
-            <button type="button" disabled={mods.length >= MAX_MODULES} onClick={() => { set({ modules: [...mods, { ...cur }] }); setSel(mods.length); }} className="ml-auto rounded-full border border-ink-line px-3 py-1 font-semibold disabled:opacity-30">Duplicate</button>
+            <button type="button" disabled={mods.length >= MAX_MODULES} onClick={() => { set({ modules: [...mods, { ...cur }] }); setSel(mods.length); }} className="ml-auto inline-flex items-center gap-1 rounded-full border border-ink-line px-3 py-1 font-semibold disabled:opacity-30"><Copy className="h-3 w-3" />Duplicate</button>
+            <button type="button" disabled={mods.length >= MAX_MODULES} onClick={() => { set({ modules: [...mods, ...Array(MAX_MODULES - mods.length).fill(null).map(() => ({ ...cur }))] }); }} className="rounded-full border border-ink-line px-3 py-1 font-semibold disabled:opacity-30">Repeat to fill</button>
           </div>
         </div>
       )}
@@ -391,8 +395,8 @@ function ModuleEditor({ d, set }: { d: Design; set: (p: Partial<Design>) => void
   );
 }
 
-function PointsEditor({ d, set }: { d: Design; set: (p: Partial<Design>) => void }) {
-  const pts = d.points;
+function PointsEditor({ pts, onChange }: { pts: TouchPoint[]; onChange: (p: TouchPoint[]) => void }) {
+  const set = (p: { points: TouchPoint[] }) => onChange(p.points);
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
@@ -422,6 +426,9 @@ const TABS = [
 function Sandbox({ design: d, setDesign, rates, note, sendLabel, onSend }: { design: Design; setDesign: (d: Design) => void; rates: Rates; note: string; sendLabel: string; onSend: () => void }) {
   const set = (p: Partial<Design>) => setDesign({ ...d, ...p });
   const [tab, setTab] = useState<(typeof TABS)[number]["id"]>("shape");
+  const [sel, setSel] = useState(0);
+  const selIdx = Math.min(sel, d.modules.length - 1);
+  const fit = lightFitting(d);
   const spec = estimate(d, rates);
   const form = FORMS.find((f) => f.id === d.form)!;
   const shuffle = () => set({
@@ -446,7 +453,7 @@ function Sandbox({ design: d, setDesign, rates, note, sendLabel, onSend }: { des
           ))}
         </div>
         <div className="flex-1 space-y-5 overflow-y-auto p-5">
-          {tab === "shape" && (d.form === "stack" ? <ModuleEditor d={d} set={set} /> : (
+          {tab === "shape" && (d.form === "stack" ? <ModuleEditor d={d} set={set} sel={selIdx} setSel={setSel} /> : (
             <>
               <Slider label="Height" value={d.height} min={8} max={45} step={1} onChange={(v) => set({ height: v })} show={`${d.height} cm`} />
               <Slider label="Width" value={d.width} min={8} max={40} step={1} onChange={(v) => set({ width: v })} show={`${d.width} cm`} />
@@ -457,7 +464,7 @@ function Sandbox({ design: d, setDesign, rates, note, sendLabel, onSend }: { des
                   <ShapePicker value={d.base} onChange={(s) => set({ base: s })} allowNone />
                 </div>
               )}
-              <PointsEditor d={d} set={set} />
+              <PointsEditor pts={d.points} onChange={(points) => set({ points })} />
             </>
           ))}
           {tab === "surface" && (
@@ -468,7 +475,7 @@ function Sandbox({ design: d, setDesign, rates, note, sendLabel, onSend }: { des
               <Slider label="Horizontal ribs" value={d.hRibs} min={0} max={40} step={1} onChange={(v) => set({ hRibs: v })} show={d.hRibs ? String(d.hRibs) : "Off"} />
             </>
           )}
-          {tab === "colour" && <ColorPanel value={d.color} onChange={(color) => set({ color })} label="Pick any colour" />}
+          {tab === "colour" && <ColorPanel value={d.color} onChange={(color) => set({ color })} label="Pick your colour" />}
           {tab === "extras" && (
             <div className="space-y-3">
               <div className="flex flex-wrap gap-2">
@@ -476,6 +483,28 @@ function Sandbox({ design: d, setDesign, rates, note, sendLabel, onSend }: { des
                 {d.light && form.light && <Toggle on={d.warm} onClick={() => set({ warm: !d.warm })} icon={null} label={d.warm ? "Warm 2200K" : "Soft 3000K"} />}
                 <Toggle on={d.waterproof} disabled={!form.water} onClick={() => set({ waterproof: !d.waterproof })} icon={<Droplets className="h-3.5 w-3.5" />} label="Waterproof" />
               </div>
+              {d.form === "stack" && d.light && (
+                <div className="space-y-3 rounded-xl bg-ink-soft p-4">
+                  <p className="text-xs uppercase tracking-widest text-ink-muted">Where should the light sit?</p>
+                  <div className="grid grid-cols-2 gap-3 text-xs text-ink-muted">
+                    {(["lightFrom", "lightTo"] as const).map((k) => (
+                      <label key={k} className="block">{k === "lightFrom" ? "From module" : "To module"}
+                        <select value={k === "lightFrom" ? fit.from : fit.to} onChange={(e) => set({ [k]: +e.target.value })}
+                          className="mt-1 w-full rounded-md border border-ink-line bg-ink px-2 py-1.5 text-ink-foreground">
+                          {d.modules.map((m, i) => <option key={i} value={i}>{i + 1} · {SHAPES.find((s) => s.id === m.shape)?.label}{i === 0 ? " (bottom)" : i === d.modules.length - 1 ? " (top)" : ""}</option>)}
+                        </select>
+                      </label>
+                    ))}
+                  </div>
+                  {fit.count > 1 && (
+                    <div className="flex gap-2">
+                      <Chip on={d.lightKind === "strip"} onClick={() => set({ lightKind: "strip" })}>LED strip</Chip>
+                      <Chip on={d.lightKind === "tube"} onClick={() => set({ lightKind: "tube" })}>Tube light</Chip>
+                    </div>
+                  )}
+                  <p className="text-xs text-ink-muted">Lights {fit.count} module{fit.count > 1 ? "s" : ""} · fitting: <span className="font-semibold text-ink-foreground">{fit.fitting}</span></p>
+                </div>
+              )}
               {!form.light && <p className="text-xs text-ink-muted">Lighting is available for pendants, table lamps and stacks.</p>}
               {d.waterproof && <p className="text-xs text-ink-muted">Adds {rates.waterproofLoops} extra wall loops ({wallLoops(d, rates)} total) — heavier, but holds water.</p>}
             </div>
@@ -486,10 +515,11 @@ function Sandbox({ design: d, setDesign, rates, note, sendLabel, onSend }: { des
       {/* Model + estimate */}
       <div className="order-1 space-y-4 md:sticky md:top-24 md:order-2 md:self-start">
         <div className="relative h-[420px] overflow-hidden rounded-2xl bg-ink-soft md:h-[470px]">
-          <Three><StudioModel design={d} onPoints={(points) => set({ points })} /></Three>
+          <Three><StudioModel design={d} onPoints={(points) => set({ points })} active={d.form === "stack" ? selIdx : undefined}
+            onModulePoints={(i, points) => set({ modules: d.modules.map((m, k) => (k === i ? { ...m, points } : m)) })} /></Three>
           <button type="button" onClick={shuffle} className="absolute right-4 top-4 inline-flex items-center gap-1.5 rounded-full bg-ink/70 px-3 py-1.5 text-xs font-semibold backdrop-blur transition-transform hover:rotate-3 hover:scale-105"><Shuffle className="h-3.5 w-3.5" /> Surprise me</button>
           <span className="absolute left-4 top-4 h-6 w-6 rounded-full border border-ink-line" style={{ background: d.color }} title={d.color} />
-          <p className="pointer-events-none absolute bottom-4 left-4 text-[10px] uppercase tracking-widest text-ink-muted">Drag to spin · scroll to zoom{d.form !== "stack" && d.points.length ? " · drag dots to shape" : ""}</p>
+          <p className="pointer-events-none absolute bottom-4 left-4 text-[10px] uppercase tracking-widest text-ink-muted">Drag to spin · scroll to zoom{(d.form !== "stack" ? d.points.length : d.modules[selIdx]?.points?.length) ? " · drag dots to shape" : ""}</p>
         </div>
         <div className="rounded-2xl bg-ink-foreground p-4 text-ink">
           <div className="flex flex-wrap items-end justify-between gap-3">
@@ -603,6 +633,105 @@ function PhotoLab({ color }: { color: string }) {
   );
 }
 
+/* ---------- Sketch to 3D ---------- */
+
+type SketchShape = { radii: number[]; aspect: number };
+
+/** Reads an image or canvas into a luminance grid and traces its outline into a turned profile. */
+function traceSketch(source: CanvasImageSource, w: number, h: number): SketchShape | null {
+  const N = 200, k = Math.min(N / w, N / h);
+  const cw = Math.max(8, Math.round(w * k)), ch = Math.max(8, Math.round(h * k));
+  const c = document.createElement("canvas"); c.width = cw; c.height = ch;
+  const ctx = c.getContext("2d")!;
+  ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, cw, ch);
+  ctx.drawImage(source, 0, 0, cw, ch);
+  const px = ctx.getImageData(0, 0, cw, ch).data;
+  const lum = new Float32Array(cw * ch);
+  for (let i = 0; i < lum.length; i++) lum[i] = (px[i * 4]! * 0.299 + px[i * 4 + 1]! * 0.587 + px[i * 4 + 2]! * 0.114) / 255;
+  return sketchProfile(lum, cw, ch);
+}
+
+function SketchLab({ before, after, color }: { before: string; after: string; color: string }) {
+  const [view, setView] = useState<"example" | "draw" | "result">("example");
+  const [shape, setShape] = useState<SketchShape | null>(null);
+  const [preview, setPreview] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const pad = useRef<HTMLCanvasElement>(null);
+  const last = useRef<{ x: number; y: number } | null>(null);
+  const finish = (sh: SketchShape | null, url: string) => {
+    if (!sh) { setError("We couldn't find a clear outline — try a darker line on a light background."); return; }
+    setError(null); setShape(sh); setPreview(url); setView("result");
+  };
+  const upload = (f?: File) => {
+    if (!f || !f.type.startsWith("image/")) return;
+    const url = URL.createObjectURL(f);
+    const im = new Image();
+    im.onload = () => finish(traceSketch(im, im.width, im.height), url);
+    im.src = url;
+  };
+  const clearPad = () => { const c = pad.current; if (!c) return; const x = c.getContext("2d")!; x.fillStyle = "#fff"; x.fillRect(0, 0, c.width, c.height); };
+  useEffect(() => { if (view === "draw") clearPad(); }, [view]);
+  const point = (e: React.PointerEvent<HTMLCanvasElement>) => { const r = e.currentTarget.getBoundingClientRect(); return { x: ((e.clientX - r.left) / r.width) * e.currentTarget.width, y: ((e.clientY - r.top) / r.height) * e.currentTarget.height }; };
+  const stroke = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    if (!e.buttons || !last.current) return;
+    const p = point(e), x = e.currentTarget.getContext("2d")!;
+    // Mirror each stroke so the outline is symmetric, like a turned piece.
+    const W = e.currentTarget.width;
+    x.strokeStyle = "#1d1b1a"; x.lineWidth = 6; x.lineCap = "round";
+    for (const m of [false, true]) { x.beginPath(); x.moveTo(m ? W - last.current.x : last.current.x, last.current.y); x.lineTo(m ? W - p.x : p.x, p.y); x.stroke(); }
+    last.current = p;
+  };
+  const tools = [
+    { label: "Upload your sketch", icon: <Upload className="h-4 w-4" />, upload: true },
+    { label: "Draw a sketch", icon: <PencilLine className="h-4 w-4" />, onClick: () => { setView("draw"); setError(null); } },
+    { label: "Show example", icon: <Eraser className="h-4 w-4" />, onClick: () => { setView("example"); setError(null); } },
+  ];
+  return (
+    <div className="mt-10 flex gap-3 md:gap-4">
+      <div className="flex flex-col gap-2">
+        {tools.map((t) => t.upload ? (
+          <label key={t.label} title={t.label} aria-label={t.label} className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-full border border-ink-line transition-colors hover:border-primary hover:text-primary">
+            {t.icon}<input type="file" accept="image/png,image/jpeg,image/webp" className="sr-only" onChange={(e) => { upload(e.target.files?.[0]); e.target.value = ""; }} />
+          </label>
+        ) : (
+          <button key={t.label} type="button" title={t.label} aria-label={t.label} onClick={t.onClick}
+            className="flex h-11 w-11 items-center justify-center rounded-full border border-ink-line transition-colors hover:border-primary hover:text-primary">{t.icon}</button>
+        ))}
+      </div>
+      <div className="min-w-0 flex-1">
+        {view === "example" && <BeforeAfter before={before} after={after} />}
+        {view === "draw" && (
+          <div className="grid gap-3 md:grid-cols-2">
+            <canvas ref={pad} width={480} height={480} aria-label="Sketch pad" className="aspect-square w-full cursor-crosshair touch-none rounded-2xl"
+              onPointerDown={(e) => { e.currentTarget.setPointerCapture(e.pointerId); last.current = point(e); }} onPointerMove={stroke} onPointerUp={() => (last.current = null)} />
+            <div className="flex flex-col justify-center gap-4 rounded-2xl border border-ink-line p-6">
+              <p className="text-sm text-ink-muted">Draw one side of your vase or lamp from top to bottom — we mirror it as you go. Then turn it into 3D.</p>
+              <div className="flex flex-wrap gap-2">
+                <button type="button" onClick={() => { const c = pad.current; if (c) finish(traceSketch(c, c.width, c.height), c.toDataURL()); }}
+                  className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-transform hover:scale-[1.03]">Make it 3D <ArrowRight className="h-4 w-4" /></button>
+                <button type="button" onClick={clearPad} className="rounded-full border border-ink-line px-4 py-2.5 text-sm font-semibold">Clear</button>
+              </div>
+            </div>
+          </div>
+        )}
+        {view === "result" && shape && preview && (
+          <div className="grid gap-3 md:grid-cols-2">
+            <div className="relative aspect-square overflow-hidden rounded-2xl bg-ink-foreground">
+              <img src={preview} alt="Your sketch" className="h-full w-full object-contain" />
+              <span className="absolute left-4 top-4 rounded-full bg-ink/70 px-3 py-1 text-xs text-ink-foreground">Your sketch</span>
+            </div>
+            <div className="relative aspect-square overflow-hidden rounded-2xl bg-ink-soft">
+              <Three><SketchModel radii={shape.radii} aspect={shape.aspect} color={color} /></Three>
+              <span className="absolute left-4 top-4 rounded-full bg-ink/70 px-3 py-1 text-xs text-ink-foreground">3D preview · drag to spin</span>
+            </div>
+          </div>
+        )}
+        {error && <p className="mt-3 text-sm text-ink-muted">{error}</p>}
+      </div>
+    </div>
+  );
+}
+
 /* ---------- Before / after ---------- */
 
 function BeforeAfter({ before, after }: { before: string; after: string }) {
@@ -610,7 +739,7 @@ function BeforeAfter({ before, after }: { before: string; after: string }) {
   const ref = useRef<HTMLDivElement>(null);
   const move = (x: number) => { const r = ref.current!.getBoundingClientRect(); setPos(Math.min(100, Math.max(0, ((x - r.left) / r.width) * 100))); };
   return (
-    <div ref={ref} className="relative mt-10 aspect-[4/3] cursor-ew-resize select-none overflow-hidden rounded-2xl touch-none"
+    <div ref={ref} className="relative aspect-[4/3] cursor-ew-resize select-none overflow-hidden rounded-2xl touch-none"
       onPointerDown={(e) => { e.currentTarget.setPointerCapture(e.pointerId); move(e.clientX); }}
       onPointerMove={(e) => { if (e.buttons) move(e.clientX); }}>
       <img src={after} alt="Finished 3D printed piece" loading="lazy" width={1200} height={912} className="absolute inset-0 h-full w-full object-cover" draggable={false} />
@@ -634,7 +763,7 @@ const STEP_FIELDS = [["kind", "idea"], ["size", "color", "engraving", "quantity"
 function designSummary(d: Design, rates: Rates) {
   const s = estimate(d, rates);
   const shape = d.form === "stack"
-    ? ` · modules (bottom→top): ${d.modules.map((m) => `${SHAPES.find((x) => x.id === m.shape)?.label} ${m.height}×${m.width}${m.color ? ` ${m.color}` : ""}`).join(", ")}`
+    ? ` · modules (bottom→top): ${d.modules.map((m) => `${SHAPES.find((x) => x.id === m.shape)?.label} ${m.height}×${m.width}${m.points?.length ? ` pts ${m.points.map((p) => `${Math.round(p.t * 100)}%@${Math.round(p.s * 100)}%`).join(" ")}` : ""}${m.color ? ` ${m.color}` : ""}`).join(", ")}${d.light ? ` · light modules ${lightFitting(d).from + 1}–${lightFitting(d).to + 1} (${lightFitting(d).fitting})` : ""}`
     : `${d.points.length ? ` · touch points ${d.points.map((p) => `${Math.round(p.t * 100)}%@${Math.round(p.s * 100)}%`).join(" ")}` : ""}${d.form === "table-lamp" ? ` · base ${d.base === "none" ? "none" : SHAPES.find((x) => x.id === d.base)?.label}` : ""}`;
   return `${FORMS.find((f) => f.id === d.form)!.label} · ${s.totalHeight}×${s.width} cm · fuzzy ${Math.round(d.fuzzy * 100)}% · ${d.layers} vertical / ${d.hRibs} horizontal ribs · twist ${d.twist}° · taper ${d.taper} · ${d.color}${d.light ? ` · light ${d.warm ? "warm" : "soft"}` : ""}${d.waterproof ? " · waterproof" : ""}${shape} · est. ₹${s.low}–${s.high}`;
 }
@@ -740,7 +869,7 @@ function Brief({ design, clearDesign, rates, submitLabel, thankYou }: { design: 
 
       <div className={step === 1 ? "grid gap-5 sm:grid-cols-2" : "hidden"}>
         <label className={lbl}>Size or scale<input name="size" className={field} placeholder="e.g. 120 cm tall, or 2× the Terra" />{err("size")}</label>
-        <label className={lbl}>Colour / hex / palette<input name="color" defaultValue={design?.color ?? ""} className={field} placeholder="#8f9f84 or 'warm sand'" />{err("color")}</label>
+        <label className={lbl}>Preferred colour or palette<input name="color" defaultValue={design?.color ?? ""} className={field} placeholder="e.g. warm sand, forest green" />{err("color")}</label>
         <label className={lbl}>Engraving (optional)<input name="engraving" maxLength={60} className={field} placeholder="Names, initials, a date…" />{err("engraving")}</label>
         <label className={lbl}>Quantity<input name="quantity" type="number" min={1} defaultValue={1} className={field} />{err("quantity")}</label>
         <label className={`${lbl} sm:col-span-2`}>Timeline

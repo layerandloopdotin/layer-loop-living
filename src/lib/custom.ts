@@ -13,6 +13,7 @@ export type FormId = (typeof FORMS)[number]["id"];
 
 /** Ready-made geometric shapes for stack modules and table-lamp bases. "classic" follows the chosen form's own curve. */
 export const SHAPES = [
+  { id: "custom", label: "Custom" },
   { id: "classic", label: "Signature" },
   { id: "cylinder", label: "Cylinder" },
   { id: "sphere", label: "Sphere" },
@@ -24,10 +25,13 @@ export const SHAPES = [
 export type ShapeId = (typeof SHAPES)[number]["id"];
 
 /** Wall area relative to a straight cylinder of the same height and width. */
-const AREA: Record<ShapeId, number> = { classic: 0.85, cylinder: 1, sphere: 0.75, cone: 0.8, dome: 0.7, donut: 1.1, box: 1.27 };
+const AREA: Record<ShapeId, number> = { custom: 0.9, classic: 0.85, cylinder: 1, sphere: 0.75, cone: 0.8, dome: 0.7, donut: 1.1, box: 1.27 };
 
 export type TouchPoint = { t: number; s: number }; // t: 0 bottom..1 top, s: width multiplier
-export type StackModule = { shape: ShapeId; height: number; width: number; color: string | null };
+/** A stack piece. Lathe shapes (all but box/donut) take their own touch points; "custom" also takes its own taper. */
+export type StackModule = { shape: ShapeId; height: number; width: number; color: string | null; points?: TouchPoint[]; taper?: number };
+
+export type LightKind = "strip" | "tube";
 
 export type Design = {
   form: FormId;
@@ -45,6 +49,9 @@ export type Design = {
   light: boolean;
   warm: boolean;
   waterproof: boolean;
+  lightFrom: number; // stack only: lowest lit module (0 = bottom)
+  lightTo: number; // stack only: highest lit module
+  lightKind: LightKind; // stack only, when the light spans more than one module
 };
 
 export const MAX_MODULES = 6;
@@ -62,7 +69,21 @@ export const DEFAULT_DESIGN: Design = {
   form: "pendant", height: 24, width: 18, taper: 0.2, twist: 60, fuzzy: 0.35, layers: 28, hRibs: 0,
   points: [{ t: 0.5, s: 0.75 }], modules: DEFAULT_MODULES, base: "cylinder",
   color: "#c46a43", light: true, warm: true, waterproof: false,
+  lightFrom: 0, lightTo: 3, lightKind: "strip",
 };
+
+export const CUSTOM_MODULE: StackModule = { shape: "custom", height: 14, width: 18, color: null, points: [{ t: 0.5, s: 0.75 }], taper: 0.2 };
+
+/** Which modules of a stack light up and what fitting that needs: one module takes an E27 bulb, more take an LED strip or tube. */
+export function lightFitting(d: Pick<Design, "modules" | "lightFrom" | "lightTo" | "lightKind">) {
+  const n = Math.max(1, Math.min(d.modules.length, MAX_MODULES));
+  const a = Math.min(n - 1, Math.max(0, Math.round(d.lightFrom)));
+  const b = Math.min(n - 1, Math.max(0, Math.round(d.lightTo)));
+  const from = Math.min(a, b), to = Math.max(a, b);
+  const count = to - from + 1;
+  const fitting = count === 1 ? "E27 LED bulb" : d.lightKind === "tube" ? "LED tube light" : "LED strip";
+  return { from, to, count, fitting };
+}
 
 /** Smooth width multiplier at height t through the touch points (top and bottom stay at 1). */
 export function pinch(points: TouchPoint[], t: number) {
@@ -157,6 +178,36 @@ export function closestSwatches(hex: string, palette: Swatch[] = STUDIO_PALETTE,
     })
     .sort((a, b) => a.dist - b.dist)
     .slice(0, n);
+}
+
+/**
+ * Turns a sketch (luminance 0..1 per pixel, rows top→bottom) into a lathe profile: the ink's half-width per row,
+ * sampled bottom→top and normalised to 0..1, plus the drawing's height-to-width ratio. Null when there is too little ink.
+ */
+export function sketchProfile(lum: ArrayLike<number>, w: number, h: number, rows = 32) {
+  let sum = 0;
+  for (let i = 0; i < w * h; i++) sum += lum[i] ?? 1;
+  const thr = Math.min(0.55, sum / (w * h) - 0.18);
+  const half: (number | null)[] = [];
+  for (let y = 0; y < h; y++) {
+    let l = -1, r = -1;
+    for (let x = 0; x < w; x++) if ((lum[y * w + x] ?? 1) < thr) { if (l < 0) l = x; r = x; }
+    half.push(l < 0 || r - l < w * 0.02 ? null : (r - l) / 2);
+  }
+  const first = half.findIndex((v) => v !== null);
+  let last = -1;
+  for (let y = h - 1; y >= 0; y--) if (half[y] !== null) { last = y; break; }
+  if (first < 0 || last - first < h * 0.1) return null;
+  const out: number[] = [];
+  let prev = half[last] ?? 0;
+  for (let i = 0; i < rows; i++) {
+    const y = Math.round(last - (i / (rows - 1)) * (last - first));
+    const v = half[y];
+    if (v !== null && v !== undefined) prev = v;
+    out.push(prev);
+  }
+  const max = Math.max(...out);
+  return { radii: out.map((v) => Math.max(0.05, v / max)), aspect: (last - first) / (max * 2) };
 }
 
 /** Photo lab modes. */

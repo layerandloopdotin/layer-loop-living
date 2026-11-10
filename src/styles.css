@@ -214,3 +214,12 @@
 @utility layer-in {
   animation: layer-in 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
+
+/* Custom page cover: slow drift plus faint print-layer lines. */
+@keyframes custom-drift { from { transform: scale(1.06) translateX(1%); } to { transform: scale(1.12) translateX(-1.5%); } }
+.custom-hero-img { animation: custom-drift 24s ease-in-out infinite alternate; }
+.custom-hero-lines { background: repeating-linear-gradient(0deg, var(--color-ink-foreground) 0 1px, transparent 1px 6px); }
+@media (prefers-reduced-motion: reduce) { .custom-hero-img { animation: none; } }
+.studio-picker .react-colorful { width: 100%; height: 170px; }
+.studio-picker .react-colorful__saturation { border-radius: 0.75rem 0.75rem 0 0; }
+.studio-picker .react-colorful__last-control { border-radius: 0 0 0.75rem 0.75rem; }

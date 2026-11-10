@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
-import { ArrowRight, Heart, MessageCircle, ShoppingBag } from "lucide-react";
-import { type ReactNode } from "react";
+import { ArrowRight, Heart, Menu, MessageCircle, ShoppingBag } from "lucide-react";
+import { type ReactNode, useState } from "react";
+import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { formatPrice } from "@/lib/currency";
 import { shop, useShop } from "@/lib/shop";
 import { useSite, waHref } from "@/lib/site";
@@ -22,10 +23,10 @@ export function WishButton({ slug, name, className = "" }: { slug: string; name:
 export function Logo({ dot = false }: { dot?: boolean }) {
   const s = useSite().content("settings");
   return (
-    <Link to="/" className="flex items-center gap-2">
-      {s.logoMode === "image" && s.logoImage ? <img src={img(s.logoImage)} alt={s.brand} className="h-10 w-auto max-w-48 object-contain" /> : <>
-        {dot && <span className="h-4 w-4 rounded-full bg-primary" />}
-        <span className="font-display text-lg font-bold">{s.brand}</span>
+    <Link to="/" className="flex min-w-0 items-center gap-2">
+      {s.logoMode === "image" && s.logoImage ? <img src={img(s.logoImage)} alt={s.brand} className="h-8 w-auto max-w-36 object-contain md:h-10 md:max-w-48" /> : <>
+        {dot && <span className="h-4 w-4 shrink-0 rounded-full bg-primary" />}
+        <span className="truncate whitespace-nowrap font-display text-base font-bold md:text-lg">{s.brand}</span>
       </>}
     </Link>
   );
@@ -40,13 +41,46 @@ function HeaderIcon({ to, label, count, children }: { to: "/cart" | "/wishlist";
   );
 }
 
+function MobileMenu() {
+  const s = useSite().content("settings");
+  const [open, setOpen] = useState(false);
+  return (
+    <Sheet open={open} onOpenChange={setOpen}>
+      <SheetTrigger asChild>
+        <button type="button" aria-label="Open menu" className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-ink-line text-ink-foreground md:hidden">
+          <Menu className="h-4 w-4" />
+        </button>
+      </SheetTrigger>
+      <SheetContent side="right" className="flex w-[85vw] max-w-sm flex-col border-ink-line bg-ink text-ink-foreground">
+        <SheetTitle className="sr-only">Menu</SheetTitle>
+        <nav className="mt-10 flex flex-col">
+          {s.nav.map((n) => (
+            <Link key={n.label + n.path} to={n.path as "/"} onClick={() => setOpen(false)} activeOptions={{ exact: true }}
+              className="border-b border-ink-line py-4 font-display text-2xl font-bold uppercase text-ink-muted"
+              activeProps={{ className: "!text-ink-foreground" }}>{n.label}</Link>
+          ))}
+        </nav>
+        <div className="mt-auto space-y-3 pb-4">
+          <Link to="/contactus" onClick={() => setOpen(false)} className="flex items-center justify-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-medium text-primary-foreground">
+            {s.contactButton} <ArrowRight className="h-4 w-4" />
+          </Link>
+          {s.whatsapp && <a href={waHref(s.whatsapp)} target="_blank" rel="noreferrer" className="flex items-center justify-center gap-2 rounded-full border border-ink-line px-5 py-3 text-sm"><MessageCircle className="h-4 w-4" /> WhatsApp</a>}
+          <div className="flex flex-wrap justify-center gap-4 pt-2 text-xs text-ink-muted">
+            {s.socials.map((x) => <a key={x.label + x.url} href={x.url} target="_blank" rel="noreferrer">{x.label}</a>)}
+          </div>
+        </div>
+      </SheetContent>
+    </Sheet>
+  );
+}
+
 export function SiteHeader() {
   const { cart, wishlist } = useShop();
   const s = useSite().content("settings");
   return (
     <header className="border-b border-ink-line bg-ink text-ink-foreground">
-      <div className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-6 py-4">
-        <div className="flex items-center gap-10">
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 md:gap-6 md:px-6 md:py-4">
+        <div className="flex min-w-0 items-center gap-10">
           <Logo />
           <nav className="hidden gap-7 text-sm md:flex">
             {s.nav.map((n) => (
@@ -58,12 +92,13 @@ export function SiteHeader() {
             ))}
           </nav>
         </div>
-        <div className="flex items-center gap-2">
-          <Link to="/contactus" className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2 text-sm font-medium text-primary-foreground">
+        <div className="flex shrink-0 items-center gap-2">
+          <Link to="/contactus" className="hidden md:inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2 text-sm font-medium text-primary-foreground">
             {s.contactButton} <ArrowRight className="h-4 w-4" />
           </Link>
           <HeaderIcon to="/wishlist" label="Favourites" count={wishlist.length}><Heart className="h-4 w-4" fill={wishlist.length ? "currentColor" : "none"} /></HeaderIcon>
           <HeaderIcon to="/cart" label="Cart" count={cart.reduce((sum, c) => sum + c.qty, 0)}><ShoppingBag className="h-4 w-4" /></HeaderIcon>
+          <MobileMenu />
         </div>
       </div>
     </header>

@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { Grid3x3, LayoutGrid, Square, SlidersHorizontal } from "lucide-react";
+import { Grid3x3, LayoutGrid, SlidersHorizontal } from "lucide-react";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { DarkHero, Page, WishButton } from "@/components/site";
 import { formatPrice } from "@/lib/currency";
@@ -37,9 +37,9 @@ function Products() {
   const toggle = (list: string[], set: (v: string[]) => void, v: string) => set(list.includes(v) ? list.filter((x) => x !== v) : [...list, v]);
   const shown = site.products.filter((p) => (!featured || p.featured) && (!cats.length || p.categories.some((x) => cats.includes(x))) && (!spaces.length || p.spaces.some((x) => spaces.includes(x))));
 
-  const [cols, setCols] = useState<1 | 2 | 3>(2);
-  useEffect(() => { const g = localStorage.getItem("ll-grid"); if (g === "1" || g === "3") setCols(Number(g) as 1 | 3); }, []);
-  const setDensity = (v: 1 | 2 | 3) => { setCols(v); localStorage.setItem("ll-grid", String(v)); };
+  const [cols, setCols] = useState<2 | 3>(2);
+  useEffect(() => { const g = localStorage.getItem("ll-grid"); if (g === "3") setCols(3); else if (g === "1") setCols(2); }, []);
+  const setDensity = (v: 2 | 3) => { setCols(v); localStorage.setItem("ll-grid", String(v)); };
   const grid = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const el = grid.current;
@@ -98,7 +98,6 @@ function Products() {
         <div className="flex items-center gap-1 rounded-full border p-1">
           <Button variant="ghost" size="icon" type="button" aria-label="Three per row" title="Three per row" aria-pressed={cols === 3} onClick={() => setDensity(3)} className={`rounded-full ${cols === 3 ? "bg-foreground text-background" : ""}`}><Grid3x3 className="h-4 w-4" /></Button>
           <Button variant="ghost" size="icon" type="button" aria-label="Two per row" title="Two per row" aria-pressed={cols === 2} onClick={() => setDensity(2)} className={`rounded-full ${cols === 2 ? "bg-foreground text-background" : ""}`}><LayoutGrid className="h-4 w-4" /></Button>
-          <Button variant="ghost" size="icon" type="button" aria-label="One per row" title="One per row" aria-pressed={cols === 1} onClick={() => setDensity(1)} className={`rounded-full ${cols === 1 ? "bg-foreground text-background" : ""}`}><Square className="h-4 w-4" /></Button>
         </div>
       </div>
       <section className="mx-auto grid max-w-7xl gap-8 px-4 py-8 md:grid-cols-[180px_minmax(0,1fr)] md:gap-8 md:px-6 md:pb-16">
@@ -117,14 +116,14 @@ function Products() {
             </div>
           </>}
         </aside>
-        <div key={cats.join() + spaces.join() + featured + cols} ref={grid} data-density={cols} className={`product-grid grid min-w-0 content-start animate-in fade-in duration-500 ${cols === 3 ? "grid-cols-3 gap-x-2 gap-y-4 md:gap-5" : cols === 2 ? "grid-cols-2 gap-x-3 gap-y-6 md:gap-6" : "grid-cols-1 gap-8 px-4 md:px-10 lg:px-20"}`}>
+        <div key={cats.join() + spaces.join() + featured + cols} ref={grid} data-density={cols} className={`product-grid grid min-w-0 content-start animate-in fade-in duration-500 ${cols === 3 ? "grid-cols-3 gap-x-2 gap-y-4 md:gap-5" : "grid-cols-2 gap-x-3 gap-y-6 md:gap-x-6 md:gap-y-10"}`}>
           {shown.map((p) => (
             <div key={p.id} className="product-card group relative">
               <Link to="/product/$slug" params={{ slug: p.slug }} aria-label={p.name} className="block">
                 <div className="product-frame aspect-[4/5] overflow-hidden rounded-xl">
                   <img src={p.image} alt={p.name} loading="lazy" className="h-full w-full object-cover" />
                 </div>
-                <div className={`mt-3 flex items-start justify-between gap-3 ${cols === 3 ? "max-md:hidden md:flex-col md:gap-1 lg:flex-row lg:flex-wrap" : ""} ${cols === 2 ? "max-lg:flex-col max-lg:gap-1" : ""}`}>
+                <div className={`flex items-start justify-between gap-3 ${cols === 3 ? "max-md:hidden md:flex-col md:gap-1 lg:flex-row lg:flex-wrap" : ""} ${cols === 2 ? "mt-5 max-lg:flex-col max-lg:gap-1" : "mt-4"}`}>
                   <div className="min-w-0">
                     <p className="font-display font-semibold max-md:text-sm">{p.name}</p>
                     <p className="text-xs text-muted-foreground">{p.note}</p>

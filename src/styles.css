@@ -173,7 +173,7 @@
   }
 
   .product-grid .product-frame {
-    transform-origin: 50% 100%;
+    transform-origin: 50% 50%;
     transition: transform 600ms cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 600ms ease;
   }
 
@@ -182,7 +182,7 @@
   }
 
   .product-grid .product-card:hover .product-frame {
-    transform: scale(1.07);
+    transform: scale(1.05);
     box-shadow: 0 38px 80px -30px rgb(0 0 0 / 0.7);
   }
 

@@ -220,7 +220,7 @@ function CameraFit({ dist }: { dist: number }) {
   return null;
 }
 
-export function StudioModel({ design, spin = false, interactive = true, onPoints, active, onModulePoints }: { design: Design; spin?: boolean; interactive?: boolean; onPoints?: (p: TouchPoint[]) => void; active?: number; onModulePoints?: (i: number, p: TouchPoint[]) => void }) {
+export function StudioModel({ design, spin = false, interactive = true, onPoints, active, onModulePoints }: { design: Design; spin?: boolean; interactive?: boolean; onPoints?: (p: TouchPoint[]) => void; active?: number | undefined; onModulePoints?: (i: number, p: TouchPoint[]) => void }) {
   const tall = parts(design).reduce((s, p) => s + p.height / 10, 0);
   const dist = Math.max(5.5, tall * 2.4, (design.width / 10) * 3.2);
   const [dragging, setDragging] = useState(false);

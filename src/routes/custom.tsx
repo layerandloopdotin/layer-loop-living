@@ -293,6 +293,7 @@ function Chip({ on, onClick, children, title }: { on: boolean; onClick: () => vo
 
 function ShapeIcon({ shape }: { shape: ShapeId }) {
   const p: Record<ShapeId, ReactNode> = {
+    custom: <path d="M8 4h8M9 4c-3 5 3 7 0 16M15 4c3 5-3 7 0 16M8 20h8" />,
     classic: <path d="M7 20h10M8 20c-2-5 0-9 1-12h6c1 3 3 7 1 12" />,
     cylinder: <rect x="6" y="5" width="12" height="15" rx="1" />,
     sphere: <circle cx="12" cy="12" r="7.5" />,
@@ -308,7 +309,7 @@ function ShapePicker({ value, onChange, allowNone }: { value: ShapeId | "none"; 
   return (
     <div className="flex flex-wrap gap-1.5">
       {allowNone && <Chip on={value === "none"} onClick={() => onChange("none")}>No base</Chip>}
-      {SHAPES.map((s) => (
+      {SHAPES.filter((s) => !allowNone || s.id !== "custom").map((s) => (
         <button key={s.id} type="button" aria-pressed={value === s.id} title={s.label} onClick={() => onChange(s.id)}
           className={`flex flex-col items-center gap-0.5 rounded-lg border px-2 py-1.5 text-[10px] transition-colors ${value === s.id ? "border-primary bg-primary/15 text-ink-foreground" : "border-ink-line text-ink-muted hover:text-ink-foreground"}`}>
           <ShapeIcon shape={s.id} />{s.label}

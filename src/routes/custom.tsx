@@ -39,7 +39,7 @@ function Reveal({ children, delay = 0, className = "" }: { children: ReactNode; 
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    const io = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setOn(true); io.disconnect(); } }, { threshold: 0.15 });
+    const io = new IntersectionObserver(([e]) => { if (e?.isIntersecting) { setOn(true); io.disconnect(); } }, { threshold: 0.15 });
     io.observe(el);
     return () => io.disconnect();
   }, []);
@@ -254,7 +254,7 @@ function Sandbox({ design: d, setDesign, rates, note, sendLabel, onSend }: { des
   const near = closestSwatches(d.color, STUDIO_PALETTE, 1)[0];
   const shuffle = () => set({
     taper: +(Math.random() * 1.4 - 0.7).toFixed(2), twist: +Math.random().toFixed(2), fuzzy: +Math.random().toFixed(2),
-    layers: 8 + Math.round(Math.random() * 50), color: STUDIO_PALETTE[Math.floor(Math.random() * STUDIO_PALETTE.length)].hex,
+    layers: 8 + Math.round(Math.random() * 50), color: STUDIO_PALETTE[Math.floor(Math.random() * STUDIO_PALETTE.length)]?.hex ?? d.color,
   });
   return (
     <div className="mt-10 grid gap-8 lg:grid-cols-[1fr_1.3fr_0.9fr]">

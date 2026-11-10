@@ -132,10 +132,10 @@ function Relief({ src, depth, color }: { src: string; depth: number; color: stri
       ctx.drawImage(im, 0, 0, N, N);
       const px = ctx.getImageData(0, 0, N, N).data;
       const geo = new THREE.PlaneGeometry(w, h, N - 1, N - 1);
-      const p = geo.attributes.position;
+      const p = geo.getAttribute("position");
       for (let i = 0; i < p.count; i++) {
         const k = i * 4;
-        const lum = (px[k] * 0.299 + px[k + 1] * 0.587 + px[k + 2] * 0.114) / 255;
+        const lum = ((px[k] ?? 0) * 0.299 + (px[k + 1] ?? 0) * 0.587 + (px[k + 2] ?? 0) * 0.114) / 255;
         p.setZ(i, lum * depth);
       }
       geo.computeVertexNormals();

@@ -20,7 +20,7 @@ describe("custom studio rules", () => {
     expect(vase.low).toBe(vaseOff.low);
   });
   it("matches any hex to the closest studio colour", () => {
-    expect(closestSwatches("#c56b44")[0].name).toBe("Terracotta");
+    expect(closestSwatches("#c56b44")[0]?.name).toBe("Terracotta");
     expect(closestSwatches("not a colour")).toEqual([]);
   });
 });

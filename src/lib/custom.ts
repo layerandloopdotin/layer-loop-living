@@ -70,7 +70,8 @@ export const STUDIO_PALETTE: Swatch[] = [
 export function hexToRgb(hex: string): [number, number, number] | null {
   const m = /^#?([0-9a-f]{3}|[0-9a-f]{6})$/i.exec(hex.trim());
   if (!m) return null;
-  const h = m[1].length === 3 ? m[1].split("").map((c) => c + c).join("") : m[1];
+  const g = m[1] ?? "";
+  const h = g.length === 3 ? g.split("").map((c) => c + c).join("") : g;
   return [0, 2, 4].map((i) => parseInt(h.slice(i, i + 2), 16)) as [number, number, number];
 }
 

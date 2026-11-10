@@ -19,7 +19,17 @@ export const Route = createFileRoute("/_authenticated/admin/inbox")({
   component: InboxPage,
 });
 
-const kinds = { catalogue: "Catalogue request", career: "Job application" } as const;
+const kinds = { catalogue: "Catalogue request", career: "Job application", custom: "Custom request" } as const;
+
+/** Customer files sit in a private bucket; open them through a short-lived link. */
+function BriefFile({ path }: { path: string }) {
+  const open = async () => {
+    const { data, error } = await supabase.storage.from("custom-briefs").createSignedUrl(path, 600);
+    if (error || !data) return;
+    window.open(data.signedUrl, "_blank", "noopener");
+  };
+  return <button type="button" onClick={open} className="mr-3 underline">{path.split("/").pop()}</button>;
+}
 type Data = Record<string, unknown>;
 const str = (v: unknown) => (Array.isArray(v) ? v.join(", ") : v == null ? "" : String(v));
 
@@ -99,7 +109,7 @@ function InboxPage() {
                 {Object.entries(d).filter(([k]) => !["name", "company"].includes(k)).map(([k, v]) => (
                   <div key={k} className={k === "message" || k === "offer" ? "sm:col-span-2" : ""}>
                     <dt className="text-xs capitalize text-muted-foreground">{k}</dt>
-                    <dd className="whitespace-pre-line">{str(v)}</dd>
+                    <dd className="whitespace-pre-line">{k === "files" && Array.isArray(v) ? (v as string[]).map((p) => <BriefFile key={p} path={p} />) : str(v)}</dd>
                   </div>
                 ))}
               </dl>

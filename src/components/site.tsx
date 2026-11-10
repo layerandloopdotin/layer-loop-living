@@ -131,6 +131,7 @@ export function SiteFooter() {
           <ul className="mt-4 space-y-2 text-sm text-ink-muted">
             <li><Link to="/about" className={footLink}>About Us</Link></li>
             <li><Link to="/trade" className={footLink}>Trade &amp; Partnerships</Link></li>
+            <li><Link to="/custom" className={footLink}>Custom &amp; Bespoke</Link></li>
             <li><Link to="/contactus" className={footLink}>Contact Us</Link></li>
           </ul>
         </div>

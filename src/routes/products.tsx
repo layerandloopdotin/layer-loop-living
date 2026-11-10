@@ -36,9 +36,9 @@ function Products() {
   const toggle = (list: string[], set: (v: string[]) => void, v: string) => set(list.includes(v) ? list.filter((x) => x !== v) : [...list, v]);
   const shown = site.products.filter((p) => (!featured || p.featured) && (!cats.length || p.categories.some((x) => cats.includes(x))) && (!spaces.length || p.spaces.some((x) => spaces.includes(x))));
 
-  const [cols, setCols] = useState<1 | 2>(2);
-  useEffect(() => { if (localStorage.getItem("ll-grid") === "1") setCols(1); }, []);
-  const setDensity = (v: 1 | 2) => { setCols(v); localStorage.setItem("ll-grid", String(v)); };
+  const [cols, setCols] = useState<1 | 2 | 3>(2);
+  useEffect(() => { const g = localStorage.getItem("ll-grid"); if (g === "1" || g === "3") setCols(Number(g) as 1 | 3); }, []);
+  const setDensity = (v: 1 | 2 | 3) => { setCols(v); localStorage.setItem("ll-grid", String(v)); };
   const grid = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const el = grid.current;
@@ -95,6 +95,7 @@ function Products() {
           </SheetContent>
         </Sheet>
         <div className="flex items-center gap-1 rounded-full border p-1">
+          <button type="button" aria-label="Three per row" aria-pressed={cols === 3} onClick={() => setDensity(3)} className={`rounded-full p-1.5 ${cols === 3 ? "bg-foreground text-background" : ""}`}><Grid3x3 className="h-4 w-4" /></button>
           <button type="button" aria-label="Two per row" aria-pressed={cols === 2} onClick={() => setDensity(2)} className={`rounded-full p-1.5 ${cols === 2 ? "bg-foreground text-background" : ""}`}><LayoutGrid className="h-4 w-4" /></button>
           <button type="button" aria-label="One per row" aria-pressed={cols === 1} onClick={() => setDensity(1)} className={`rounded-full p-1.5 ${cols === 1 ? "bg-foreground text-background" : ""}`}><Square className="h-4 w-4" /></button>
         </div>
@@ -115,14 +116,14 @@ function Products() {
             </div>
           </>}
         </aside>
-        <div key={cats.join() + spaces.join() + featured} ref={grid} className={`product-grid grid content-start animate-in fade-in duration-500 md:grid-cols-2 md:gap-6 lg:grid-cols-3 ${cols === 2 ? "grid-cols-2 gap-x-3 gap-y-6" : "grid-cols-1 gap-8"}`}>
+        <div key={cats.join() + spaces.join() + featured} ref={grid} className={`product-grid grid content-start animate-in fade-in duration-500 md:grid-cols-2 md:gap-6 lg:grid-cols-3 ${cols === 3 ? "grid-cols-3 gap-x-2 gap-y-4" : cols === 2 ? "grid-cols-2 gap-x-3 gap-y-6" : "grid-cols-1 gap-8"}`}>
           {shown.map((p) => (
             <div key={p.id} className="product-card group relative">
               <Link to="/product/$slug" params={{ slug: p.slug }} aria-label={p.name} className="block">
                 <div className="product-frame aspect-[4/5] overflow-hidden rounded-xl">
                   <img src={p.image} alt={p.name} loading="lazy" className="h-full w-full object-cover" />
                 </div>
-                <div className={`mt-3 flex items-start justify-between gap-3 ${cols === 2 ? "max-md:flex-col max-md:gap-1" : ""}`}>
+                <div className={`mt-3 flex items-start justify-between gap-3 ${cols === 3 ? "max-md:hidden" : ""} ${cols === 2 ? "max-md:flex-col max-md:gap-1" : ""}`}>
                   <div className="min-w-0">
                     <p className="font-display font-semibold max-md:text-sm">{p.name}</p>
                     <p className="text-xs text-muted-foreground">{p.note}</p>
@@ -130,7 +131,7 @@ function Products() {
                   <span className="shrink-0 font-display font-semibold">{formatPrice(p.price)}</span>
                 </div>
               </Link>
-              <WishButton slug={p.slug} name={p.name} className="absolute right-2 top-2 z-10 md:right-3 md:top-3" />
+              <WishButton slug={p.slug} name={p.name} className={`absolute right-2 top-2 z-10 md:right-3 md:top-3 ${cols === 3 ? "max-md:scale-75 max-md:right-1 max-md:top-1" : ""}`} />
             </div>
           ))}
           {!shown.length && <p className="text-muted-foreground">{c.emptyText}</p>}

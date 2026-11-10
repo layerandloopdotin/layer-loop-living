@@ -43,7 +43,7 @@ function Products() {
   useEffect(() => {
     const el = grid.current;
     if (!el || !window.matchMedia("(hover: none) and (max-width: 767px)").matches) return;
-    el.dataset.focusMode = "";
+    el.setAttribute("data-focus-mode", "");
     let last: Element | null = null;
     const io = new IntersectionObserver((entries) => {
       for (const e of entries) {

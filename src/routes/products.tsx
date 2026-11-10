@@ -42,7 +42,7 @@ function Products() {
   const grid = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const el = grid.current;
-    if (!el || !window.matchMedia("(hover: none) and (max-width: 767px)").matches) return;
+    if (!el || cols === 3 || !window.matchMedia("(hover: none) and (max-width: 767px)").matches) return;
     el.setAttribute("data-focus-mode", "");
     let last: Element | null = null;
     const io = new IntersectionObserver((entries) => {

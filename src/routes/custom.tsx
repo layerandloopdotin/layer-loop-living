@@ -106,10 +106,10 @@ function Custom() {
       <section className="bg-background">
         <div className="mx-auto max-w-7xl px-6 py-20">
           <Reveal><h2 className="font-display text-3xl font-bold md:text-5xl">{c.offersTitle}</h2></Reveal>
-          <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+          <div className="-mx-6 mt-10 flex snap-x snap-mandatory gap-4 overflow-x-auto px-6 pb-2 md:mx-0 md:grid md:grid-cols-5 md:gap-3 md:overflow-visible md:px-0 lg:gap-4">
             {c.offers.map((o, i) => (
-              <Reveal key={o.name} delay={i * 90}>
-                <div className="group flex h-full flex-col rounded-2xl border border-border bg-card p-5 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl">
+              <Reveal key={o.name} delay={i * 90} className="w-64 shrink-0 snap-center md:w-auto">
+                <div className="group flex h-full flex-col rounded-2xl border border-border bg-card p-4 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl lg:p-5">
                   <div className="mb-5 flex h-36 items-center justify-center overflow-hidden rounded-xl bg-muted"><OfferDemo i={i} onPhoto={() => go("photo")} /></div>
                   <h3 className="font-display text-lg font-bold">{o.name}</h3>
                   <p className="mt-2 text-sm text-muted-foreground">{o.text}</p>

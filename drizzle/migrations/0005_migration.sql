@@ -1,0 +1,2 @@
+ALTER TABLE public.submissions DROP CONSTRAINT submissions_kind_check;
+ALTER TABLE public.submissions ADD CONSTRAINT submissions_kind_check CHECK (kind = ANY (ARRAY['catalogue'::text, 'career'::text, 'custom'::text]));

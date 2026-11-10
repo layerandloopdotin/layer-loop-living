@@ -3,6 +3,7 @@ import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import { useRef, useState } from "react";
 import { Page, ProductCard } from "@/components/site";
 import { InstagramStrip } from "@/components/instagram-strip";
+import { CenterRail } from "@/components/center-rail";
 import { Button } from "@/components/ui/button";
 import { formatPrice } from "@/lib/currency";
 import { featuredProducts } from "@/lib/catalog";
@@ -32,6 +33,7 @@ function Index() {
   const track = useRef<HTMLDivElement>(null);
   const onTrack = () => { const t = track.current; if (t) setI(Math.round(t.scrollLeft / t.clientWidth)); };
   const edit = featuredProducts(site.products).slice(0, 3);
+  const cats = site.categories.filter((x) => x.image);
   return (
     <Page>
       <section className="bg-ink text-ink-foreground">
@@ -103,8 +105,11 @@ function Index() {
           </div>
           <Link to="/products" search={{ featured: true }} className="inline-flex items-center gap-2 rounded-full border border-foreground px-5 py-2 text-sm">{c.editButton} <ArrowRight className="h-4 w-4" /></Link>
         </div>
-        <div className="-mx-4 mt-8 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-2 [scrollbar-width:none] md:mx-0 md:mt-12 md:grid md:grid-cols-3 md:gap-6 md:overflow-visible md:px-0">
-          {edit.map((p) => <div key={p.slug} className="w-[76%] shrink-0 snap-start md:w-auto"><ProductCard key={p.slug} slug={p.slug} name={p.name} note={p.note} price={p.price} image={p.image} /></div>)}
+        <CenterRail className="-mx-4 mt-6 md:hidden" itemClass="w-[70%]" start={1}>
+          {edit.map((p) => <ProductCard key={p.slug} slug={p.slug} name={p.name} note={p.note} price={p.price} image={p.image} />)}
+        </CenterRail>
+        <div className="mt-12 hidden grid-cols-3 gap-6 md:grid">
+          {edit.map((p) => <ProductCard key={p.slug} slug={p.slug} name={p.name} note={p.note} price={p.price} image={p.image} />)}
         </div>
       </section>
 
@@ -122,9 +127,17 @@ function Index() {
           </div>
           <Link to="/products" className="inline-flex shrink-0 items-center gap-2 rounded-full border border-foreground px-4 py-2 text-xs md:px-5 md:text-sm">{c.categoryButton} <ArrowRight className="h-4 w-4" /></Link>
         </div>
-        <div className="-mx-4 mt-6 flex snap-x gap-3 overflow-x-auto px-4 pb-2 md:mx-0 md:mt-10 md:px-0 [scrollbar-width:none] md:gap-5">
-          {site.categories.filter((x) => x.image).map((x) => (
-            <Link key={x.id} to="/products" search={{ category: x.name }} className="group block w-[38%] shrink-0 snap-start sm:w-[30%] md:w-auto md:min-w-[9rem] md:flex-1 md:shrink">
+        <CenterRail className="-mx-4 mt-4 md:hidden" itemClass="w-[55%]" start={Math.max(cats.findIndex((x) => /collect/i.test(x.name)), 0)}>
+          {cats.map((x) => (
+            <Link key={x.id} to="/products" search={{ category: x.name }} className="block">
+              <img src={x.image} alt={x.name} loading="lazy" className="aspect-[3/4] w-full rounded-xl object-cover" />
+              <p className="mt-3 font-display text-sm font-semibold">{x.name}</p>
+            </Link>
+          ))}
+        </CenterRail>
+        <div className="mt-10 hidden gap-5 overflow-x-auto pb-2 [scrollbar-width:none] md:flex">
+          {cats.map((x) => (
+            <Link key={x.id} to="/products" search={{ category: x.name }} className="group block min-w-[9rem] flex-1">
 
               <div className="overflow-hidden rounded-xl">
                 <img src={x.image} alt={x.name} loading="lazy" width={960} height={1280} className="aspect-[3/4] w-full object-cover transition-transform duration-700 group-hover:scale-105" />

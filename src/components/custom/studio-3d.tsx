@@ -103,7 +103,7 @@ function Lights() {
 export function StudioModel({ design, spin = false, interactive = true }: { design: Design; spin?: boolean; interactive?: boolean }) {
   const modules = design.form === "stack" ? design.stack : 1;
   const tall = (design.height / 10) * modules;
-  const dist = Math.max(4.5, tall * 1.5, design.width / 4);
+  const dist = Math.max(5.5, tall * 2.1, (design.width / 10) * 3.2);
   const ref = useRef<HTMLDivElement>(null);
   return (
     <div ref={ref} className="h-full w-full" data-scene-ready>

@@ -68,8 +68,14 @@ function Custom() {
           <div>
             <p className={eyebrow}>{c.heroEyebrow}</p>
             <h1 className="mt-4 font-display text-6xl font-extrabold uppercase leading-[0.9] md:text-8xl" aria-label={c.heroTitle}>
-              {c.heroTitle.split("").map((ch, i) => (
-                <span key={i} aria-hidden className="layer-in inline-block" style={{ animationDelay: `${i * 55}ms` }}>{ch === " " ? "\u00a0" : ch}</span>
+              {c.heroTitle.split(" ").map((word, w, all) => (
+                <span key={w} aria-hidden className="inline-block whitespace-nowrap">
+                  {word.split("").map((ch, i) => {
+                    const n = all.slice(0, w).join("").length + w + i;
+                    return <span key={i} className="layer-in inline-block" style={{ animationDelay: `${n * 55}ms` }}>{ch}</span>;
+                  })}
+                  {w < all.length - 1 && "\u00a0"}
+                </span>
               ))}
             </h1>
             <p className="mt-6 max-w-md text-lg text-ink-muted">{c.heroText}</p>
@@ -417,7 +423,12 @@ function Brief({ design, clearDesign, rates, submitLabel, thankYou }: { design: 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     const { ok, r } = check(2);
-    if (!ok || !r.success) return;
+    if (!ok || !r.success) {
+      const bad = r.success ? [] : r.error.issues.map((i) => String(i.path[0]));
+      const first = STEP_FIELDS.findIndex((keys) => keys.some((k) => bad.includes(k)));
+      if (first >= 0) setStep(first);
+      return;
+    }
     setBusy(true);
     const paths: string[] = [];
     for (const file of files) {

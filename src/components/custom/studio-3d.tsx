@@ -134,7 +134,7 @@ function Handles({ d, y0, onPoints, setDragging }: { d: Design; y0: number; onPo
   );
 }
 
-function Piece({ d, spin, onPoints, setDragging }: { d: Design; spin: boolean; onPoints?: (p: TouchPoint[]) => void; setDragging: (b: boolean) => void }) {
+function Piece({ d, spin, onPoints, setDragging }: { d: Design; spin: boolean; onPoints?: ((p: TouchPoint[]) => void) | undefined; setDragging: (b: boolean) => void }) {
   const group = useRef<THREE.Group>(null);
   const ps = parts(d);
   const lit = d.light && (d.form === "pendant" || d.form === "table-lamp" || d.form === "stack");

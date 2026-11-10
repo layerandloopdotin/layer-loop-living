@@ -15,6 +15,7 @@ export const LINK_TARGETS = [
   { value: "/products", label: "Products" },
   { value: "/about", label: "About" },
   { value: "/trade", label: "Trade" },
+  { value: "/custom", label: "Custom" },
   { value: "/contactus", label: "Contact us" },
 ] as const;
 
@@ -27,6 +28,7 @@ const settings = {
     { label: "Products", path: "/products" },
     { label: "About", path: "/about" },
     { label: "Trade", path: "/trade" },
+    { label: "Custom", path: "/custom" },
   ],
   contactButton: "Contact us",
   footerText: "3D printed objects for considered living — lighting, vessels and desk pieces, made layer by layer in Mumbai from non-toxic, recyclable materials.",
@@ -214,7 +216,53 @@ const returns = {
   footer: "Last updated: October 2026. Questions? Write to hello@layerandloop.in.",
 };
 
-export const defaults = { settings, home, catalog, about, trade, contact, instagram, terms, returns };
+const custom = {
+  heroEyebrow: "The Bespoke Lab",
+  heroTitle: "Make it yours.",
+  heroText: "Engrave a name, choose any colour, change the scale, print from your photo or stack a floor lamp. Play with it here — we'll make it real.",
+  tweakLabel: "Tweak one of ours",
+  scratchLabel: "Start from scratch",
+  offersTitle: "What we can customise",
+  offers: [
+    { name: "Name & letter engraving", text: "Initials, names, dates or a short line — engraved into any piece." },
+    { name: "Any colour", text: "Send a hex code or a palette. We'll match it to the closest colours we can print and confirm with you." },
+    { name: "Size & scale", text: "Shrink it for a shelf or grow it for a lobby — every piece can be rescaled." },
+    { name: "From your photo", text: "Upload a photo and we'll turn it into a relief, lithophane or a printed lookalike." },
+    { name: "Stackable builds", text: "Stack modules into floor lamps and tall vases, as high as your room allows." },
+  ],
+  sandboxEyebrow: "The Slicing Sandbox",
+  sandboxTitle: "Shape it. Texture it. Light it.",
+  sandboxText: "Drag the sliders and spin the model. Fuzzy skin is the soft, matte texture our printers give the surface.",
+  sandboxNote: "Estimates are a guide only — we confirm the final price after reviewing your design.",
+  sendLabel: "Send this design to the studio",
+  gramPrice: "6",
+  basePrice: "900",
+  lightKitPrice: "1200",
+  waterproofLoops: "3",
+  photoEyebrow: "Photo to 3D",
+  photoTitle: "Turn a photo into an object.",
+  photoText: "Upload any photo and watch it become a 3D relief. Bright areas rise, dark areas sink — just like a printed lithophane.",
+  photoNote: "This is an instant preview. Our designers make the final model by hand.",
+  sketchEyebrow: "From sketch to print",
+  sketchTitle: "Drag to see the idea become the object.",
+  sketchImage: "asset:custom-sketch.jpg",
+  printImage: "asset:custom-print.jpg",
+  stepsTitle: "The creation loop",
+  steps: [
+    { name: "Render preview", text: "We model your idea and send a 3D render within 48 hours." },
+    { name: "Sample & colour", text: "We match your colour and test the layers on a small sample." },
+    { name: "Print", text: "Your piece is printed layer by layer, made to order." },
+    { name: "Hand finishing", text: "Wired, checked and finished by hand before it ships." },
+  ],
+  briefEyebrow: "Custom brief",
+  briefTitle: "Tell us what you'd like made.",
+  briefText: "A few quick steps. Attach sketches, photos or 3D files if you have them.",
+  submitLabel: "Send to the studio",
+  thankYou: "It's on our workbench. We'll reply within 2 business days with ideas, a render and a quote.",
+  whatsappLabel: "Rather talk it through? WhatsApp us",
+};
+
+export const defaults = { settings, home, catalog, about, trade, contact, custom, instagram, terms, returns };
 export type ContentKey = keyof typeof defaults;
 export type Content<K extends ContentKey> = (typeof defaults)[K];
 
@@ -289,6 +337,20 @@ export const sections: Record<ContentKey, { title: string; description: string; 
       { title: "Store", fields: [t("storeEyebrow", "Small label"), t("storeTitle", "Heading"), ta("storeText", "Text"), im("storeImage", "Store photo"), t("directionsLabel", "Directions button")] },
       { title: "Reach us", fields: [t("reachTitle", "Heading"), ta("reachText", "Text"), t("emailNote", "Email card note"), t("phoneNote", "Phone card note"), t("postNote", "Post card note")] },
       { title: "Careers", fields: [t("careersEyebrow", "Small label"), t("careersTitle", "Heading"), ta("careersText", "Text"), t("careersNote", "Small note"), t("submitLabel", "Button label"), ta("thankYou", "Thank-you message")] },
+    ],
+  },
+  custom: {
+    title: "Custom page",
+    description: "The Bespoke Lab: customisation options, 3D sandbox, photo to 3D, sketch slider, steps and the custom brief form.",
+    groups: [
+      { title: "Header", fields: [t("heroEyebrow", "Small label"), t("heroTitle", "Title"), ta("heroText", "Intro"), t("tweakLabel", "Button 1"), t("scratchLabel", "Button 2")] },
+      { title: "What we customise", fields: [t("offersTitle", "Heading"), { k: "offers", label: "Options", t: "list", item: "option", of: [t("name", "Title"), ta("text", "Text")] }] },
+      { title: "3D sandbox", fields: [t("sandboxEyebrow", "Small label"), t("sandboxTitle", "Heading"), ta("sandboxText", "Text"), ta("sandboxNote", "Estimate note"), t("sendLabel", "Send button")] },
+      { title: "Estimate settings (₹)", fields: [t("gramPrice", "Price per gram", "Numbers only"), t("basePrice", "Base fee"), t("lightKitPrice", "Light kit price"), t("waterproofLoops", "Extra wall loops for waterproofing")] },
+      { title: "Photo to 3D", fields: [t("photoEyebrow", "Small label"), t("photoTitle", "Heading"), ta("photoText", "Text"), t("photoNote", "Note")] },
+      { title: "Sketch to print", fields: [t("sketchEyebrow", "Small label"), t("sketchTitle", "Heading"), im("sketchImage", "Sketch photo"), im("printImage", "Finished photo")] },
+      { title: "Steps", fields: [t("stepsTitle", "Heading"), { k: "steps", label: "Steps", t: "list", item: "step", of: [t("name", "Title"), ta("text", "Text")] }] },
+      { title: "Custom brief form", fields: [t("briefEyebrow", "Small label"), t("briefTitle", "Heading"), ta("briefText", "Text"), t("submitLabel", "Button label"), ta("thankYou", "Thank-you message"), t("whatsappLabel", "WhatsApp link label")] },
     ],
   },
   instagram: {

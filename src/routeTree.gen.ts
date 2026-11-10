@@ -15,6 +15,7 @@ import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as CartRouteImport } from './routes/cart'
 import { Route as ContactusRouteImport } from './routes/contactus'
+import { Route as CustomRouteImport } from './routes/custom'
 import { Route as ProductsRouteImport } from './routes/products'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as ReturnsRouteImport } from './routes/returns'
@@ -58,6 +59,11 @@ const CartRoute = CartRouteImport.update({
 const ContactusRoute = ContactusRouteImport.update({
   id: '/contactus',
   path: '/contactus',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CustomRoute = CustomRouteImport.update({
+  id: '/custom',
+  path: '/custom',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProductsRoute = ProductsRouteImport.update({
@@ -146,6 +152,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/cart': typeof CartRoute
   '/contactus': typeof ContactusRoute
+  '/custom': typeof CustomRoute
   '/products': typeof ProductsRoute
   '/reset-password': typeof ResetPasswordRoute
   '/returns': typeof ReturnsRoute
@@ -168,6 +175,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/cart': typeof CartRoute
   '/contactus': typeof ContactusRoute
+  '/custom': typeof CustomRoute
   '/products': typeof ProductsRoute
   '/reset-password': typeof ResetPasswordRoute
   '/returns': typeof ReturnsRoute
@@ -191,6 +199,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/cart': typeof CartRoute
   '/contactus': typeof ContactusRoute
+  '/custom': typeof CustomRoute
   '/products': typeof ProductsRoute
   '/reset-password': typeof ResetPasswordRoute
   '/returns': typeof ReturnsRoute
@@ -215,6 +224,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/cart'
     | '/contactus'
+    | '/custom'
     | '/products'
     | '/reset-password'
     | '/returns'
@@ -237,6 +247,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/cart'
     | '/contactus'
+    | '/custom'
     | '/products'
     | '/reset-password'
     | '/returns'
@@ -259,6 +270,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/cart'
     | '/contactus'
+    | '/custom'
     | '/products'
     | '/reset-password'
     | '/returns'
@@ -283,6 +295,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   CartRoute: typeof CartRoute
   ContactusRoute: typeof ContactusRoute
+  CustomRoute: typeof CustomRoute
   ProductsRoute: typeof ProductsRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   ReturnsRoute: typeof ReturnsRoute
@@ -335,6 +348,13 @@ declare module '@tanstack/react-router' {
       path: '/contactus'
       fullPath: '/contactus'
       preLoaderRoute: typeof ContactusRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/custom': {
+      id: '/custom'
+      path: '/custom'
+      fullPath: '/custom'
+      preLoaderRoute: typeof CustomRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/products': {
@@ -484,6 +504,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   CartRoute: CartRoute,
   ContactusRoute: ContactusRoute,
+  CustomRoute: CustomRoute,
   ProductsRoute: ProductsRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   ReturnsRoute: ReturnsRoute,

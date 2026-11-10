@@ -123,7 +123,7 @@ function Products() {
                 <div className="product-frame aspect-[4/5] overflow-hidden rounded-xl">
                   <img src={p.image} alt={p.name} loading="lazy" className="h-full w-full object-cover" />
                 </div>
-                <div className={`flex items-start justify-between gap-3 ${cols === 3 ? "max-md:hidden md:flex-col md:gap-1 lg:flex-row lg:flex-wrap" : ""} ${cols === 2 ? "mt-5 max-lg:flex-col max-lg:gap-1" : "mt-3"}`}>
+                <div className={`flex items-start justify-between gap-3 ${cols === 3 ? "max-md:hidden md:flex-col md:gap-1 lg:flex-row lg:flex-wrap" : ""} ${cols === 2 ? "mt-5 max-lg:flex-col max-lg:gap-1" : "mt-4"}`}>
                   <div className="min-w-0">
                     <p className="font-display font-semibold max-md:text-sm">{p.name}</p>
                     <p className="text-xs text-muted-foreground">{p.note}</p>

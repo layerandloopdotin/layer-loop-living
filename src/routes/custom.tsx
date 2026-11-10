@@ -663,7 +663,7 @@ const STEP_FIELDS = [["kind", "idea"], ["size", "color", "engraving", "quantity"
 function designSummary(d: Design, rates: Rates) {
   const s = estimate(d, rates);
   const shape = d.form === "stack"
-    ? ` · modules (bottom→top): ${d.modules.map((m) => `${SHAPES.find((x) => x.id === m.shape)?.label} ${m.height}×${m.width}${m.color ? ` ${m.color}` : ""}`).join(", ")}`
+    ? ` · modules (bottom→top): ${d.modules.map((m) => `${SHAPES.find((x) => x.id === m.shape)?.label} ${m.height}×${m.width}${m.points?.length ? ` pts ${m.points.map((p) => `${Math.round(p.t * 100)}%@${Math.round(p.s * 100)}%`).join(" ")}` : ""}${m.color ? ` ${m.color}` : ""}`).join(", ")}${d.light ? ` · light modules ${lightFitting(d).from + 1}–${lightFitting(d).to + 1} (${lightFitting(d).fitting})` : ""}`
     : `${d.points.length ? ` · touch points ${d.points.map((p) => `${Math.round(p.t * 100)}%@${Math.round(p.s * 100)}%`).join(" ")}` : ""}${d.form === "table-lamp" ? ` · base ${d.base === "none" ? "none" : SHAPES.find((x) => x.id === d.base)?.label}` : ""}`;
   return `${FORMS.find((f) => f.id === d.form)!.label} · ${s.totalHeight}×${s.width} cm · fuzzy ${Math.round(d.fuzzy * 100)}% · ${d.layers} vertical / ${d.hRibs} horizontal ribs · twist ${d.twist}° · taper ${d.taper} · ${d.color}${d.light ? ` · light ${d.warm ? "warm" : "soft"}` : ""}${d.waterproof ? " · waterproof" : ""}${shape} · est. ₹${s.low}–${s.high}`;
 }

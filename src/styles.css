@@ -194,7 +194,7 @@
 }
 
 /* Touch screens: the product nearest screen centre scales forward, others soften */
-@media (hover: hover) and (max-width: 767px) {
+@media (hover: hover) {
   .product-grid[data-density="3"]:has(.product-card:hover) .product-card:not(:hover) .product-frame img {
     filter: none;
     opacity: 1;

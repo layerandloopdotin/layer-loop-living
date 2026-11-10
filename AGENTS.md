@@ -18,3 +18,5 @@
 - Admin writes go straight from the browser client and are protected by admin-only RLS via `has_role`; the first account ever created becomes admin through a database trigger.
 - Product inventory lives in a separate admin-only table and is queried only by CMS editors, never by public site loaders, to keep stock counts private.
 - Product galleries share one selected-photo view with scrollable thumbnails across screen sizes, so mobile and desktop retain the same photo navigation.
+- Use the shared centered rail for featured objects, categories and materials on every screen size; responsive item and edge widths keep both directions reachable.
+- Catalog density controls apply at every breakpoint; the compact three-column view must not blur sibling products.

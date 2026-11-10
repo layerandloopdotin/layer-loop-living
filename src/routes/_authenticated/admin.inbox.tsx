@@ -7,6 +7,15 @@ import { supabase } from "@/integrations/supabase/client";
 import { waHref } from "@/lib/site";
 
 export const Route = createFileRoute("/_authenticated/admin/inbox")({
+  head: () => ({ meta: [
+    { title: "Enquiry Inbox — Layer & Loop CMS" },
+    { name: "description", content: "Manage Layer & Loop catalogue requests and applications." },
+    { property: "og:title", content: "Enquiry Inbox — Layer & Loop CMS" },
+    { property: "og:description", content: "Manage Layer & Loop catalogue requests and applications." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
+
   component: InboxPage,
 });
 

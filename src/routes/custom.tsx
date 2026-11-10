@@ -5,12 +5,16 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { fieldValue } from "@/lib/contact";
 import {
-  BRIEF_KINDS, DEFAULT_DESIGN, FORMS, STUDIO_PALETTE, TIMELINES, briefSchema, closestSwatches, estimate, wallLoops, type Design, type Rates,
+  BRIEF_KINDS, DEFAULT_DESIGN, FORMS, MAX_MODULES, MAX_POINTS, PHOTO_MODES, POINT_PRESETS, SHAPES, STUDIO_PALETTE, TIMELINES, briefSchema, closestSwatches, estimate,
+  hexToRgb, rgbToHex, wallLoops, type Design, type PhotoMode, type PhotoObject, type Rates, type ShapeId, type StackModule,
 } from "@/lib/custom";
 import { formatPrice } from "@/lib/currency";
 import { img } from "@/lib/media";
 import { useSite, waHref } from "@/lib/site";
 import { Page } from "@/components/site";
+import heroFallback from "@/assets/custom-hero.jpg";
+import { HexColorPicker } from "react-colorful";
+import { analyzeObjectPhoto } from "@/lib/photo-object.functions";
 
 const StudioModel = lazy(() => import("@/components/custom/studio-3d").then((m) => ({ default: m.StudioModel })));
 const PhotoRelief = lazy(() => import("@/components/custom/studio-3d").then((m) => ({ default: m.PhotoRelief })));
@@ -63,9 +67,13 @@ function Custom() {
   return (
     <Page>
       {/* Hero */}
-      <section className="relative overflow-hidden bg-ink text-ink-foreground">
-        <div className="mx-auto grid max-w-7xl items-center gap-8 px-6 py-16 md:grid-cols-[1.1fr_1fr] md:py-24">
-          <div>
+      <section className="relative isolate overflow-hidden bg-ink text-ink-foreground">
+        <img src={img(c.heroImage) || heroFallback} alt="" width={1920} height={1088} className="custom-hero-img absolute inset-0 -z-10 h-full w-full object-cover object-[70%_center]" />
+        <div aria-hidden className="absolute inset-0 -z-10 bg-gradient-to-r from-ink via-ink/80 to-ink/10 md:via-ink/60 md:to-transparent" />
+        <div aria-hidden className="absolute inset-x-0 bottom-0 -z-10 h-32 bg-gradient-to-t from-ink to-transparent" />
+        <div aria-hidden className="custom-hero-lines absolute inset-0 -z-10 opacity-[0.07]" />
+        <div className="mx-auto flex min-h-[78vh] max-w-7xl items-end px-6 pb-16 pt-28 md:min-h-[88vh] md:items-center md:pb-24">
+          <div className="max-w-2xl">
             <p className={eyebrow}>{c.heroEyebrow}</p>
             <h1 className="mt-4 font-display text-6xl font-extrabold uppercase leading-[0.9] md:text-8xl" aria-label={c.heroTitle}>
               {c.heroTitle.split(" ").map((word, w, all) => (
@@ -85,9 +93,11 @@ function Custom() {
               </button>
               <button onClick={() => go("brief")} className="rounded-full border border-ink-line px-6 py-3 text-sm font-semibold transition-colors hover:border-ink-foreground">{c.scratchLabel}</button>
             </div>
-          </div>
-          <div className="h-[380px] md:h-[520px]">
-            <Three><StudioModel design={{ ...DEFAULT_DESIGN, form: "stack", stack: 3, height: 14, width: 16, layers: 34 }} spin interactive={false} /></Three>
+            <div className="mt-12 flex gap-8 border-t border-ink-line pt-6 text-xs uppercase tracking-widest text-ink-muted">
+              <span><span className="block font-display text-2xl font-bold text-ink-foreground">0.2 mm</span>layer lines</span>
+              <span><span className="block font-display text-2xl font-bold text-ink-foreground">Any</span>hex colour</span>
+              <span><span className="block font-display text-2xl font-bold text-ink-foreground">48 h</span>render preview</span>
+            </div>
           </div>
         </div>
       </section>

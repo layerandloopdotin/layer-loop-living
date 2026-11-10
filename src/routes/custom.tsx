@@ -1,6 +1,6 @@
 import { ClientOnly, createFileRoute } from "@tanstack/react-router";
 import { Suspense, lazy, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { ArrowRight, Check, Droplets, Lightbulb, Minus, Plus, Shuffle, Upload } from "lucide-react";
+import { ArrowRight, Check, ChevronDown, ChevronUp, Droplets, GripVertical, Lightbulb, Minus, Plus, Shuffle, Upload, X } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { fieldValue } from "@/lib/contact";
@@ -106,10 +106,10 @@ function Custom() {
       <section className="bg-background">
         <div className="mx-auto max-w-7xl px-6 py-20">
           <Reveal><h2 className="font-display text-3xl font-bold md:text-5xl">{c.offersTitle}</h2></Reveal>
-          <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+          <div className="-mx-6 mt-10 flex snap-x snap-mandatory gap-4 overflow-x-auto px-6 pb-2 md:mx-0 md:grid md:grid-cols-5 md:gap-3 md:overflow-visible md:px-0 lg:gap-4">
             {c.offers.map((o, i) => (
-              <Reveal key={o.name} delay={i * 90}>
-                <div className="group flex h-full flex-col rounded-2xl border border-border bg-card p-5 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl">
+              <Reveal key={o.name} delay={i * 90} className="w-64 shrink-0 snap-center md:w-auto">
+                <div className="group flex h-full flex-col rounded-2xl border border-border bg-card p-4 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl lg:p-5">
                   <div className="mb-5 flex h-36 items-center justify-center overflow-hidden rounded-xl bg-muted"><OfferDemo i={i} onPhoto={() => go("photo")} /></div>
                   <h3 className="font-display text-lg font-bold">{o.name}</h3>
                   <p className="mt-2 text-sm text-muted-foreground">{o.text}</p>
@@ -325,40 +325,66 @@ function ShapePicker({ value, onChange, allowNone }: { value: ShapeId | "none"; 
 
 function ModuleEditor({ d, set }: { d: Design; set: (p: Partial<Design>) => void }) {
   const [sel, setSel] = useState(0);
+  const [dragFrom, setDragFrom] = useState<number | null>(null);
   const mods = d.modules;
-  const cur = mods[Math.min(sel, mods.length - 1)];
-  const update = (p: Partial<StackModule>) => set({ modules: mods.map((m, i) => (i === sel ? { ...m, ...p } : m)) });
-  const add = (m: StackModule) => { if (mods.length < MAX_MODULES) { set({ modules: [...mods, m] }); setSel(mods.length); } };
+  const idx = Math.min(sel, mods.length - 1);
+  const cur = mods[idx];
+  const update = (p: Partial<StackModule>) => set({ modules: mods.map((m, i) => (i === idx ? { ...m, ...p } : m)) });
+  const add = (shape: ShapeId) => { if (mods.length < MAX_MODULES) { set({ modules: [...mods, { shape, height: shape === "donut" ? 6 : 12, width: cur?.width ?? 18, color: null }] }); setSel(mods.length); } };
+  // Modules are stored bottom→top; the list shows them top→bottom like the real stack.
+  const move = (from: number, to: number) => {
+    if (to < 0 || to >= mods.length || from === to) return;
+    const next = [...mods];
+    const [m] = next.splice(from, 1);
+    next.splice(to, 0, m!);
+    set({ modules: next });
+    setSel(to);
+  };
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <p className="text-xs uppercase tracking-widest text-ink-muted">Modules · top to bottom</p>
-        <span className="text-[10px] text-ink-muted">{mods.length}/{MAX_MODULES}</span>
+      <div>
+        <p className="mb-2 text-xs uppercase tracking-widest text-ink-muted">Add a module</p>
+        <div className="flex flex-wrap gap-1.5">
+          {SHAPES.map((s) => (
+            <button key={s.id} type="button" disabled={mods.length >= MAX_MODULES} onClick={() => add(s.id)} title={`Add ${s.label}`}
+              className="flex items-center gap-1 rounded-lg border border-ink-line px-2 py-1.5 text-[11px] text-ink-muted transition-colors hover:border-primary hover:text-ink-foreground disabled:opacity-30">
+              <Plus className="h-3 w-3" /><ShapeIcon shape={s.id} />{s.label}
+            </button>
+          ))}
+        </div>
       </div>
-      <div className="flex flex-col gap-1.5">
-        {mods.map((m, i) => ({ m, i })).reverse().map(({ m, i }) => (
-          <button key={i} type="button" onClick={() => setSel(i)}
-            className={`flex items-center gap-2 rounded-lg border px-3 py-1.5 text-left text-xs transition-colors ${i === sel ? "border-primary bg-primary/10" : "border-ink-line hover:border-ink-foreground"}`}>
-            <ShapeIcon shape={m.shape} />
-            <span className="flex-1">{SHAPES.find((s) => s.id === m.shape)?.label} · {m.height}×{m.width} cm</span>
-            <span className="h-3 w-3 rounded-full border border-ink-line" style={{ background: m.color ?? d.color }} />
-          </button>
-        ))}
-      </div>
-      <div className="flex flex-wrap gap-2">
-        <button type="button" disabled={mods.length >= MAX_MODULES || !cur} onClick={() => cur && add({ ...cur })} className="rounded-full border border-ink-line px-3 py-1.5 text-xs font-semibold disabled:opacity-30">Repeat this</button>
-        <button type="button" disabled={mods.length >= MAX_MODULES} onClick={() => add({ shape: "cylinder", height: 10, width: 16, color: null })} className="rounded-full border border-ink-line px-3 py-1.5 text-xs font-semibold disabled:opacity-30"><Plus className="mr-1 inline h-3 w-3" />New style</button>
-        <button type="button" disabled={mods.length <= 1} onClick={() => { set({ modules: mods.filter((_, i) => i !== sel) }); setSel(Math.max(0, sel - 1)); }} className="rounded-full border border-ink-line px-3 py-1.5 text-xs font-semibold disabled:opacity-30"><Minus className="mr-1 inline h-3 w-3" />Remove</button>
+      <div>
+        <div className="mb-2 flex items-center justify-between text-xs uppercase tracking-widest text-ink-muted">
+          <span>Your stack · drag to reorder</span><span className="text-[10px]">{mods.length}/{MAX_MODULES}</span>
+        </div>
+        <ol className="flex flex-col gap-1.5">
+          {mods.map((m, i) => ({ m, i })).reverse().map(({ m, i }) => (
+            <li key={i} draggable onDragStart={() => setDragFrom(i)} onDragEnd={() => setDragFrom(null)}
+              onDragOver={(e) => e.preventDefault()} onDrop={() => { if (dragFrom !== null) move(dragFrom, i); setDragFrom(null); }}
+              onClick={() => setSel(i)}
+              className={`flex cursor-grab items-center gap-2 rounded-lg border px-2 py-1.5 text-xs transition-colors active:cursor-grabbing ${i === idx ? "border-primary bg-primary/10" : "border-ink-line hover:border-ink-foreground"} ${dragFrom === i ? "opacity-40" : ""}`}>
+              <GripVertical className="h-3.5 w-3.5 text-ink-muted" />
+              <ShapeIcon shape={m.shape} />
+              <span className="flex-1">{SHAPES.find((s) => s.id === m.shape)?.label} · {m.height}×{m.width} cm</span>
+              <span className="h-3 w-3 rounded-full border border-ink-line" style={{ background: m.color ?? d.color }} />
+              <button type="button" aria-label="Move up" onClick={(e) => { e.stopPropagation(); move(i, i + 1); }} disabled={i === mods.length - 1} className="rounded p-0.5 disabled:opacity-20"><ChevronUp className="h-3.5 w-3.5" /></button>
+              <button type="button" aria-label="Move down" onClick={(e) => { e.stopPropagation(); move(i, i - 1); }} disabled={i === 0} className="rounded p-0.5 disabled:opacity-20"><ChevronDown className="h-3.5 w-3.5" /></button>
+              <button type="button" aria-label="Remove module" onClick={(e) => { e.stopPropagation(); if (mods.length > 1) { set({ modules: mods.filter((_, k) => k !== i) }); setSel(Math.max(0, i - 1)); } }} disabled={mods.length <= 1} className="rounded p-0.5 disabled:opacity-20"><X className="h-3.5 w-3.5" /></button>
+            </li>
+          ))}
+        </ol>
       </div>
       {cur && (
         <div className="space-y-4 rounded-xl bg-ink-soft p-4">
+          <p className="text-xs uppercase tracking-widest text-ink-muted">Design the selected module</p>
           <ShapePicker value={cur.shape} onChange={(s) => s !== "none" && update({ shape: s })} />
-          <Slider label="Module height" value={cur.height} min={3} max={40} step={1} onChange={(v) => update({ height: v })} show={`${cur.height} cm`} />
-          <Slider label="Module width" value={cur.width} min={6} max={40} step={1} onChange={(v) => update({ width: v })} show={`${cur.width} cm`} />
-          <label className="flex items-center gap-2 text-xs text-ink-muted">
-            <input type="checkbox" checked={cur.color !== null} onChange={(e) => update({ color: e.target.checked ? d.color : null })} className="accent-primary" /> Own colour for this module
+          <Slider label="Height" value={cur.height} min={3} max={40} step={1} onChange={(v) => update({ height: v })} show={`${cur.height} cm`} />
+          <Slider label="Width" value={cur.width} min={6} max={40} step={1} onChange={(v) => update({ width: v })} show={`${cur.width} cm`} />
+          <div className="flex items-center gap-3 text-xs text-ink-muted">
+            <label className="flex items-center gap-2"><input type="checkbox" checked={cur.color !== null} onChange={(e) => update({ color: e.target.checked ? d.color : null })} className="accent-primary" /> Own colour</label>
             {cur.color && <input type="color" value={cur.color} onChange={(e) => update({ color: e.target.value })} aria-label="Module colour" className="h-6 w-6 cursor-pointer rounded-full border-0 bg-transparent" />}
-          </label>
+            <button type="button" disabled={mods.length >= MAX_MODULES} onClick={() => { set({ modules: [...mods, { ...cur }] }); setSel(mods.length); }} className="ml-auto rounded-full border border-ink-line px-3 py-1 font-semibold disabled:opacity-30">Duplicate</button>
+          </div>
         </div>
       )}
     </div>
@@ -370,14 +396,13 @@ function PointsEditor({ d, set }: { d: Design; set: (p: Partial<Design>) => void
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <p className="text-xs uppercase tracking-widest text-ink-muted">Touch points</p>
+        <p className="text-xs uppercase tracking-widest text-ink-muted">Touch points <span className="normal-case tracking-normal">({pts.length}/{MAX_POINTS})</span></p>
         <button type="button" disabled={pts.length >= MAX_POINTS} onClick={() => set({ points: [...pts, { t: pts.length ? Math.min(0.9, Math.max(...pts.map((p) => p.t)) + 0.15) : 0.5, s: 0.8 }] })}
-          className="rounded-full border border-ink-line px-2.5 py-1 text-[11px] font-semibold disabled:opacity-30"><Plus className="mr-0.5 inline h-3 w-3" />Add</button>
+          className="rounded-full border border-ink-line px-2.5 py-1 text-[11px] font-semibold disabled:opacity-30"><Plus className="mr-0.5 inline h-3 w-3" />Add point</button>
       </div>
-      <div className="flex flex-wrap gap-1.5">{POINT_PRESETS.map((p) => <Chip key={p.label} on={JSON.stringify(p.points) === JSON.stringify(pts)} onClick={() => set({ points: p.points })}>{p.label}</Chip>)}</div>
       {pts.map((p, i) => (
         <div key={i} className="grid grid-cols-[1fr_1fr_auto] items-end gap-3">
-          <Slider label={`Point ${i + 1} height`} value={p.t} min={0.08} max={0.92} step={0.01} onChange={(v) => set({ points: pts.map((q, k) => (k === i ? { ...q, t: v } : q)) })} show={`${Math.round(p.t * 100)}%`} />
+          <Slider label={`${i + 1} · Position`} value={p.t} min={0.08} max={0.92} step={0.01} onChange={(v) => set({ points: pts.map((q, k) => (k === i ? { ...q, t: v } : q)) })} show={`${Math.round(p.t * 100)}%`} />
           <Slider label="Width" value={p.s} min={0.25} max={1.6} step={0.01} onChange={(v) => set({ points: pts.map((q, k) => (k === i ? { ...q, s: v } : q)) })} show={`${Math.round(p.s * 100)}%`} />
           <button type="button" aria-label={`Remove point ${i + 1}`} onClick={() => set({ points: pts.filter((_, k) => k !== i) })} className="mb-1 rounded-full border border-ink-line p-1"><Minus className="h-3 w-3" /></button>
         </div>
@@ -387,8 +412,16 @@ function PointsEditor({ d, set }: { d: Design; set: (p: Partial<Design>) => void
   );
 }
 
+const TABS = [
+  { id: "shape", label: "Shape" },
+  { id: "surface", label: "Surface" },
+  { id: "colour", label: "Colour" },
+  { id: "extras", label: "Light & water" },
+] as const;
+
 function Sandbox({ design: d, setDesign, rates, note, sendLabel, onSend }: { design: Design; setDesign: (d: Design) => void; rates: Rates; note: string; sendLabel: string; onSend: () => void }) {
   const set = (p: Partial<Design>) => setDesign({ ...d, ...p });
+  const [tab, setTab] = useState<(typeof TABS)[number]["id"]>("shape");
   const spec = estimate(d, rates);
   const form = FORMS.find((f) => f.id === d.form)!;
   const shuffle = () => set({
@@ -398,63 +431,81 @@ function Sandbox({ design: d, setDesign, rates, note, sendLabel, onSend }: { des
     color: STUDIO_PALETTE[Math.floor(Math.random() * STUDIO_PALETTE.length)]?.hex ?? d.color,
   });
   return (
-    <div className="mt-10 grid gap-8 lg:grid-cols-[1fr_1.3fr_0.95fr]">
-      <div className="space-y-5 rounded-2xl border border-ink-line p-5 lg:max-h-[860px] lg:overflow-y-auto">
-        <div className="flex flex-wrap gap-2">
+    <div className="mt-10 grid gap-6 md:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] lg:gap-8">
+      {/* Controls */}
+      <div className="order-2 flex flex-col rounded-2xl border border-ink-line md:order-1 md:h-[640px]">
+        <div className="flex flex-wrap gap-2 border-b border-ink-line p-4">
           {FORMS.map((f) => (
             <Chip key={f.id} on={d.form === f.id} onClick={() => set({ form: f.id, light: f.light ? d.light : false, waterproof: f.water ? d.waterproof : false })}>{f.label}</Chip>
           ))}
         </div>
-        {d.form === "stack" ? <ModuleEditor d={d} set={set} /> : (
-          <>
-            <Slider label="Height" value={d.height} min={8} max={45} step={1} onChange={(v) => set({ height: v })} show={`${d.height} cm`} />
-            <Slider label="Width" value={d.width} min={8} max={40} step={1} onChange={(v) => set({ width: v })} show={`${d.width} cm`} />
-            <Slider label="Taper" value={d.taper} min={-0.7} max={0.7} step={0.01} onChange={(v) => set({ taper: v })} show={d.taper.toFixed(2)} />
-            <PointsEditor d={d} set={set} />
-          </>
-        )}
-        {d.form === "table-lamp" && (
-          <div className="space-y-2">
-            <p className="text-xs uppercase tracking-widest text-ink-muted">Base</p>
-            <ShapePicker value={d.base} onChange={(s) => set({ base: s })} allowNone />
-          </div>
-        )}
-        <div className="space-y-5 border-t border-ink-line pt-5">
-          <Slider label="Twist" value={d.twist} min={0} max={720} step={5} onChange={(v) => set({ twist: v })} show={`${d.twist}°`} />
-          <Slider label="Fuzzy skin" value={d.fuzzy} min={0} max={1} step={0.01} onChange={(v) => set({ fuzzy: v })} show={d.fuzzy < 0.05 ? "Off" : d.fuzzy < 0.4 ? "Soft" : d.fuzzy < 0.75 ? "Medium" : "Heavy"} />
-          <Slider label="Vertical ribs" value={d.layers} min={0} max={60} step={1} onChange={(v) => set({ layers: v })} show={d.layers ? String(d.layers) : "Off"} />
-          <Slider label="Horizontal ribs" value={d.hRibs} min={0} max={40} step={1} onChange={(v) => set({ hRibs: v })} show={d.hRibs ? String(d.hRibs) : "Off"} />
+        <div role="tablist" className="flex border-b border-ink-line text-xs font-semibold">
+          {TABS.map((t) => (
+            <button key={t.id} role="tab" type="button" aria-selected={tab === t.id} onClick={() => setTab(t.id)}
+              className={`flex-1 border-b-2 px-2 py-3 transition-colors ${tab === t.id ? "border-primary text-ink-foreground" : "border-transparent text-ink-muted hover:text-ink-foreground"}`}>{t.label}</button>
+          ))}
+        </div>
+        <div className="flex-1 space-y-5 overflow-y-auto p-5">
+          {tab === "shape" && (d.form === "stack" ? <ModuleEditor d={d} set={set} /> : (
+            <>
+              <Slider label="Height" value={d.height} min={8} max={45} step={1} onChange={(v) => set({ height: v })} show={`${d.height} cm`} />
+              <Slider label="Width" value={d.width} min={8} max={40} step={1} onChange={(v) => set({ width: v })} show={`${d.width} cm`} />
+              <Slider label="Taper" value={d.taper} min={-0.7} max={0.7} step={0.01} onChange={(v) => set({ taper: v })} show={d.taper.toFixed(2)} />
+              {d.form === "table-lamp" && (
+                <div className="space-y-2">
+                  <p className="text-xs uppercase tracking-widest text-ink-muted">Base</p>
+                  <ShapePicker value={d.base} onChange={(s) => set({ base: s })} allowNone />
+                </div>
+              )}
+              <PointsEditor d={d} set={set} />
+            </>
+          ))}
+          {tab === "surface" && (
+            <>
+              <Slider label="Twist" value={d.twist} min={0} max={720} step={5} onChange={(v) => set({ twist: v })} show={`${d.twist}°`} />
+              <Slider label="Fuzzy skin" value={d.fuzzy} min={0} max={1} step={0.01} onChange={(v) => set({ fuzzy: v })} show={d.fuzzy < 0.05 ? "Off" : d.fuzzy < 0.4 ? "Soft" : d.fuzzy < 0.75 ? "Medium" : "Heavy"} />
+              <Slider label="Vertical ribs" value={d.layers} min={0} max={60} step={1} onChange={(v) => set({ layers: v })} show={d.layers ? String(d.layers) : "Off"} />
+              <Slider label="Horizontal ribs" value={d.hRibs} min={0} max={40} step={1} onChange={(v) => set({ hRibs: v })} show={d.hRibs ? String(d.hRibs) : "Off"} />
+            </>
+          )}
+          {tab === "colour" && <ColorPanel value={d.color} onChange={(color) => set({ color })} label="Pick any colour" />}
+          {tab === "extras" && (
+            <div className="space-y-3">
+              <div className="flex flex-wrap gap-2">
+                <Toggle on={d.light} disabled={!form.light} onClick={() => set({ light: !d.light })} icon={<Lightbulb className="h-3.5 w-3.5" />} label={d.light ? "Light on" : "Light off"} />
+                {d.light && form.light && <Toggle on={d.warm} onClick={() => set({ warm: !d.warm })} icon={null} label={d.warm ? "Warm 2200K" : "Soft 3000K"} />}
+                <Toggle on={d.waterproof} disabled={!form.water} onClick={() => set({ waterproof: !d.waterproof })} icon={<Droplets className="h-3.5 w-3.5" />} label="Waterproof" />
+              </div>
+              {!form.light && <p className="text-xs text-ink-muted">Lighting is available for pendants, table lamps and stacks.</p>}
+              {d.waterproof && <p className="text-xs text-ink-muted">Adds {rates.waterproofLoops} extra wall loops ({wallLoops(d, rates)} total) — heavier, but holds water.</p>}
+            </div>
+          )}
         </div>
       </div>
 
-      <div className="relative h-[480px] overflow-hidden rounded-2xl bg-ink-soft lg:sticky lg:top-24 lg:h-[680px]">
-        <Three><StudioModel design={d} onPoints={(points) => set({ points })} /></Three>
-        <button type="button" onClick={shuffle} className="absolute right-4 top-4 inline-flex items-center gap-1.5 rounded-full bg-ink/70 px-3 py-1.5 text-xs font-semibold backdrop-blur transition-transform hover:rotate-3 hover:scale-105"><Shuffle className="h-3.5 w-3.5" /> Surprise me</button>
-        <p className="pointer-events-none absolute bottom-4 left-4 text-[10px] uppercase tracking-widest text-ink-muted">Drag to spin · scroll to zoom{d.form !== "stack" && d.points.length ? " · drag dots to shape" : ""}</p>
-      </div>
-
-      <div className="space-y-5">
-        <div className="rounded-2xl border border-ink-line p-5">
-          <ColorPanel value={d.color} onChange={(color) => set({ color })} label="Colour — pick anything" />
-          <div className="mt-4 flex flex-wrap gap-2">
-            <Toggle on={d.light} disabled={!form.light} onClick={() => set({ light: !d.light })} icon={<Lightbulb className="h-3.5 w-3.5" />} label={d.light ? "Light on" : "Light off"} />
-            {d.light && form.light && <Toggle on={d.warm} onClick={() => set({ warm: !d.warm })} icon={null} label={d.warm ? "Warm 2200K" : "Soft 3000K"} />}
-            <Toggle on={d.waterproof} disabled={!form.water} onClick={() => set({ waterproof: !d.waterproof })} icon={<Droplets className="h-3.5 w-3.5" />} label="Waterproof" />
-          </div>
-          {d.waterproof && <p className="mt-2 text-xs text-ink-muted">Adds {rates.waterproofLoops} extra wall loops ({wallLoops(d, rates)} total) — heavier, but holds water.</p>}
+      {/* Model + estimate */}
+      <div className="order-1 space-y-4 md:sticky md:top-24 md:order-2 md:self-start">
+        <div className="relative h-[420px] overflow-hidden rounded-2xl bg-ink-soft md:h-[470px]">
+          <Three><StudioModel design={d} onPoints={(points) => set({ points })} /></Three>
+          <button type="button" onClick={shuffle} className="absolute right-4 top-4 inline-flex items-center gap-1.5 rounded-full bg-ink/70 px-3 py-1.5 text-xs font-semibold backdrop-blur transition-transform hover:rotate-3 hover:scale-105"><Shuffle className="h-3.5 w-3.5" /> Surprise me</button>
+          <span className="absolute left-4 top-4 h-6 w-6 rounded-full border border-ink-line" style={{ background: d.color }} title={d.color} />
+          <p className="pointer-events-none absolute bottom-4 left-4 text-[10px] uppercase tracking-widest text-ink-muted">Drag to spin · scroll to zoom{d.form !== "stack" && d.points.length ? " · drag dots to shape" : ""}</p>
         </div>
-
-        <div className="rounded-2xl bg-ink-foreground p-5 text-ink">
-          <p className="text-xs uppercase tracking-widest opacity-60">Live estimate</p>
-          <p className="mt-2 font-display text-3xl font-bold tabular-nums">{formatPrice(spec.low)} – {formatPrice(spec.high)}</p>
-          <dl className="mt-4 grid grid-cols-2 gap-3 text-sm">
-            <div><dt className="text-xs opacity-60">Size</dt><dd className="font-semibold tabular-nums">{spec.totalHeight} × {spec.width} cm</dd></div>
-            <div><dt className="text-xs opacity-60">Weight</dt><dd className="font-semibold tabular-nums">~{spec.grams} g</dd></div>
-            <div><dt className="text-xs opacity-60">Print time</dt><dd className="font-semibold tabular-nums">~{spec.hours} h</dd></div>
-            <div><dt className="text-xs opacity-60">Walls</dt><dd className="font-semibold tabular-nums">{spec.loops} loops</dd></div>
+        <div className="rounded-2xl bg-ink-foreground p-4 text-ink">
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <p className="text-[10px] uppercase tracking-widest opacity-60">Live estimate</p>
+              <p className="font-display text-2xl font-bold tabular-nums">{formatPrice(spec.low)} – {formatPrice(spec.high)}</p>
+            </div>
+            <button type="button" onClick={onSend} className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-transform hover:scale-[1.03]">{sendLabel} <ArrowRight className="h-4 w-4" /></button>
+          </div>
+          <dl className="mt-3 grid grid-cols-4 gap-2 text-xs">
+            <div><dt className="opacity-60">Size</dt><dd className="font-semibold tabular-nums">{spec.totalHeight}×{spec.width} cm</dd></div>
+            <div><dt className="opacity-60">Weight</dt><dd className="font-semibold tabular-nums">~{spec.grams} g</dd></div>
+            <div><dt className="opacity-60">Print</dt><dd className="font-semibold tabular-nums">~{spec.hours} h</dd></div>
+            <div><dt className="opacity-60">Walls</dt><dd className="font-semibold tabular-nums">{spec.loops} loops</dd></div>
           </dl>
-          <p className="mt-4 text-[11px] opacity-60">{note}</p>
-          <button type="button" onClick={onSend} className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition-transform hover:scale-[1.02]">{sendLabel} <ArrowRight className="h-4 w-4" /></button>
+          <p className="mt-2 text-[10px] opacity-60">{note}</p>
         </div>
       </div>
     </div>

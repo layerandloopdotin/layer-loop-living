@@ -14,7 +14,7 @@ export type FormId = (typeof FORMS)[number]["id"];
 /** Ready-made geometric shapes for stack modules and table-lamp bases. "classic" follows the chosen form's own curve. */
 export const SHAPES = [
   { id: "classic", label: "Signature" },
-  { id: "cylinder", label: "Circle" },
+  { id: "cylinder", label: "Cylinder" },
   { id: "sphere", label: "Sphere" },
   { id: "cone", label: "Trapezium" },
   { id: "dome", label: "Semicircle" },

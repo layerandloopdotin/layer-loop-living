@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-// Browser-safe rules for the Custom Studio page: sandbox options, estimates, colour matching and the brief form.
+// Browser-safe rules for the Custom Studio page: sandbox options, shapes, touch points, estimates, colour matching and the brief form.
 
 export const FORMS = [
   { id: "pendant", label: "Pendant", light: true, water: false },
@@ -11,46 +11,110 @@ export const FORMS = [
 ] as const;
 export type FormId = (typeof FORMS)[number]["id"];
 
+/** Ready-made geometric shapes for stack modules and table-lamp bases. "classic" follows the chosen form's own curve. */
+export const SHAPES = [
+  { id: "classic", label: "Signature" },
+  { id: "cylinder", label: "Circle" },
+  { id: "sphere", label: "Sphere" },
+  { id: "cone", label: "Trapezium" },
+  { id: "dome", label: "Semicircle" },
+  { id: "donut", label: "Donut" },
+  { id: "box", label: "Box" },
+] as const;
+export type ShapeId = (typeof SHAPES)[number]["id"];
+
+/** Wall area relative to a straight cylinder of the same height and width. */
+const AREA: Record<ShapeId, number> = { classic: 0.85, cylinder: 1, sphere: 0.75, cone: 0.8, dome: 0.7, donut: 1.1, box: 1.27 };
+
+export type TouchPoint = { t: number; s: number }; // t: 0 bottom..1 top, s: width multiplier
+export type StackModule = { shape: ShapeId; height: number; width: number; color: string | null };
+
 export type Design = {
   form: FormId;
-  height: number; // cm per module
+  height: number; // cm
   width: number; // cm diameter
   taper: number; // -1..1
-  twist: number; // 0..1
+  twist: number; // degrees over the full height
   fuzzy: number; // 0..1 fuzzy skin
-  layers: number; // rib count 8..60
-  stack: number; // modules 1..6
+  layers: number; // vertical rib count
+  hRibs: number; // horizontal rib count
+  points: TouchPoint[]; // extra shaping points between the top and bottom
+  modules: StackModule[]; // stackable only
+  base: ShapeId | "none"; // table lamp only
   color: string; // hex
   light: boolean;
   warm: boolean;
   waterproof: boolean;
 };
 
+export const MAX_MODULES = 6;
+export const MAX_POINTS = 4;
+export const BASE_HEIGHT = 6; // cm
+
+export const DEFAULT_MODULES: StackModule[] = [
+  { shape: "cylinder", height: 8, width: 20, color: null },
+  { shape: "classic", height: 16, width: 18, color: null },
+  { shape: "donut", height: 6, width: 18, color: null },
+  { shape: "classic", height: 16, width: 18, color: null },
+];
+
 export const DEFAULT_DESIGN: Design = {
-  form: "pendant", height: 24, width: 18, taper: 0.2, twist: 0.15, fuzzy: 0.35, layers: 28, stack: 1,
+  form: "pendant", height: 24, width: 18, taper: 0.2, twist: 60, fuzzy: 0.35, layers: 28, hRibs: 0,
+  points: [{ t: 0.5, s: 0.75 }], modules: DEFAULT_MODULES, base: "cylinder",
   color: "#c46a43", light: true, warm: true, waterproof: false,
 };
 
-export type Rates = { gramPrice: number; base: number; lightKit: number; waterproofLoops: number };
-export const DEFAULT_RATES: Rates = { gramPrice: 6, base: 900, lightKit: 1200, waterproofLoops: 3 };
+/** Smooth width multiplier at height t through the touch points (top and bottom stay at 1). */
+export function pinch(points: TouchPoint[], t: number) {
+  const pts = [{ t: 0, s: 1 }, ...[...points].sort((a, b) => a.t - b.t), { t: 1, s: 1 }];
+  for (let i = 0; i < pts.length - 1; i++) {
+    const a = pts[i]!, b = pts[i + 1]!;
+    if (t <= b.t) {
+      const u = b.t === a.t ? 1 : Math.min(1, Math.max(0, (t - a.t) / (b.t - a.t)));
+      const k = u * u * (3 - 2 * u);
+      return a.s + (b.s - a.s) * k;
+    }
+  }
+  return 1;
+}
+
+export const POINT_PRESETS: { label: string; points: TouchPoint[] }[] = [
+  { label: "None", points: [] },
+  { label: "Hourglass", points: [{ t: 0.5, s: 0.55 }] },
+  { label: "Double hourglass", points: [{ t: 0.3, s: 0.6 }, { t: 0.55, s: 1.05 }, { t: 0.78, s: 0.6 }] },
+  { label: "Belly", points: [{ t: 0.45, s: 1.3 }] },
+];
 
 /** Walls: 2 loops normally; waterproofing adds extra loops, which adds weight. */
 export function wallLoops(d: Pick<Design, "waterproof">, rates: Rates = DEFAULT_RATES) {
   return d.waterproof ? 2 + rates.waterproofLoops : 2;
 }
 
+export type Rates = { gramPrice: number; base: number; lightKit: number; waterproofLoops: number };
+export const DEFAULT_RATES: Rates = { gramPrice: 6, base: 900, lightKit: 1200, waterproofLoops: 3 };
+
+/** The printed parts of a design, bottom to top. */
+export function parts(d: Design): StackModule[] {
+  if (d.form === "stack") return d.modules.slice(0, MAX_MODULES);
+  const main: StackModule = { shape: "classic", height: d.height, width: d.width, color: null };
+  if (d.form === "table-lamp" && d.base !== "none") return [{ shape: d.base, height: BASE_HEIGHT, width: Math.round(d.width * 0.6), color: null }, main];
+  return [main];
+}
+
 export function estimate(d: Design, rates: Rates = DEFAULT_RATES) {
-  const modules = d.form === "stack" ? Math.max(1, Math.min(6, Math.round(d.stack))) : 1;
-  const totalHeight = d.height * modules;
-  const area = Math.PI * d.width * totalHeight; // cm² of wall
+  const ps = parts(d);
+  const modules = d.form === "stack" ? ps.length : 1;
+  const totalHeight = ps.reduce((s, p) => s + p.height, 0);
+  const width = Math.max(...ps.map((p) => p.width));
+  const area = ps.reduce((s, p) => s + Math.PI * p.width * p.height * AREA[p.shape], 0);
   const loops = wallLoops(d, rates);
-  const grams = Math.round(area * loops * 0.05 * (1 + d.fuzzy * 0.15));
+  const grams = Math.round(area * loops * 0.05 * (1 + d.fuzzy * 0.15) * (1 + Math.min(d.hRibs, 40) * 0.004));
   const hours = Math.round((grams / 12) * (1 + d.fuzzy * 0.4) * 10) / 10;
   const lightOn = d.light && FORMS.find((f) => f.id === d.form)!.light;
   const price = rates.base + grams * rates.gramPrice + (lightOn ? rates.lightKit : 0);
   const low = Math.round((price * 0.9) / 50) * 50;
   const high = Math.round((price * 1.2) / 50) * 50;
-  return { modules, totalHeight, width: d.width, grams, hours, loops, low, high };
+  return { modules, totalHeight, width, grams, hours, loops, low, high };
 }
 
 export type Swatch = { name: string; hex: string };
@@ -75,6 +139,10 @@ export function hexToRgb(hex: string): [number, number, number] | null {
   return [0, 2, 4].map((i) => parseInt(h.slice(i, i + 2), 16)) as [number, number, number];
 }
 
+export function rgbToHex(r: number, g: number, b: number) {
+  return "#" + [r, g, b].map((v) => Math.max(0, Math.min(255, Math.round(v || 0))).toString(16).padStart(2, "0")).join("");
+}
+
 /** Nearest studio filament by weighted RGB distance (closer to perceived difference than plain RGB). */
 export function closestSwatches(hex: string, palette: Swatch[] = STUDIO_PALETTE, n = 3) {
   const c = hexToRgb(hex);
@@ -90,6 +158,31 @@ export function closestSwatches(hex: string, palette: Swatch[] = STUDIO_PALETTE,
     .sort((a, b) => a.dist - b.dist)
     .slice(0, n);
 }
+
+/** Photo lab modes. */
+export const PHOTO_MODES = [
+  { id: "object", label: "3D object", hint: "AI recognises what's in the photo and models the object itself." },
+  { id: "relief", label: "Relief", hint: "A raised panel — bright areas rise, dark areas sink." },
+  { id: "lithophane", label: "Lithophane", hint: "A thin panel that reveals the photo when light shines through." },
+] as const;
+export type PhotoMode = (typeof PHOTO_MODES)[number]["id"];
+
+/** What the AI returns for an object photo: primitive parts in a unit space (height 1, base at y=0). */
+export const OBJECT_PART_SHAPES = ["lathe", "cylinder", "box", "sphere", "cone", "torus"] as const;
+export const photoObjectSchema = z.object({
+  name: z.string(),
+  summary: z.string(),
+  height_cm: z.number(),
+  parts: z.array(z.object({
+    shape: z.enum(OBJECT_PART_SHAPES),
+    color: z.string(),
+    position: z.array(z.number()),
+    size: z.array(z.number()),
+    rotation: z.array(z.number()),
+    profile: z.array(z.number()),
+  })).min(1),
+});
+export type PhotoObject = z.infer<typeof photoObjectSchema>;
 
 export const BRIEF_KINDS = ["Lighting", "Vase / planter", "Stackable floor piece", "Engraved gift", "From my photo", "Corporate / batch", "Something else"];
 export const TIMELINES = ["No rush", "Within a month", "Within 2 weeks", "For a date"];

@@ -2,9 +2,9 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { photoObjectSchema, type PhotoObject } from "@/lib/custom";
 
-const INSTRUCTIONS = `You are a 3D modeller for a 3D printing studio. Identify the main physical object in the photo and rebuild it as a small set of simple 3D parts (2–12 parts).
+const INSTRUCTIONS = `You are a 3D modeller for a 3D printing studio. Identify the main physical object in the photo and rebuild it as faithfully as possible from 3D parts (use 4–30 parts: every visible component — body, neck, rim, handles, legs, shade, base, cord, feet, knobs — gets its own part). Study proportions carefully: measure each part's height and width relative to the whole object before writing numbers, and keep parts touching so nothing floats.
 Coordinate space: the whole object is 1 unit tall, standing on y=0, centred on x=0,z=0. position = centre of the part [x,y,z]. size = [width, height, depth] of the part. rotation = degrees [x,y,z].
-Shapes: "lathe" = a turned/revolved body (vases, lamp shades, bottles, cups, bowls, figurine bodies) — give profile as 8–16 radii from bottom to top, each 0..1 as a fraction of size[0]/2; "cylinder", "box", "sphere", "cone" (point up), "torus" (ring; size[0]=outer width, size[1]=tube thickness; lies flat unless rotated). Non-lathe parts use profile [].
+Shapes: "lathe" = a turned/revolved body (vases, lamp shades, bottles, cups, bowls, figurine bodies) — give profile as 16–32 radii from bottom to top tracing the silhouette exactly (bulges, necks, lips), each 0..1 as a fraction of size[0]/2; "cylinder", "box", "sphere", "cone" (point up), "torus" (ring; size[0]=outer width, size[1]=tube thickness; lies flat unless rotated). Non-lathe parts use profile [].
 Use the object's real colours as hex codes. Estimate its real height in cm. name = short product name, summary = one sentence on the object and how it would be printed.
 If there is no clear object (e.g. a landscape or portrait), model the most prominent thing as best you can.`;
 
@@ -55,7 +55,7 @@ export const analyzeObjectPhoto = createServerFn({ method: "POST" })
         messages: [{ role: "user", content: [{ type: "text", text: "Model the object in this photo." }, { type: "image", image: new URL(data.image) }] }],
         output: Output.object({ schema: js<PhotoObject>(jsonSchema as never) }),
         providerOptions: {
-          openai: { forceReasoning: true, reasoningEffort: "low", reasoningSummary: "auto", store: false, include: ["reasoning.encrypted_content"] },
+          openai: { forceReasoning: true, reasoningEffort: "high", reasoningSummary: "auto", store: false, include: ["reasoning.encrypted_content"] },
         },
       });
       await result.consumeStream();

@@ -245,7 +245,7 @@ const custom = {
   photoText: "Upload a photo and choose what it becomes: a 3D object our AI recognises and models, a raised relief, or a lithophane that reveals the picture when lit.",
   photoNote: "This is an instant preview. Our designers make the final model by hand.",
   sketchEyebrow: "From sketch to print",
-  sketchTitle: "Drag to see the idea become the object.",
+  sketchTitle: "Sketch it. See it in 3D.",
   sketchImage: "asset:custom-sketch.jpg",
   printImage: "asset:custom-print.jpg",
   stepsTitle: "The creation loop",

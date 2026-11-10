@@ -6,7 +6,11 @@ export function ProductGallery({ name, images }: { name: string; images: string[
   const n = images.length;
   const go = (d: number) => setI((i + d + n) % n);
   return (
-    <div className="md:sticky md:top-24">
+    <>
+    <div className="-mx-4 space-y-2 md:hidden">
+      {images.map((src, k) => <img key={k} src={src} alt={`${name} — view ${k + 1} of ${n}`} loading={k ? "lazy" : undefined} className="aspect-[4/5] w-full object-cover" />)}
+    </div>
+    <div className="hidden md:sticky md:top-24 md:block">
       <div className="group relative overflow-hidden rounded-2xl">
         <img key={i} src={images[i]} alt={`${name} — view ${i + 1} of ${n}`} className="aspect-[4/5] w-full object-cover animate-in fade-in duration-300" />
         {n > 1 && (
@@ -28,5 +32,6 @@ export function ProductGallery({ name, images }: { name: string; images: string[
         </div>
       )}
     </div>
+    </>
   );
 }

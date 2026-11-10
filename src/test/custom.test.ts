@@ -39,3 +39,30 @@ describe("custom studio rules", () => {
     expect(rgbToHex(196, 106, 67)).toBe("#c46a43");
   });
 });
+
+import { lightFitting, sketchProfile } from "@/lib/custom";
+describe("stack light fitting", () => {
+  const mods = DEFAULT_DESIGN.modules;
+  it("one lit module takes an E27 bulb", () => {
+    expect(lightFitting({ modules: mods, lightFrom: 2, lightTo: 2, lightKind: "strip" }).fitting).toBe("E27 LED bulb");
+  });
+  it("several lit modules take an LED strip or tube", () => {
+    expect(lightFitting({ modules: mods, lightFrom: 0, lightTo: 3, lightKind: "strip" })).toMatchObject({ count: 4, fitting: "LED strip" });
+    expect(lightFitting({ modules: mods, lightFrom: 3, lightTo: 1, lightKind: "tube" })).toMatchObject({ from: 1, to: 3, fitting: "LED tube light" });
+  });
+  it("clamps the range when modules are removed", () => {
+    expect(lightFitting({ modules: mods.slice(0, 2), lightFrom: 0, lightTo: 5, lightKind: "strip" })).toMatchObject({ from: 0, to: 1 });
+  });
+});
+describe("sketch tracing", () => {
+  it("traces a wider bottom than top", () => {
+    const w = 40, h = 40, lum = new Float32Array(w * h).fill(1);
+    for (let y = 5; y < 35; y++) { const half = 4 + (y - 5) / 2; lum[y * w + Math.round(20 - half)] = 0; lum[y * w + Math.round(20 + half)] = 0; }
+    const r = sketchProfile(lum, w, h)!;
+    expect(r.radii[0]).toBe(1);
+    expect(r.radii[r.radii.length - 1]!).toBeLessThan(0.5);
+  });
+  it("returns null for a blank page", () => {
+    expect(sketchProfile(new Float32Array(100).fill(1), 10, 10)).toBeNull();
+  });
+});

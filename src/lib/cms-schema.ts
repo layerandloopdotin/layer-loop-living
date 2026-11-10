@@ -219,6 +219,7 @@ const returns = {
 const custom = {
   heroEyebrow: "The Bespoke Lab",
   heroTitle: "Make it yours.",
+  heroImage: "asset:custom-hero.jpg",
   heroText: "Engrave a name, choose any colour, change the scale, print from your photo or stack a floor lamp. Play with it here — we'll make it real.",
   tweakLabel: "Tweak one of ours",
   scratchLabel: "Start from scratch",
@@ -241,7 +242,7 @@ const custom = {
   waterproofLoops: "3",
   photoEyebrow: "Photo to 3D",
   photoTitle: "Turn a photo into an object.",
-  photoText: "Upload any photo and watch it become a 3D relief. Bright areas rise, dark areas sink — just like a printed lithophane.",
+  photoText: "Upload a photo and choose what it becomes: a 3D object our AI recognises and models, a raised relief, or a lithophane that reveals the picture when lit.",
   photoNote: "This is an instant preview. Our designers make the final model by hand.",
   sketchEyebrow: "From sketch to print",
   sketchTitle: "Drag to see the idea become the object.",
@@ -343,7 +344,7 @@ export const sections: Record<ContentKey, { title: string; description: string; 
     title: "Custom page",
     description: "The Bespoke Lab: customisation options, 3D sandbox, photo to 3D, sketch slider, steps and the custom brief form.",
     groups: [
-      { title: "Header", fields: [t("heroEyebrow", "Small label"), t("heroTitle", "Title"), ta("heroText", "Intro"), t("tweakLabel", "Button 1"), t("scratchLabel", "Button 2")] },
+      { title: "Header", fields: [t("heroEyebrow", "Small label"), t("heroTitle", "Title"), im("heroImage", "Cover photo"), ta("heroText", "Intro"), t("tweakLabel", "Button 1"), t("scratchLabel", "Button 2")] },
       { title: "What we customise", fields: [t("offersTitle", "Heading"), { k: "offers", label: "Options", t: "list", item: "option", of: [t("name", "Title"), ta("text", "Text")] }] },
       { title: "3D sandbox", fields: [t("sandboxEyebrow", "Small label"), t("sandboxTitle", "Heading"), ta("sandboxText", "Text"), ta("sandboxNote", "Estimate note"), t("sendLabel", "Send button")] },
       { title: "Estimate settings (₹)", fields: [t("gramPrice", "Price per gram", "Numbers only"), t("basePrice", "Base fee"), t("lightKitPrice", "Light kit price"), t("waterproofLoops", "Extra wall loops for waterproofing")] },

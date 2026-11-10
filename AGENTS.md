@@ -22,3 +22,4 @@
 - Catalog density controls apply at every breakpoint; the compact three-column view must not blur sibling products.
 - Custom page 3D (three/R3F) lives in `src/components/custom/studio-3d.tsx`, loaded only via `React.lazy` behind `<ClientOnly>`; sandbox rules/estimates stay in `src/lib/custom.ts` so they are testable and SSR-safe.
 - Customer brief uploads go to the private `custom-briefs` bucket (anon insert under `briefs/`, admin-only read via signed URLs) so customer files are never public.
+- Photo-to-3D object mode calls the AI gateway only from the `analyzeObjectPhoto` server function, which returns simple primitive parts validated by `photoObjectSchema` in `src/lib/custom.ts`, so the key stays server-side and the browser just renders parts.

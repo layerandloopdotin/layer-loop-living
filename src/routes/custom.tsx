@@ -5,12 +5,16 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { fieldValue } from "@/lib/contact";
 import {
-  BRIEF_KINDS, DEFAULT_DESIGN, FORMS, STUDIO_PALETTE, TIMELINES, briefSchema, closestSwatches, estimate, wallLoops, type Design, type Rates,
+  BRIEF_KINDS, DEFAULT_DESIGN, FORMS, MAX_MODULES, MAX_POINTS, PHOTO_MODES, POINT_PRESETS, SHAPES, STUDIO_PALETTE, TIMELINES, briefSchema, closestSwatches, estimate,
+  hexToRgb, rgbToHex, wallLoops, type Design, type PhotoMode, type PhotoObject, type Rates, type ShapeId, type StackModule,
 } from "@/lib/custom";
 import { formatPrice } from "@/lib/currency";
 import { img } from "@/lib/media";
 import { useSite, waHref } from "@/lib/site";
 import { Page } from "@/components/site";
+import heroFallback from "@/assets/custom-hero.jpg";
+import { HexColorPicker } from "react-colorful";
+import { analyzeObjectPhoto } from "@/lib/photo-object.functions";
 
 const StudioModel = lazy(() => import("@/components/custom/studio-3d").then((m) => ({ default: m.StudioModel })));
 const PhotoRelief = lazy(() => import("@/components/custom/studio-3d").then((m) => ({ default: m.PhotoRelief })));
@@ -63,9 +67,13 @@ function Custom() {
   return (
     <Page>
       {/* Hero */}
-      <section className="relative overflow-hidden bg-ink text-ink-foreground">
-        <div className="mx-auto grid max-w-7xl items-center gap-8 px-6 py-16 md:grid-cols-[1.1fr_1fr] md:py-24">
-          <div>
+      <section className="relative isolate overflow-hidden bg-ink text-ink-foreground">
+        <img src={img(c.heroImage) || heroFallback} alt="" width={1920} height={1088} className="custom-hero-img absolute inset-0 -z-10 h-full w-full object-cover object-[70%_center]" />
+        <div aria-hidden className="absolute inset-0 -z-10 bg-gradient-to-r from-ink via-ink/80 to-ink/10 md:via-ink/60 md:to-transparent" />
+        <div aria-hidden className="absolute inset-x-0 bottom-0 -z-10 h-32 bg-gradient-to-t from-ink to-transparent" />
+        <div aria-hidden className="custom-hero-lines absolute inset-0 -z-10 opacity-[0.07]" />
+        <div className="mx-auto flex min-h-[78vh] max-w-7xl items-end px-6 pb-16 pt-28 md:min-h-[88vh] md:items-center md:pb-24">
+          <div className="max-w-2xl">
             <p className={eyebrow}>{c.heroEyebrow}</p>
             <h1 className="mt-4 font-display text-6xl font-extrabold uppercase leading-[0.9] md:text-8xl" aria-label={c.heroTitle}>
               {c.heroTitle.split(" ").map((word, w, all) => (
@@ -85,9 +93,11 @@ function Custom() {
               </button>
               <button onClick={() => go("brief")} className="rounded-full border border-ink-line px-6 py-3 text-sm font-semibold transition-colors hover:border-ink-foreground">{c.scratchLabel}</button>
             </div>
-          </div>
-          <div className="h-[380px] md:h-[520px]">
-            <Three><StudioModel design={{ ...DEFAULT_DESIGN, form: "stack", stack: 3, height: 14, width: 16, layers: 34 }} spin interactive={false} /></Three>
+            <div className="mt-12 flex gap-8 border-t border-ink-line pt-6 text-xs uppercase tracking-widest text-ink-muted">
+              <span><span className="block font-display text-2xl font-bold text-ink-foreground">0.2 mm</span>layer lines</span>
+              <span><span className="block font-display text-2xl font-bold text-ink-foreground">Any</span>hex colour</span>
+              <span><span className="block font-display text-2xl font-bold text-ink-foreground">48 h</span>render preview</span>
+            </div>
           </div>
         </div>
       </section>
@@ -252,55 +262,180 @@ function Toggle({ on, onClick, icon, label, disabled }: { on: boolean; onClick: 
   );
 }
 
+function ColorPanel({ value, onChange, label }: { value: string; onChange: (hex: string) => void; label?: string }) {
+  const [hexInput, setHexInput] = useState(value);
+  useEffect(() => setHexInput(value), [value]);
+  const rgb = hexToRgb(value) ?? [0, 0, 0];
+  const near = closestSwatches(value, STUDIO_PALETTE, 1)[0];
+  return (
+    <div>
+      {label && <p className="mb-2 text-xs uppercase tracking-widest text-ink-muted">{label}</p>}
+      <div className="studio-picker"><HexColorPicker color={value} onChange={onChange} /></div>
+      <div className="mt-3 grid grid-cols-[1.4fr_1fr_1fr_1fr] gap-2">
+        <label className="text-[10px] uppercase tracking-widest text-ink-muted">Hex
+          <input value={hexInput} aria-label="Hex code" onChange={(e) => { setHexInput(e.target.value); const v = e.target.value.startsWith("#") ? e.target.value : `#${e.target.value}`; if (/^#[0-9a-f]{6}$/i.test(v)) onChange(v.toLowerCase()); }}
+            className="mt-1 w-full rounded-md border border-ink-line bg-transparent px-2 py-1.5 font-mono text-xs normal-case text-ink-foreground" />
+        </label>
+        {(["R", "G", "B"] as const).map((ch, k) => (
+          <label key={ch} className="text-[10px] uppercase tracking-widest text-ink-muted">{ch}
+            <input type="number" min={0} max={255} value={rgb[k]} aria-label={`${ch} value`}
+              onChange={(e) => { const n = [...rgb] as [number, number, number]; n[k] = +e.target.value; onChange(rgbToHex(...n)); }}
+              className="mt-1 w-full rounded-md border border-ink-line bg-transparent px-2 py-1.5 font-mono text-xs text-ink-foreground" />
+          </label>
+        ))}
+      </div>
+      {near && <p className="mt-2 text-xs text-ink-muted">Closest studio filament: <span className="inline-block h-2.5 w-2.5 rounded-full align-middle" style={{ background: near.hex }} /> <span className="text-ink-foreground">{near.name}</span></p>}
+    </div>
+  );
+}
+
+function Chip({ on, onClick, children, title }: { on: boolean; onClick: () => void; children: ReactNode; title?: string }) {
+  return (
+    <button type="button" aria-pressed={on} title={title} onClick={onClick}
+      className={`rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${on ? "bg-ink-foreground text-ink" : "border border-ink-line text-ink-muted hover:text-ink-foreground"}`}>{children}</button>
+  );
+}
+
+function ShapeIcon({ shape }: { shape: ShapeId }) {
+  const p: Record<ShapeId, ReactNode> = {
+    classic: <path d="M7 20h10M8 20c-2-5 0-9 1-12h6c1 3 3 7 1 12" />,
+    cylinder: <rect x="6" y="5" width="12" height="15" rx="1" />,
+    sphere: <circle cx="12" cy="12" r="7.5" />,
+    cone: <path d="M5 20h14l-3-15H8z" />,
+    dome: <path d="M4 18a8 8 0 0 1 16 0z" />,
+    donut: <><ellipse cx="12" cy="14" rx="8" ry="4" /><ellipse cx="12" cy="14" rx="3" ry="1.4" /></>,
+    box: <path d="M5 8l7-3 7 3v9l-7 3-7-3zM5 8l7 3 7-3M12 11v9" />,
+  };
+  return <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={1.5}>{p[shape]}</svg>;
+}
+
+function ShapePicker({ value, onChange, allowNone }: { value: ShapeId | "none"; onChange: (s: ShapeId | "none") => void; allowNone?: boolean }) {
+  return (
+    <div className="flex flex-wrap gap-1.5">
+      {allowNone && <Chip on={value === "none"} onClick={() => onChange("none")}>No base</Chip>}
+      {SHAPES.map((s) => (
+        <button key={s.id} type="button" aria-pressed={value === s.id} title={s.label} onClick={() => onChange(s.id)}
+          className={`flex flex-col items-center gap-0.5 rounded-lg border px-2 py-1.5 text-[10px] transition-colors ${value === s.id ? "border-primary bg-primary/15 text-ink-foreground" : "border-ink-line text-ink-muted hover:text-ink-foreground"}`}>
+          <ShapeIcon shape={s.id} />{s.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function ModuleEditor({ d, set }: { d: Design; set: (p: Partial<Design>) => void }) {
+  const [sel, setSel] = useState(0);
+  const mods = d.modules;
+  const cur = mods[Math.min(sel, mods.length - 1)];
+  const update = (p: Partial<StackModule>) => set({ modules: mods.map((m, i) => (i === sel ? { ...m, ...p } : m)) });
+  const add = (m: StackModule) => { if (mods.length < MAX_MODULES) { set({ modules: [...mods, m] }); setSel(mods.length); } };
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <p className="text-xs uppercase tracking-widest text-ink-muted">Modules · top to bottom</p>
+        <span className="text-[10px] text-ink-muted">{mods.length}/{MAX_MODULES}</span>
+      </div>
+      <div className="flex flex-col gap-1.5">
+        {mods.map((m, i) => ({ m, i })).reverse().map(({ m, i }) => (
+          <button key={i} type="button" onClick={() => setSel(i)}
+            className={`flex items-center gap-2 rounded-lg border px-3 py-1.5 text-left text-xs transition-colors ${i === sel ? "border-primary bg-primary/10" : "border-ink-line hover:border-ink-foreground"}`}>
+            <ShapeIcon shape={m.shape} />
+            <span className="flex-1">{SHAPES.find((s) => s.id === m.shape)?.label} · {m.height}×{m.width} cm</span>
+            <span className="h-3 w-3 rounded-full border border-ink-line" style={{ background: m.color ?? d.color }} />
+          </button>
+        ))}
+      </div>
+      <div className="flex flex-wrap gap-2">
+        <button type="button" disabled={mods.length >= MAX_MODULES || !cur} onClick={() => cur && add({ ...cur })} className="rounded-full border border-ink-line px-3 py-1.5 text-xs font-semibold disabled:opacity-30">Repeat this</button>
+        <button type="button" disabled={mods.length >= MAX_MODULES} onClick={() => add({ shape: "cylinder", height: 10, width: 16, color: null })} className="rounded-full border border-ink-line px-3 py-1.5 text-xs font-semibold disabled:opacity-30"><Plus className="mr-1 inline h-3 w-3" />New style</button>
+        <button type="button" disabled={mods.length <= 1} onClick={() => { set({ modules: mods.filter((_, i) => i !== sel) }); setSel(Math.max(0, sel - 1)); }} className="rounded-full border border-ink-line px-3 py-1.5 text-xs font-semibold disabled:opacity-30"><Minus className="mr-1 inline h-3 w-3" />Remove</button>
+      </div>
+      {cur && (
+        <div className="space-y-4 rounded-xl bg-ink-soft p-4">
+          <ShapePicker value={cur.shape} onChange={(s) => s !== "none" && update({ shape: s })} />
+          <Slider label="Module height" value={cur.height} min={3} max={40} step={1} onChange={(v) => update({ height: v })} show={`${cur.height} cm`} />
+          <Slider label="Module width" value={cur.width} min={6} max={40} step={1} onChange={(v) => update({ width: v })} show={`${cur.width} cm`} />
+          <label className="flex items-center gap-2 text-xs text-ink-muted">
+            <input type="checkbox" checked={cur.color !== null} onChange={(e) => update({ color: e.target.checked ? d.color : null })} className="accent-primary" /> Own colour for this module
+            {cur.color && <input type="color" value={cur.color} onChange={(e) => update({ color: e.target.value })} aria-label="Module colour" className="h-6 w-6 cursor-pointer rounded-full border-0 bg-transparent" />}
+          </label>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function PointsEditor({ d, set }: { d: Design; set: (p: Partial<Design>) => void }) {
+  const pts = d.points;
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <p className="text-xs uppercase tracking-widest text-ink-muted">Touch points</p>
+        <button type="button" disabled={pts.length >= MAX_POINTS} onClick={() => set({ points: [...pts, { t: pts.length ? Math.min(0.9, Math.max(...pts.map((p) => p.t)) + 0.15) : 0.5, s: 0.8 }] })}
+          className="rounded-full border border-ink-line px-2.5 py-1 text-[11px] font-semibold disabled:opacity-30"><Plus className="mr-0.5 inline h-3 w-3" />Add</button>
+      </div>
+      <div className="flex flex-wrap gap-1.5">{POINT_PRESETS.map((p) => <Chip key={p.label} on={JSON.stringify(p.points) === JSON.stringify(pts)} onClick={() => set({ points: p.points })}>{p.label}</Chip>)}</div>
+      {pts.map((p, i) => (
+        <div key={i} className="grid grid-cols-[1fr_1fr_auto] items-end gap-3">
+          <Slider label={`Point ${i + 1} height`} value={p.t} min={0.08} max={0.92} step={0.01} onChange={(v) => set({ points: pts.map((q, k) => (k === i ? { ...q, t: v } : q)) })} show={`${Math.round(p.t * 100)}%`} />
+          <Slider label="Width" value={p.s} min={0.25} max={1.6} step={0.01} onChange={(v) => set({ points: pts.map((q, k) => (k === i ? { ...q, s: v } : q)) })} show={`${Math.round(p.s * 100)}%`} />
+          <button type="button" aria-label={`Remove point ${i + 1}`} onClick={() => set({ points: pts.filter((_, k) => k !== i) })} className="mb-1 rounded-full border border-ink-line p-1"><Minus className="h-3 w-3" /></button>
+        </div>
+      ))}
+      {pts.length > 0 && <p className="text-[11px] text-ink-muted">Tip: drag the glowing dots on the model to pinch or swell it.</p>}
+    </div>
+  );
+}
+
 function Sandbox({ design: d, setDesign, rates, note, sendLabel, onSend }: { design: Design; setDesign: (d: Design) => void; rates: Rates; note: string; sendLabel: string; onSend: () => void }) {
   const set = (p: Partial<Design>) => setDesign({ ...d, ...p });
   const spec = estimate(d, rates);
   const form = FORMS.find((f) => f.id === d.form)!;
-  const [hexInput, setHexInput] = useState(d.color);
-  const near = closestSwatches(d.color, STUDIO_PALETTE, 1)[0];
   const shuffle = () => set({
-    taper: +(Math.random() * 1.4 - 0.7).toFixed(2), twist: +Math.random().toFixed(2), fuzzy: +Math.random().toFixed(2),
-    layers: 8 + Math.round(Math.random() * 50), color: STUDIO_PALETTE[Math.floor(Math.random() * STUDIO_PALETTE.length)]?.hex ?? d.color,
+    taper: +(Math.random() * 1.4 - 0.7).toFixed(2), twist: Math.round(Math.random() * 360), fuzzy: +Math.random().toFixed(2),
+    layers: Math.round(Math.random() * 50), hRibs: Math.random() > 0.6 ? Math.round(Math.random() * 20) : 0,
+    points: POINT_PRESETS[Math.floor(Math.random() * POINT_PRESETS.length)]?.points ?? [],
+    color: STUDIO_PALETTE[Math.floor(Math.random() * STUDIO_PALETTE.length)]?.hex ?? d.color,
   });
   return (
-    <div className="mt-10 grid gap-8 lg:grid-cols-[1fr_1.3fr_0.9fr]">
-      <div className="space-y-5 rounded-2xl border border-ink-line p-5">
+    <div className="mt-10 grid gap-8 lg:grid-cols-[1fr_1.3fr_0.95fr]">
+      <div className="space-y-5 rounded-2xl border border-ink-line p-5 lg:max-h-[860px] lg:overflow-y-auto">
         <div className="flex flex-wrap gap-2">
           {FORMS.map((f) => (
-            <button key={f.id} type="button" aria-pressed={d.form === f.id} onClick={() => set({ form: f.id, stack: f.id === "stack" && d.stack < 2 ? 3 : d.stack, light: f.light ? d.light : false, waterproof: f.water ? d.waterproof : false })}
-              className={`rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${d.form === f.id ? "bg-ink-foreground text-ink" : "border border-ink-line text-ink-muted hover:text-ink-foreground"}`}>{f.label}</button>
+            <Chip key={f.id} on={d.form === f.id} onClick={() => set({ form: f.id, light: f.light ? d.light : false, waterproof: f.water ? d.waterproof : false })}>{f.label}</Chip>
           ))}
         </div>
-        <Slider label={d.form === "stack" ? "Module height" : "Height"} value={d.height} min={8} max={45} step={1} onChange={(v) => set({ height: v })} show={`${d.height} cm`} />
-        <Slider label="Width" value={d.width} min={8} max={40} step={1} onChange={(v) => set({ width: v })} show={`${d.width} cm`} />
-        <Slider label="Taper" value={d.taper} min={-0.7} max={0.7} step={0.01} onChange={(v) => set({ taper: v })} show={d.taper.toFixed(2)} />
-        <Slider label="Twist" value={d.twist} min={0} max={1} step={0.01} onChange={(v) => set({ twist: v })} show={`${Math.round(d.twist * 100)}%`} />
-        <Slider label="Fuzzy skin" value={d.fuzzy} min={0} max={1} step={0.01} onChange={(v) => set({ fuzzy: v })} show={d.fuzzy < 0.05 ? "Off" : d.fuzzy < 0.4 ? "Soft" : d.fuzzy < 0.75 ? "Medium" : "Heavy"} />
-        <Slider label="Ribs" value={d.layers} min={0} max={60} step={1} onChange={(v) => set({ layers: v })} show={String(d.layers)} />
-        {d.form === "stack" && <Slider label="Stack" value={d.stack} min={1} max={6} step={1} onChange={(v) => set({ stack: v })} show={`${d.stack} module${d.stack > 1 ? "s" : ""}`} />}
+        {d.form === "stack" ? <ModuleEditor d={d} set={set} /> : (
+          <>
+            <Slider label="Height" value={d.height} min={8} max={45} step={1} onChange={(v) => set({ height: v })} show={`${d.height} cm`} />
+            <Slider label="Width" value={d.width} min={8} max={40} step={1} onChange={(v) => set({ width: v })} show={`${d.width} cm`} />
+            <Slider label="Taper" value={d.taper} min={-0.7} max={0.7} step={0.01} onChange={(v) => set({ taper: v })} show={d.taper.toFixed(2)} />
+            <PointsEditor d={d} set={set} />
+          </>
+        )}
+        {d.form === "table-lamp" && (
+          <div className="space-y-2">
+            <p className="text-xs uppercase tracking-widest text-ink-muted">Base</p>
+            <ShapePicker value={d.base} onChange={(s) => set({ base: s })} allowNone />
+          </div>
+        )}
+        <div className="space-y-5 border-t border-ink-line pt-5">
+          <Slider label="Twist" value={d.twist} min={0} max={720} step={5} onChange={(v) => set({ twist: v })} show={`${d.twist}°`} />
+          <Slider label="Fuzzy skin" value={d.fuzzy} min={0} max={1} step={0.01} onChange={(v) => set({ fuzzy: v })} show={d.fuzzy < 0.05 ? "Off" : d.fuzzy < 0.4 ? "Soft" : d.fuzzy < 0.75 ? "Medium" : "Heavy"} />
+          <Slider label="Vertical ribs" value={d.layers} min={0} max={60} step={1} onChange={(v) => set({ layers: v })} show={d.layers ? String(d.layers) : "Off"} />
+          <Slider label="Horizontal ribs" value={d.hRibs} min={0} max={40} step={1} onChange={(v) => set({ hRibs: v })} show={d.hRibs ? String(d.hRibs) : "Off"} />
+        </div>
       </div>
 
-      <div className="relative h-[460px] overflow-hidden rounded-2xl bg-ink-soft lg:h-auto lg:min-h-[560px]">
-        <Three><StudioModel design={d} /></Three>
+      <div className="relative h-[480px] overflow-hidden rounded-2xl bg-ink-soft lg:sticky lg:top-24 lg:h-[680px]">
+        <Three><StudioModel design={d} onPoints={(points) => set({ points })} /></Three>
         <button type="button" onClick={shuffle} className="absolute right-4 top-4 inline-flex items-center gap-1.5 rounded-full bg-ink/70 px-3 py-1.5 text-xs font-semibold backdrop-blur transition-transform hover:rotate-3 hover:scale-105"><Shuffle className="h-3.5 w-3.5" /> Surprise me</button>
-        <p className="pointer-events-none absolute bottom-4 left-4 text-[10px] uppercase tracking-widest text-ink-muted">Drag to spin · scroll to zoom</p>
+        <p className="pointer-events-none absolute bottom-4 left-4 text-[10px] uppercase tracking-widest text-ink-muted">Drag to spin · scroll to zoom{d.form !== "stack" && d.points.length ? " · drag dots to shape" : ""}</p>
       </div>
 
       <div className="space-y-5">
         <div className="rounded-2xl border border-ink-line p-5">
-          <p className="text-xs uppercase tracking-widest text-ink-muted">Colour</p>
-          <div className="mt-3 flex flex-wrap gap-2">
-            {STUDIO_PALETTE.map((s) => (
-              <button key={s.hex} type="button" title={s.name} aria-label={s.name} onClick={() => { set({ color: s.hex }); setHexInput(s.hex); }}
-                className={`h-8 w-8 rounded-full border-2 transition-transform hover:scale-115 ${d.color === s.hex ? "scale-110 border-primary" : "border-ink-line"}`} style={{ background: s.hex }} />
-            ))}
-          </div>
-          <div className="mt-3 flex items-center gap-2">
-            <input type="color" value={d.color} onChange={(e) => { set({ color: e.target.value }); setHexInput(e.target.value); }} aria-label="Any colour" className="h-9 w-9 cursor-pointer rounded-full border-0 bg-transparent" />
-            <input value={hexInput} onChange={(e) => { setHexInput(e.target.value); if (/^#[0-9a-f]{6}$/i.test(e.target.value)) set({ color: e.target.value }); }} aria-label="Hex code"
-              className="w-28 rounded-md border border-ink-line bg-transparent px-2 py-1.5 font-mono text-xs" />
-          </div>
-          {near && <p className="mt-2 text-xs text-ink-muted">Closest studio match: <span className="inline-block h-2.5 w-2.5 rounded-full align-middle" style={{ background: near.hex }} /> <span className="text-ink-foreground">{near.name}</span></p>}
+          <ColorPanel value={d.color} onChange={(color) => set({ color })} label="Colour — pick anything" />
           <div className="mt-4 flex flex-wrap gap-2">
             <Toggle on={d.light} disabled={!form.light} onClick={() => set({ light: !d.light })} icon={<Lightbulb className="h-3.5 w-3.5" />} label={d.light ? "Light on" : "Light off"} />
             {d.light && form.light && <Toggle on={d.warm} onClick={() => set({ warm: !d.warm })} icon={null} label={d.warm ? "Warm 2200K" : "Soft 3000K"} />}
@@ -328,32 +463,89 @@ function Sandbox({ design: d, setDesign, rates, note, sendLabel, onSend }: { des
 
 /* ---------- Photo to 3D ---------- */
 
+/** Shrinks a photo to a JPEG data URL small enough to send for analysis. */
+function toDataUrl(file: File, max = 1024): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const im = new Image();
+    im.onload = () => {
+      const k = Math.min(1, max / Math.max(im.width, im.height));
+      const c = document.createElement("canvas");
+      c.width = Math.round(im.width * k); c.height = Math.round(im.height * k);
+      c.getContext("2d")!.drawImage(im, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(im.src);
+      resolve(c.toDataURL("image/jpeg", 0.85));
+    };
+    im.onerror = reject;
+    im.src = URL.createObjectURL(file);
+  });
+}
+
 function PhotoLab({ color }: { color: string }) {
+  const [file, setFile] = useState<File | null>(null);
   const [src, setSrc] = useState<string | null>(null);
+  const [mode, setMode] = useState<PhotoMode>("object");
   const [depth, setDepth] = useState(0.5);
   const [tinted, setTinted] = useState(false);
   const [drag, setDrag] = useState(false);
+  const [model, setModel] = useState<PhotoObject | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const analysed = useRef<File | null>(null);
   useEffect(() => () => { if (src) URL.revokeObjectURL(src); }, [src]);
-  const take = (f?: File) => { if (f && f.type.startsWith("image/")) setSrc(URL.createObjectURL(f)); };
+  const take = (f?: File) => {
+    if (!f || !f.type.startsWith("image/")) return;
+    setFile(f); setSrc(URL.createObjectURL(f)); setModel(null); setError(null); analysed.current = null;
+  };
+  useEffect(() => {
+    if (mode !== "object" || !file || analysed.current === file) return;
+    analysed.current = file;
+    let live = true;
+    setBusy(true); setError(null);
+    toDataUrl(file).then((image) => analyzeObjectPhoto({ data: { image } })).then((r) => {
+      if (!live) return;
+      if (r.ok) setModel(r.model); else setError(r.error);
+    }).catch(() => live && setError("We couldn't analyse that photo. Please try another one.")).finally(() => live && setBusy(false));
+    return () => { live = false; };
+  }, [mode, file]);
+  const hint = PHOTO_MODES.find((m) => m.id === mode)!.hint;
   return (
     <div>
+      <div role="radiogroup" aria-label="What should your photo become?" className="mb-3 inline-flex rounded-full border border-border p-1">
+        {PHOTO_MODES.map((m) => (
+          <button key={m.id} type="button" role="radio" aria-checked={mode === m.id} onClick={() => setMode(m.id)}
+            className={`rounded-full px-4 py-1.5 text-xs font-semibold transition-colors ${mode === m.id ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground"}`}>{m.label}</button>
+        ))}
+      </div>
+      <p className="mb-3 text-xs text-muted-foreground">{hint}</p>
       <div onDragOver={(e) => { e.preventDefault(); setDrag(true); }} onDragLeave={() => setDrag(false)} onDrop={(e) => { e.preventDefault(); setDrag(false); take(e.dataTransfer.files[0]); }}
-        className={`relative h-[380px] overflow-hidden rounded-2xl border-2 border-dashed bg-ink transition-colors ${drag ? "border-primary" : "border-border"}`}>
-        {src ? <Three><PhotoRelief src={src} depth={depth} color={color} tinted={tinted} /></Three> : (
+        className={`relative h-[400px] overflow-hidden rounded-2xl border-2 border-dashed bg-ink transition-colors ${drag ? "border-primary" : "border-border"}`}>
+        {src ? <Three><PhotoRelief src={src} depth={depth} color={color} tinted={tinted} mode={mode} model={model} /></Three> : (
           <label className="flex h-full cursor-pointer flex-col items-center justify-center gap-3 text-ink-muted transition-colors hover:text-ink-foreground">
             <Upload className="h-10 w-10" />
             <span className="text-sm font-semibold">Drop a photo or tap to upload</span>
-            <input type="file" accept="image/*" className="sr-only" onChange={(e) => take(e.target.files?.[0])} />
+            <input type="file" accept="image/png,image/jpeg,image/webp" className="sr-only" onChange={(e) => take(e.target.files?.[0])} />
           </label>
         )}
+        {src && mode === "object" && (busy || error) && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-ink/70 p-6 text-center text-ink-foreground backdrop-blur-sm">
+            {busy ? <><div className="flex flex-col-reverse">{[0, 1, 2, 3].map((k) => <span key={k} className="layer-in -mt-1 block h-3 rounded-full bg-primary" style={{ width: 56 - k * 10, animationDelay: `${k * 220}ms`, animationIterationCount: "infinite" }} />)}</div><p className="text-sm">Looking at your photo and modelling it…</p></>
+              : <p className="max-w-xs text-sm">{error}</p>}
+          </div>
+        )}
+        {src && <img src={src} alt="Your photo" className="absolute bottom-3 right-3 h-16 w-16 rounded-lg border border-ink-line object-cover" />}
       </div>
+      {model && mode === "object" && !busy && (
+        <p className="mt-3 text-sm"><span className="font-semibold">{model.name}</span> · ~{Math.round(model.height_cm)} cm — <span className="text-muted-foreground">{model.summary}</span></p>
+      )}
       {src && (
         <div className="mt-4 flex flex-wrap items-center gap-4">
-          <label className="flex flex-1 items-center gap-3 text-xs uppercase tracking-widest text-muted-foreground">Depth
-            <input type="range" min={0.1} max={1.2} step={0.05} value={depth} onChange={(e) => setDepth(+e.target.value)} className="flex-1 accent-primary" />
-          </label>
-          <button type="button" onClick={() => setTinted(!tinted)} className="rounded-full border border-border px-3 py-1.5 text-xs font-semibold">{tinted ? "Show photo colours" : "Tint with sandbox colour"}</button>
-          <label className="cursor-pointer rounded-full border border-border px-3 py-1.5 text-xs font-semibold">Change photo<input type="file" accept="image/*" className="sr-only" onChange={(e) => take(e.target.files?.[0])} /></label>
+          {mode !== "object" && (
+            <label className="flex flex-1 items-center gap-3 text-xs uppercase tracking-widest text-muted-foreground">{mode === "lithophane" ? "Thickness" : "Depth"}
+              <input type="range" min={0.1} max={1.2} step={0.05} value={depth} onChange={(e) => setDepth(+e.target.value)} className="flex-1 accent-primary" />
+            </label>
+          )}
+          {mode === "relief" && <button type="button" onClick={() => setTinted(!tinted)} className="rounded-full border border-border px-3 py-1.5 text-xs font-semibold">{tinted ? "Show photo colours" : "Tint with sandbox colour"}</button>}
+          <label className="cursor-pointer rounded-full border border-border px-3 py-1.5 text-xs font-semibold">Change photo<input type="file" accept="image/png,image/jpeg,image/webp" className="sr-only" onChange={(e) => take(e.target.files?.[0])} /></label>
         </div>
       )}
     </div>
@@ -390,7 +582,10 @@ const STEP_FIELDS = [["kind", "idea"], ["size", "color", "engraving", "quantity"
 
 function designSummary(d: Design, rates: Rates) {
   const s = estimate(d, rates);
-  return `${FORMS.find((f) => f.id === d.form)!.label} · ${s.totalHeight}×${s.width} cm · fuzzy ${Math.round(d.fuzzy * 100)}% · ${d.layers} ribs · twist ${Math.round(d.twist * 100)}% · taper ${d.taper} · ${d.color}${d.light ? ` · light ${d.warm ? "warm" : "soft"}` : ""}${d.waterproof ? " · waterproof" : ""}${d.form === "stack" ? ` · ${s.modules} modules` : ""} · est. ₹${s.low}–${s.high}`;
+  const shape = d.form === "stack"
+    ? ` · modules (bottom→top): ${d.modules.map((m) => `${SHAPES.find((x) => x.id === m.shape)?.label} ${m.height}×${m.width}${m.color ? ` ${m.color}` : ""}`).join(", ")}`
+    : `${d.points.length ? ` · touch points ${d.points.map((p) => `${Math.round(p.t * 100)}%@${Math.round(p.s * 100)}%`).join(" ")}` : ""}${d.form === "table-lamp" ? ` · base ${d.base === "none" ? "none" : SHAPES.find((x) => x.id === d.base)?.label}` : ""}`;
+  return `${FORMS.find((f) => f.id === d.form)!.label} · ${s.totalHeight}×${s.width} cm · fuzzy ${Math.round(d.fuzzy * 100)}% · ${d.layers} vertical / ${d.hRibs} horizontal ribs · twist ${d.twist}° · taper ${d.taper} · ${d.color}${d.light ? ` · light ${d.warm ? "warm" : "soft"}` : ""}${d.waterproof ? " · waterproof" : ""}${shape} · est. ₹${s.low}–${s.high}`;
 }
 
 function Brief({ design, clearDesign, rates, submitLabel, thankYou }: { design: Design | null; clearDesign: () => void; rates: Rates; submitLabel: string; thankYou: string }) {

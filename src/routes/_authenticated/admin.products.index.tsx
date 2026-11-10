@@ -8,6 +8,15 @@ import { formatPrice } from "@/lib/currency";
 import { img } from "@/lib/media";
 
 export const Route = createFileRoute("/_authenticated/admin/products/")({
+  head: () => ({ meta: [
+    { title: "Product Catalog — Layer & Loop CMS" },
+    { name: "description", content: "Manage Layer & Loop products and featured collections." },
+    { property: "og:title", content: "Product Catalog — Layer & Loop CMS" },
+    { property: "og:description", content: "Manage Layer & Loop products and featured collections." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
+
   component: ProductsAdmin,
 });
 

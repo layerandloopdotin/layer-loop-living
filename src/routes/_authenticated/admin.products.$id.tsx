@@ -10,6 +10,15 @@ import type { Json } from "@/integrations/supabase/types";
 import { inventoryQuantitySchema } from "@/lib/inventory";
 
 export const Route = createFileRoute("/_authenticated/admin/products/$id")({
+  head: () => ({ meta: [
+    { title: "Product Editor — Layer & Loop CMS" },
+    { name: "description", content: "Edit Layer & Loop product photos and details." },
+    { property: "og:title", content: "Product Editor — Layer & Loop CMS" },
+    { property: "og:description", content: "Edit Layer & Loop product photos and details." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
+
   component: ProductEditor,
 });
 

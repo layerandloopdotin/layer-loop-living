@@ -7,6 +7,15 @@ import { supabase } from "@/integrations/supabase/client";
 import { ImageInput, inputCls, RowTools } from "@/components/admin/fields";
 
 export const Route = createFileRoute("/_authenticated/admin/taxonomy")({
+  head: () => ({ meta: [
+    { title: "Categories & Spaces — Layer & Loop CMS" },
+    { name: "description", content: "Manage Layer & Loop product categories and spaces." },
+    { property: "og:title", content: "Categories & Spaces — Layer & Loop CMS" },
+    { property: "og:description", content: "Manage Layer & Loop product categories and spaces." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
+
   component: Taxonomy,
 });
 

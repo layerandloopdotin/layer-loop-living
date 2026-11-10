@@ -9,6 +9,15 @@ import { FieldInput, labelCls } from "@/components/admin/fields";
 import type { Json } from "@/integrations/supabase/types";
 
 export const Route = createFileRoute("/_authenticated/admin/content/$key")({
+  head: () => ({ meta: [
+    { title: "Page Content Editor — Layer & Loop CMS" },
+    { name: "description", content: "Edit Layer & Loop page content and images." },
+    { property: "og:title", content: "Page Content Editor — Layer & Loop CMS" },
+    { property: "og:description", content: "Edit Layer & Loop page content and images." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
+
   beforeLoad: ({ params }) => { if (!(params.key in sections)) throw notFound(); },
   component: ContentEditor,
 });

@@ -1,4 +1,5 @@
 # Roadmap
+- [ ] Practical lamp sandbox: closed bases, independent base/shade design, legs, E27 assembly, realistic rendering and desktop/mobile verification
 - [x] Advance-paid custom requests: customer progress/final quotes, matching saved designs, admin review updates and verification
 - [x] Customer accounts: login (OTP/Google/Apple/email/guest), profile, avatars, addresses, payments
 - [x] My Orders + order detail (timeline, invoice, Shiprocket tracking) + admin orders

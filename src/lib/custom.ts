@@ -45,6 +45,12 @@ export type Design = {
   points: TouchPoint[]; // extra shaping points between the top and bottom
   modules: StackModule[]; // stackable only
   base: ShapeId | "none"; // table lamp only
+  lampBase?: StackModule; // independent printed base; optional for saved-design compatibility
+  legs?: "none" | "tripod" | "four";
+  legHeight?: number; // cm
+  legSpread?: number; // cm beyond the base radius
+  stemHeight?: number; // cm between base and shade
+  shadeShape?: ShapeId;
   color: string; // hex
   light: boolean;
   warm: boolean;
@@ -73,6 +79,20 @@ export const DEFAULT_DESIGN: Design = {
 };
 
 export const CUSTOM_MODULE: StackModule = { shape: "custom", height: 14, width: 18, color: null, points: [{ t: 0.5, s: 0.75 }], taper: 0.2 };
+
+export function lampBase(d: Design): StackModule {
+  return d.lampBase ?? { shape: d.base === "none" ? "cylinder" : d.base, height: BASE_HEIGHT, width: Math.round(d.width * 0.6), color: "#30302e", points: [], taper: 0 };
+}
+
+/** Shared centimetre layout for the preview and estimate; an E27 socket is 27 mm wide. */
+export function lampAssembly(d: Design) {
+  const hasBase = d.form === "table-lamp" && d.base !== "none";
+  const feetHeight = hasBase && d.legs && d.legs !== "none" ? d.legHeight ?? 5 : 0;
+  const baseHeight = hasBase ? lampBase(d).height : 0;
+  const stemHeight = hasBase ? d.stemHeight ?? 4 : 0;
+  const shadeY = feetHeight + baseHeight + stemHeight;
+  return { feetHeight, baseHeight, stemHeight, shadeY, totalHeight: shadeY + d.height, socketDiameter: 2.7, bulbDiameter: 6 };
+}
 
 /** Which modules of a stack light up and what fitting that needs: one module takes an E27 bulb, more take an LED strip or tube. */
 export function lightFitting(d: Pick<Design, "modules" | "lightFrom" | "lightTo" | "lightKind">) {
@@ -117,15 +137,15 @@ export const DEFAULT_RATES: Rates = { gramPrice: 6, base: 900, lightKit: 1200, w
 /** The printed parts of a design, bottom to top. */
 export function parts(d: Design): StackModule[] {
   if (d.form === "stack") return d.modules.slice(0, MAX_MODULES);
-  const main: StackModule = { shape: "classic", height: d.height, width: d.width, color: null };
-  if (d.form === "table-lamp" && d.base !== "none") return [{ shape: d.base, height: BASE_HEIGHT, width: Math.round(d.width * 0.6), color: null }, main];
+  const main: StackModule = { shape: d.form === "table-lamp" ? d.shadeShape ?? "classic" : "classic", height: d.height, width: d.width, color: null };
+  if (d.form === "table-lamp" && d.base !== "none") return [lampBase(d), main];
   return [main];
 }
 
 export function estimate(d: Design, rates: Rates = DEFAULT_RATES) {
   const ps = parts(d);
   const modules = d.form === "stack" ? ps.length : 1;
-  const totalHeight = ps.reduce((s, p) => s + p.height, 0);
+  const totalHeight = d.form === "table-lamp" ? lampAssembly(d).totalHeight : ps.reduce((s, p) => s + p.height, 0);
   const width = Math.max(...ps.map((p) => p.width));
   const area = ps.reduce((s, p) => s + Math.PI * p.width * p.height * AREA[p.shape], 0);
   const loops = wallLoops(d, rates);

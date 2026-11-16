@@ -21,7 +21,7 @@
 - Use the shared centered rail for featured objects, categories and materials on every screen size; responsive item and edge widths keep both directions reachable.
 - Catalog density controls apply at every breakpoint; the compact three-column view must not blur sibling products.
 - Custom page 3D (three/R3F) lives in `src/components/custom/studio-3d.tsx`, loaded only via `React.lazy` behind `<ClientOnly>`; sandbox rules/estimates stay in `src/lib/custom.ts` so they are testable and SSR-safe.
-- Lamp assembly uses optional independent base/shade fields and shared centimetre layout helpers for saved-design compatibility; printed-shell closures seal solid bases while preserving thick shade openings.
+- Lamp assembly uses optional independent base/shade fields and shared centimetre layout helpers for saved-design compatibility; printed-shell closures seal bases and use small fitting apertures on stack/pendant end plates, with hardware shown independently of lighting state so previews remain assembled when switched off.
 - Customer brief uploads go to the private `custom-briefs` bucket (anon insert under `briefs/`, admin-only read via signed URLs) so customer files are never public.
 - Photo-to-3D object mode calls the AI gateway only from the `analyzeObjectPhoto` server function, which returns simple primitive parts validated by `photoObjectSchema` in `src/lib/custom.ts`, so the key stays server-side and the browser just renders parts.
 - Customer accounts live under `src/routes/_authenticated/account*` (sign-in at `/signin`, admin sign-in stays at `/auth`); order status/tab rules live in `src/lib/account.ts` so they stay testable.

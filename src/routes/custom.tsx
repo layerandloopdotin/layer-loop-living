@@ -551,7 +551,7 @@ function Sandbox({ design: d, setDesign, rates, note, actions }: { design: Desig
           <Three><StudioModel design={d} lampPart={lampPart} assemblyView={assemblyView} onPoints={(points) => editingBase ? updateBase({ points }) : set({ points })} active={d.form === "stack" ? selIdx : undefined}
             onModulePoints={(i, points) => set({ modules: d.modules.map((m, k) => (k === i ? { ...m, points } : m)) })} /></Three>
           <button type="button" onClick={shuffle} className="absolute right-4 top-4 inline-flex items-center gap-1.5 rounded-full bg-ink/70 px-3 py-1.5 text-xs font-semibold backdrop-blur transition-transform hover:rotate-3 hover:scale-105"><Shuffle className="h-3.5 w-3.5" /> Surprise me</button>
-          {d.form === "table-lamp" && <Button size="sm" variant="outline" aria-pressed={assemblyView} onClick={() => setAssemblyView(!assemblyView)} className="absolute bottom-12 left-4 border-ink-line bg-ink/90 text-ink-foreground">{assemblyView ? c.lampAssembledLabel : c.lampAssemblyLabel}</Button>}
+          {form.light && <Button size="sm" variant="outline" aria-pressed={assemblyView} onClick={() => setAssemblyView(!assemblyView)} className="absolute bottom-12 left-4 border-ink-line bg-ink/90 text-ink-foreground">{assemblyView ? c.lampAssembledLabel : c.lampAssemblyLabel}</Button>}
           <span className="absolute left-4 top-4 h-6 w-6 rounded-full border border-ink-line" style={{ background: d.color }} title={d.color} />
           <p className="pointer-events-none absolute bottom-4 left-4 text-[10px] uppercase tracking-widest text-ink-muted">Drag to spin · scroll to zoom{(d.form !== "stack" ? d.points.length : d.modules[selIdx]?.points?.length) ? " · drag dots to shape" : ""}</p>
         </div>

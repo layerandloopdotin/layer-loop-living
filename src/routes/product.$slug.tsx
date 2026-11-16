@@ -2,6 +2,10 @@ import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-ro
 import { useRef, useState, type PointerEvent } from "react";
 import { Check, CreditCard, Heart, Landmark, Link2, MapPin, Minus, Plus, Share2, ShieldCheck, Smartphone, Truck, Wallet } from "lucide-react";
 import { toast } from "sonner";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { ratingSummary, reviewImg, type Review } from "@/lib/reviews";
+import { Stars } from "@/components/account/review-dialog";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import type { Product } from "@/lib/catalog";
 import { Page } from "@/components/site";
@@ -61,6 +65,40 @@ function VariantPeek({ src, name, x, gridTop, gridBottom }: { src: string; name:
 }
 
 
+
+function useReviews(slug: string) {
+  return useQuery({ queryKey: ["reviews", slug], queryFn: async () => {
+    const { data, error } = await supabase.from("reviews").select("id, product_slug, author_name, rating, comment, images, created_at").eq("product_slug", slug).eq("status", "approved").order("created_at", { ascending: false });
+    if (error) throw error; return data as Review[];
+  } });
+}
+
+function RatingLine({ slug }: { slug: string }) {
+  const q = useReviews(slug);
+  const s = ratingSummary(q.data ?? []);
+  if (!s.count) return null;
+  return <a href="#reviews" className="mt-3 inline-flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground"><Stars value={Math.round(s.average)} size="h-3.5 w-3.5" /> {s.average} · {s.count} review{s.count > 1 ? "s" : ""}</a>;
+}
+
+function ReviewsSection({ slug }: { slug: string }) {
+  const q = useReviews(slug);
+  const s = ratingSummary(q.data ?? []);
+  if (!s.count) return null;
+  return (
+    <section id="reviews" className="mx-auto max-w-7xl scroll-mt-20 px-6 pb-20">
+      <div className="flex items-baseline gap-3"><h2 className="font-display text-xl font-semibold">Reviews</h2><span className="text-sm text-muted-foreground">{s.average} / 5 · {s.count}</span></div>
+      <ul className="mt-6 grid gap-6 md:grid-cols-2">
+        {q.data!.slice(0, 6).map((r) => (
+          <li key={r.id} className="border-t border-border pt-4">
+            <div className="flex items-center gap-3"><Stars value={r.rating} size="h-3.5 w-3.5" /><span className="text-xs text-muted-foreground">{r.author_name || "Customer"} · {new Date(r.created_at).toLocaleDateString("en-IN", { month: "short", year: "numeric" })}</span></div>
+            {r.comment && <p className="mt-2 text-sm text-muted-foreground">{r.comment}</p>}
+            {r.images.length > 0 && <div className="mt-3 flex gap-2">{r.images.map((im) => <a key={im} href={reviewImg(im)} target="_blank" rel="noreferrer"><img src={reviewImg(im)} alt="Customer photo" loading="lazy" className="h-16 w-16 rounded-lg object-cover" /></a>)}</div>}
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
 
 function ShareMenu({ name }: { name: string }) {
   const url = () => window.location.href;
@@ -170,6 +208,7 @@ function ProductDetail() {
           <p className="text-xs font-bold uppercase tracking-widest text-primary">{p.categories.join(" · ")}</p>
           <h1 className="mt-3 font-display text-5xl font-bold">{p.name}</h1>
           <p className="mt-2 text-muted-foreground">{p.note}</p>
+          <RatingLine slug={slug} />
           <div className="mt-4"><ShareMenu name={p.name} /></div>
           <p className="mt-5 max-w-md">{p.short}</p>
 
@@ -276,6 +315,7 @@ function ProductDetail() {
           <Link to="/products" className="mt-10 inline-flex text-sm font-semibold underline-offset-4 hover:underline">{c.backLabel}</Link>
         </div>
       </section>
+      <ReviewsSection slug={slug} />
       <BoughtTogether key={slug} p={p} title={c.fbtLabel} others={[...site.products.filter((x) => x.slug !== p.slug && x.categories.some((k) => p.categories.includes(k))), ...site.products.filter((x) => x.slug !== p.slug && !x.categories.some((k) => p.categories.includes(k)))].slice(0, 2)} />
     </Page>
   );

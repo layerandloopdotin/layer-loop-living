@@ -72,7 +72,7 @@ function buildLathe(d: Design, shape: ShapeId, hCm: number, wCm: number, points:
   for (let j = 0; j < RINGS; j++)
     for (let i = 0; i < SEG; i++) {
       const a = j * (SEG + 1) + i, b = a + SEG + 1;
-      idx.push(a, a + 1, b, b, a + 1, b + 1);
+      idx.push(a, b, a + 1, b, b + 1, a + 1);
     }
   const g = new THREE.BufferGeometry();
   g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
@@ -203,8 +203,8 @@ function Piece({ d, spin, onPoints, active, onModulePoints, setDragging, lampPar
           const isBase = d.form === "table-lamp" && !isMain;
           return (
             <group key={i} position={[0, offsets[i] ?? 0, 0]}>
-              <Part d={d} shape={p.shape} h={p.height} w={p.width} color={p.color ?? (isBase ? shade(d.color, -0.25) : d.color)}
-                points={isMain ? d.points : p.points ?? []} taper={isMain ? d.taper : p.taper ?? 0} lit={lit && !isBase && litModule(i)} glow={glow} solid={isBase} translucent={table && !isBase && assemblyView} />
+              {!(table && !isBase && assemblyView) && <Part d={d} shape={p.shape} h={p.height} w={p.width} color={p.color ?? (isBase ? shade(d.color, -0.25) : d.color)}
+                points={isMain ? d.points : p.points ?? []} taper={isMain ? d.taper : p.taper ?? 0} lit={lit && !isBase && litModule(i)} glow={glow} solid={isBase} />}
             </group>
           );
         })}

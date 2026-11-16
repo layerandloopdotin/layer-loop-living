@@ -1,6 +1,6 @@
 import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
 import { useRef, useState, type PointerEvent } from "react";
-import { Check, CreditCard, Heart, Landmark, Link2, MapPin, Minus, Plus, Share2, ShieldCheck, Smartphone, Truck, Wallet } from "lucide-react";
+import { Check, CreditCard, Heart, Landmark, Link2, MapPin, Minus, Plus, Share2, ShieldCheck, Smartphone, Truck, Wallet, Banknote } from "lucide-react";
 import { toast } from "sonner";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -45,6 +45,7 @@ const payIcon = (label: string) => {
   if (l.includes("upi")) return Smartphone;
   if (l.includes("bank")) return Landmark;
   if (l.includes("wallet")) return Wallet;
+  if (l.includes("cash") || l.includes("cod")) return Banknote;
   return CreditCard;
 };
 
@@ -120,13 +121,14 @@ function ShareMenu({ name }: { name: string }) {
     <div className="flex items-center gap-2">
       <Popover>
         <PopoverTrigger asChild>
-          <button type="button" onClick={(e) => { if (typeof navigator !== "undefined" && "share" in navigator) { e.preventDefault(); native(); } }} className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs hover:border-foreground"><Share2 className="h-3.5 w-3.5" /> Share</button>
+          <button type="button" className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs hover:border-foreground"><Share2 className="h-3.5 w-3.5" /> Share</button>
         </PopoverTrigger>
         <PopoverContent align="start" className="w-44 p-1">
+          {typeof navigator !== "undefined" && "share" in navigator && <button type="button" onClick={native} className="block w-full rounded-md px-3 py-2 text-left text-sm hover:bg-muted">Share via apps…</button>}
+          <button type="button" onClick={copy} className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm hover:bg-muted"><Link2 className="h-3.5 w-3.5" /> Copy link</button>
           {typeof window !== "undefined" && links().map((l) => <a key={l.label} href={l.href} target="_blank" rel="noreferrer" className="block rounded-md px-3 py-2 text-sm hover:bg-muted">{l.label}</a>)}
         </PopoverContent>
       </Popover>
-      <button type="button" onClick={copy} className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs hover:border-foreground"><Link2 className="h-3.5 w-3.5" /> Copy link</button>
     </div>
   );
 }
@@ -288,7 +290,7 @@ function ProductDetail() {
           <div className="mt-6">
             <p className="text-xs uppercase tracking-widest text-muted-foreground">{c.paymentsLabel}</p>
             <div className="mt-3 flex flex-wrap gap-2">
-              {c.payments.map((label) => { const Icon = payIcon(label); return (
+              {(c.payments.some((x) => /cash|cod/i.test(x)) ? c.payments : [...c.payments, "Cash on delivery (COD)"]).map((label) => { const Icon = payIcon(label); return (
                 <span key={label} className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs"><Icon className="h-3.5 w-3.5" />{label}</span>
               ); })}
             </div>

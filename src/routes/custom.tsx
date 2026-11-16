@@ -537,7 +537,6 @@ function Sandbox({ design: d, setDesign, rates, note, sendLabel, onSend, actions
               <p className="text-[10px] uppercase tracking-widest opacity-60">Live estimate</p>
               <p className="font-display text-2xl font-bold tabular-nums">{formatPrice(spec.low)} – {formatPrice(spec.high)}</p>
             </div>
-            <button type="button" onClick={onSend} className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-transform hover:scale-[1.03]">{sendLabel} <ArrowRight className="h-4 w-4" /></button>
           </div>
           <dl className="mt-3 grid grid-cols-4 gap-2 text-xs">
             <div><dt className="opacity-60">Size</dt><dd className="font-semibold tabular-nums">{spec.totalHeight}×{spec.width} cm</dd></div>

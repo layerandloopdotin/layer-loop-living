@@ -26,6 +26,9 @@ export const getAdminLogin = createServerFn({ method: "GET" })
     return { username: user?.email?.split("@")[0] ?? null };
   });
 
+/** Only the shop owner's own account may reset the separate admin login. */
+const OWNER_EMAIL = "swapnilrathoreswapnil@gmail.com";
+
 export const setAdminLogin = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => adminLoginSchema.parse(input))
@@ -33,6 +36,8 @@ export const setAdminLogin = createServerFn({ method: "POST" })
     await assertAdmin(context.supabase as never, context.userId);
     const { supabaseAdmin, user } = await findLoginAccount();
     if (!user) throw new Error("No separate admin login exists");
+    const caller = (await supabaseAdmin.auth.admin.getUserById(context.userId)).data.user;
+    if (caller?.email?.toLowerCase() !== OWNER_EMAIL) throw new Error("Only the owner account can change the admin login");
     const { error } = await supabaseAdmin.auth.admin.updateUserById(user.id, {
       email: toAdminEmail(data.username), email_confirm: true, password: toAdminPassword(data.password),
     });

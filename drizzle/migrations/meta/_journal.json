@@ -78,6 +78,13 @@
       "when": 1794835039788,
       "tag": "0010_order_confirmation",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1794836506243,
+      "tag": "0011_custom_request_deposit",
+      "breakpoints": true
     }
   ]
 }

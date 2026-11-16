@@ -481,8 +481,10 @@ function Sandbox({ design: d, setDesign, rates, note, actions }: { design: Desig
               <Slider label="Base taper" value={base.taper ?? 0} min={-0.7} max={0.7} step={0.01} onChange={(taper) => updateBase({ taper })} show={(base.taper ?? 0).toFixed(2)} />
               {base.shape !== "box" && base.shape !== "donut" && <PointsEditor pts={base.points ?? []} onChange={(points) => updateBase({ points })} />}
               <p className="text-xs uppercase tracking-widest text-ink-muted">{c.lampLegsLabel}</p>
+              <Button variant="outline" size="sm" className="border-ink-line bg-transparent text-ink-foreground" onClick={() => set({ base: "sphere", lampBase: { shape: "sphere", height: 3, width: 5, color: "#252523", points: [], taper: 0 }, legs: "tripod", legStyle: "tapered", legHeight: 9, legSpread: 3, stemHeight: 2 })}>Reference tripod base</Button>
               <div className="flex flex-wrap gap-2">{(["none", "tripod", "four"] as const).map((legs) => <Button key={legs} size="sm" variant="outline" aria-pressed={(d.legs ?? "none") === legs} onClick={() => set({ legs })} className={(d.legs ?? "none") === legs ? "border-primary bg-primary text-primary-foreground" : "border-ink-line bg-transparent text-ink-foreground"}>{legs === "none" ? "No legs" : legs === "tripod" ? "Tripod" : "Four legs"}</Button>)}</div>
               {d.legs && d.legs !== "none" && <>
+                <label className="flex items-center gap-2 text-xs text-ink-muted"><input type="checkbox" checked={d.legStyle === "tapered"} onChange={(e) => set({ legStyle: e.target.checked ? "tapered" : "round" })} className="accent-primary" />Tapered flat legs</label>
                 <Slider label="Leg height" value={d.legHeight ?? 5} min={3} max={12} step={1} onChange={(legHeight) => set({ legHeight })} show={`${d.legHeight ?? 5} cm`} />
                 <Slider label="Leg spread" value={d.legSpread ?? 3} min={1} max={8} step={1} onChange={(legSpread) => set({ legSpread })} show={`${d.legSpread ?? 3} cm`} />
               </>}

@@ -51,6 +51,7 @@ export type Design = {
   legSpread?: number; // cm beyond the base radius
   stemHeight?: number; // cm between base and shade
   shadeShape?: ShapeId;
+  legStyle?: "round" | "tapered";
   color: string; // hex
   light: boolean;
   warm: boolean;

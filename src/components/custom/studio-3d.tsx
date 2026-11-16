@@ -164,6 +164,12 @@ function Rod({ from, to, radius = 0.04, color = "#343432" }: { from: [number, nu
   return <mesh position={start.add(end).multiplyScalar(0.5)} quaternion={quaternion} castShadow><cylinderGeometry args={[radius, radius, delta.length(), 24]} /><meshStandardMaterial color={color} roughness={0.3} metalness={0.65} /></mesh>;
 }
 
+function TaperedLeg({ from, to }: { from: [number, number, number]; to: [number, number, number] }) {
+  const start = new THREE.Vector3(...from), end = new THREE.Vector3(...to), delta = end.clone().sub(start);
+  const rotation = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), delta.clone().normalize());
+  return <mesh position={start.add(end).multiplyScalar(0.5)} quaternion={rotation} castShadow><cylinderGeometry args={[0.065, 0.13, delta.length(), 4]} /><meshStandardMaterial color="#252523" metalness={0.15} roughness={0.55} /></mesh>;
+}
+
 function E27({ y, lit, glow, down = false }: { y: number; lit: boolean; glow: string; down?: boolean }) {
   return <group position={[0, y, 0]} rotation={down ? [Math.PI, 0, 0] : [0, 0, 0]}>
     <mesh position={[0, 0.17, 0]} castShadow><cylinderGeometry args={[0.17, 0.17, 0.34, 40]} /><meshStandardMaterial color="#343432" roughness={0.45} /></mesh>
@@ -214,6 +220,7 @@ function Piece({ d, spin, onPoints, active, onModulePoints, setDragging, lampPar
             {d.legs && d.legs !== "none" && Array.from({ length: d.legs === "tripod" ? 3 : 4 }, (_, i) => {
               const angle = i * Math.PI * 2 / (d.legs === "tripod" ? 3 : 4) + Math.PI / 6;
               const inner = base.width / 20 * 0.65, outer = base.width / 20 + (d.legSpread ?? 3) / 10;
+              if (d.legStyle === "tapered") return <TaperedLeg key={i} from={[Math.cos(angle) * inner, assembly.feetHeight / 10 + 0.15, Math.sin(angle) * inner]} to={[Math.cos(angle) * outer, 0.06, Math.sin(angle) * outer]} />;
               return <group key={i}><Rod from={[Math.cos(angle) * inner, assembly.feetHeight / 10 + 0.15, Math.sin(angle) * inner]} to={[Math.cos(angle) * outer, 0.06, Math.sin(angle) * outer]} radius={0.055} /><mesh position={[Math.cos(angle) * outer, 0.04, Math.sin(angle) * outer]}><cylinderGeometry args={[0.085, 0.085, 0.08, 24]} /><meshStandardMaterial color="#20201e" roughness={0.9} /></mesh></group>;
             })}
             <Rod from={[0, assembly.feetHeight / 10 + 0.1, -base.width / 20 * 0.6]} to={[0, 0.06, -base.width / 20 - 0.35]} radius={0.025} color="#20201e" />

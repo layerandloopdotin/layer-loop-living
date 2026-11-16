@@ -54,7 +54,7 @@ function Login() {
 
   const sendOtp = (e: React.FormEvent) => { e.preventDefault(); run(async () => {
     const v = phoneSchema.safeParse(phone);
-    if (!v.success) throw new Error(v.error.issues[0].message);
+    if (!v.success) throw new Error(v.error.issues[0]?.message);
     const { error } = await supabase.auth.signInWithOtp({ phone: toE164(phone) });
     if (error) throw new Error(/provider|sms|phone/i.test(error.message) ? "Mobile OTP isn't switched on yet — please use Google, Apple or email for now." : error.message);
     setOtpSent(true); toast.success("Code sent to +91 " + phone);

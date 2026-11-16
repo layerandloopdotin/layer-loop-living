@@ -29,12 +29,12 @@ function Addresses() {
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
     const v = addressSchema.safeParse(Object.fromEntries(KEYS.map((k) => [k, fieldValue(fd, k)])));
-    if (!v.success) return toast.error(v.error.issues[0].message);
+    if (!v.success) { toast.error(v.error.issues[0]?.message); return; }
     const first = (q.data?.length ?? 0) === 0;
     const { error } = editing && editing !== "new"
       ? await supabase.from("addresses").update(v.data).eq("id", editing.id)
       : await supabase.from("addresses").insert({ ...v.data, is_default: first });
-    if (error) return toast.error("Couldn't save address");
+    if (error) { toast.error("Couldn't save address"); return; }
     setEditing(null); refresh(); toast.success("Address saved");
   };
 

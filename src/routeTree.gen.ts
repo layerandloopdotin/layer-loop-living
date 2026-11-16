@@ -31,6 +31,7 @@ import { Route as AuthenticatedAccountAddressesRouteImport } from './routes/_aut
 import { Route as AuthenticatedAccountPaymentsRouteImport } from './routes/_authenticated/account.payments'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as AuthenticatedAdminInboxRouteImport } from './routes/_authenticated/admin.inbox'
+import { Route as AuthenticatedAdminOrdersRouteImport } from './routes/_authenticated/admin.orders'
 import { Route as AuthenticatedAdminTaxonomyRouteImport } from './routes/_authenticated/admin.taxonomy'
 import { Route as AuthenticatedAccountOrdersIndexRouteImport } from './routes/_authenticated/account.orders.index'
 import { Route as AuthenticatedAccountOrdersIdRouteImport } from './routes/_authenticated/account.orders.$id'
@@ -151,6 +152,12 @@ const AuthenticatedAdminInboxRoute = AuthenticatedAdminInboxRouteImport.update({
   path: '/inbox',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
+const AuthenticatedAdminOrdersRoute =
+  AuthenticatedAdminOrdersRouteImport.update({
+    id: '/orders',
+    path: '/orders',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminTaxonomyRoute =
   AuthenticatedAdminTaxonomyRouteImport.update({
     id: '/taxonomy',
@@ -213,6 +220,7 @@ export interface FileRoutesByFullPath {
   '/account/addresses': typeof AuthenticatedAccountAddressesRoute
   '/account/payments': typeof AuthenticatedAccountPaymentsRoute
   '/admin/inbox': typeof AuthenticatedAdminInboxRoute
+  '/admin/orders': typeof AuthenticatedAdminOrdersRoute
   '/admin/taxonomy': typeof AuthenticatedAdminTaxonomyRoute
   '/account/': typeof AuthenticatedAccountIndexRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
@@ -241,6 +249,7 @@ export interface FileRoutesByTo {
   '/account/addresses': typeof AuthenticatedAccountAddressesRoute
   '/account/payments': typeof AuthenticatedAccountPaymentsRoute
   '/admin/inbox': typeof AuthenticatedAdminInboxRoute
+  '/admin/orders': typeof AuthenticatedAdminOrdersRoute
   '/admin/taxonomy': typeof AuthenticatedAdminTaxonomyRoute
   '/account': typeof AuthenticatedAccountIndexRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
@@ -273,6 +282,7 @@ export interface FileRoutesById {
   '/_authenticated/account/addresses': typeof AuthenticatedAccountAddressesRoute
   '/_authenticated/account/payments': typeof AuthenticatedAccountPaymentsRoute
   '/_authenticated/admin/inbox': typeof AuthenticatedAdminInboxRoute
+  '/_authenticated/admin/orders': typeof AuthenticatedAdminOrdersRoute
   '/_authenticated/admin/taxonomy': typeof AuthenticatedAdminTaxonomyRoute
   '/_authenticated/account/': typeof AuthenticatedAccountIndexRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
@@ -305,6 +315,7 @@ export interface FileRouteTypes {
     | '/account/addresses'
     | '/account/payments'
     | '/admin/inbox'
+    | '/admin/orders'
     | '/admin/taxonomy'
     | '/account/'
     | '/admin/'
@@ -333,6 +344,7 @@ export interface FileRouteTypes {
     | '/account/addresses'
     | '/account/payments'
     | '/admin/inbox'
+    | '/admin/orders'
     | '/admin/taxonomy'
     | '/account'
     | '/admin'
@@ -364,6 +376,7 @@ export interface FileRouteTypes {
     | '/_authenticated/account/addresses'
     | '/_authenticated/account/payments'
     | '/_authenticated/admin/inbox'
+    | '/_authenticated/admin/orders'
     | '/_authenticated/admin/taxonomy'
     | '/_authenticated/account/'
     | '/_authenticated/admin/'
@@ -550,6 +563,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminInboxRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/orders': {
+      id: '/_authenticated/admin/orders'
+      path: '/orders'
+      fullPath: '/admin/orders'
+      preLoaderRoute: typeof AuthenticatedAdminOrdersRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/taxonomy': {
       id: '/_authenticated/admin/taxonomy'
       path: '/taxonomy'
@@ -623,6 +643,7 @@ const AuthenticatedAccountRouteWithChildren =
 
 interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminInboxRoute: typeof AuthenticatedAdminInboxRoute
+  AuthenticatedAdminOrdersRoute: typeof AuthenticatedAdminOrdersRoute
   AuthenticatedAdminTaxonomyRoute: typeof AuthenticatedAdminTaxonomyRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
   AuthenticatedAdminContentKeyRoute: typeof AuthenticatedAdminContentKeyRoute
@@ -632,6 +653,7 @@ interface AuthenticatedAdminRouteChildren {
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminInboxRoute: AuthenticatedAdminInboxRoute,
+  AuthenticatedAdminOrdersRoute: AuthenticatedAdminOrdersRoute,
   AuthenticatedAdminTaxonomyRoute: AuthenticatedAdminTaxonomyRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
   AuthenticatedAdminContentKeyRoute: AuthenticatedAdminContentKeyRoute,

@@ -32,7 +32,7 @@ function Profile() {
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
     const v = profileSchema.safeParse({ full_name: fieldValue(fd, "full_name"), phone: fieldValue(fd, "phone"), gender: fieldValue(fd, "gender") });
-    if (!v.success) return toast.error(v.error.issues[0].message);
+    if (!v.success) { toast.error(v.error.issues[0]?.message); return; }
     setBusy(true);
     try { await save({ ...v.data, gender: v.data.gender || null }); toast.success("Profile saved"); }
     catch { toast.error("Couldn't save your profile"); } finally { setBusy(false); }
@@ -40,11 +40,11 @@ function Profile() {
 
   const upload = async (f: File | undefined) => {
     if (!f) return;
-    if (!/^image\/(png|jpe?g|webp)$/.test(f.type)) return toast.error("Use a JPG, PNG or WebP image");
-    if (f.size > 5 * 1024 * 1024) return toast.error("Image must be under 5 MB");
+    if (!/^image\/(png|jpe?g|webp)$/.test(f.type)) { toast.error("Use a JPG, PNG or WebP image"); return; }
+    if (f.size > 5 * 1024 * 1024) { toast.error("Image must be under 5 MB"); return; }
     const path = `${user.id}/avatar-${Date.now()}.${f.type.split("/")[1]}`;
     const { error } = await supabase.storage.from("avatars").upload(path, f, { contentType: f.type });
-    if (error) return toast.error("Upload failed");
+    if (error) { toast.error("Upload failed"); return; }
     await save({ avatar: `avatars:${path}` });
     toast.success("Photo updated");
   };

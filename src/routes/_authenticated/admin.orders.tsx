@@ -34,7 +34,7 @@ function AdminOrders() {
       status: fieldValue(fd, "status"), courier: fieldValue(fd, "courier") || null, awb: fieldValue(fd, "awb") || null,
       invoice_url: fieldValue(fd, "invoice_url") || null, note: fieldValue(fd, "note") || null,
     }).eq("id", id);
-    if (error) return toast.error("Couldn't update order");
+    if (error) { toast.error("Couldn't update order"); return; }
     toast.success("Order updated"); refresh();
   };
 
@@ -44,11 +44,11 @@ function AdminOrders() {
     const p = site.bySlug(fieldValue(fd, "product"));
     const qty = Math.max(1, Number(fieldValue(fd, "qty")) || 1);
     const user_id = fieldValue(fd, "customer");
-    if (!p || !user_id) return toast.error("Pick a customer and a product");
+    if (!p || !user_id) { toast.error("Pick a customer and a product"); return; }
     const items: OrderItem[] = [{ slug: p.slug, name: p.name, qty, price: p.price, image: p.image }];
     const subtotal = p.price * qty;
     const { error } = await supabase.from("orders").insert({ user_id, items, subtotal, total: subtotal, payment_label: fieldValue(fd, "payment") || null });
-    if (error) return toast.error("Couldn't create order");
+    if (error) { toast.error("Couldn't create order"); return; }
     setCreating(false); refresh(); toast.success("Order created");
   };
 

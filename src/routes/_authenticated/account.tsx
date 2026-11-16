@@ -59,7 +59,7 @@ function AccountLayout() {
           <Link to="/account/orders" className={item} activeProps={active}><Package className="h-4 w-4" /> My orders</Link>
           <Link to="/account/designs" className={item} activeProps={active}><Boxes className="h-4 w-4" /> My designs</Link>
           <Link to="/account/reviews" className={item} activeProps={active}><Star className="h-4 w-4" /> Reviews</Link>
-          <Link to="/wishlist" className={item}><Heart className="h-4 w-4" /> Wishlist</Link>
+          <Link to="/account/wishlist" className={item} activeProps={active}><Heart className="h-4 w-4" /> Wishlist</Link>
           <Link to="/account/addresses" className={item} activeProps={active}><MapPin className="h-4 w-4" /> Addresses</Link>
           <Link to="/account/payments" className={item} activeProps={active}><CreditCard className="h-4 w-4" /> Payments</Link>
           <button onClick={signOut} className={item}><LogOut className="h-4 w-4" /> Logout</button>

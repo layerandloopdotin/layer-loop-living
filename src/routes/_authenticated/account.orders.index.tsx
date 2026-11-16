@@ -5,6 +5,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { formatPrice } from "@/lib/currency";
+import { useSite, waHref } from "@/lib/site";
 import { inTab, ORDER_TABS, statusChip, STATUS_LABEL, type OrderItem, type OrderTab } from "@/lib/account";
 
 export const Route = createFileRoute("/_authenticated/account/orders/")({ component: Orders });
@@ -50,9 +51,10 @@ const REQ_LABEL: Record<string, string> = { requested: "Awaiting quote", quoted:
 
 function CustomRequests() {
   const qc = useQueryClient();
+  const site = useSite();
   const navigate = useNavigate();
   const q = useQuery({ queryKey: ["my-requests"], queryFn: async () => {
-    const { data, error } = await supabase.from("custom_requests").select("id, summary, estimate_low, estimate_high, quote, quote_note, status, created_at").order("created_at", { ascending: false });
+    const { data, error } = await supabase.from("custom_requests").select("id, summary, estimate_low, estimate_high, quote, quote_note, status, created_at, deposit_amount, deposit_status").order("created_at", { ascending: false });
     if (error) throw error; return data;
   } });
   const accept = async (id: string) => {
@@ -76,10 +78,18 @@ function CustomRequests() {
             </div>
             <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{r.summary}</p>
             <p className="mt-2 text-xs">Estimate {formatPrice(Number(r.estimate_low))} – {formatPrice(Number(r.estimate_high))}</p>
+            {r.status === "requested" && (r.deposit_status === "paid"
+              ? <p className="mt-2 text-xs">Advance of {formatPrice(Number(r.deposit_amount))} received — the studio is preparing your final price.</p>
+              : <div className="mt-3 rounded-lg bg-card p-3 text-xs">
+                  <p className="font-semibold">Pay 20% advance: {formatPrice(Number(r.deposit_amount))}</p>
+                  <p className="mt-1 text-muted-foreground">We price your design once the advance is in. It's adjusted in your final bill.</p>
+                  <a href={waHref(String(site.content("settings").whatsapp ?? ""), `Hi, I'd like to pay the ${formatPrice(Number(r.deposit_amount))} advance for my custom design request ${r.id.slice(0, 8).toUpperCase()}.`)} target="_blank" rel="noreferrer" className="mt-3 inline-flex rounded-full bg-primary px-5 py-2 font-semibold text-primary-foreground">Pay advance</a>
+                </div>)}
             {r.quote != null && <div className="mt-3 rounded-lg bg-card p-3">
-              <p className="font-semibold">Your price: {formatPrice(Number(r.quote))}</p>
+              <p className="font-semibold">Final quoted price: {formatPrice(Number(r.quote))}</p>
+              {Number(r.deposit_amount) > 0 && r.deposit_status === "paid" && <p className="text-xs text-muted-foreground">Advance paid {formatPrice(Number(r.deposit_amount))} · balance {formatPrice(Math.max(0, Number(r.quote) - Number(r.deposit_amount)))}</p>}
               {r.quote_note && <p className="mt-1 text-xs text-muted-foreground">{r.quote_note}</p>}
-              {r.status === "quoted" && <button onClick={() => accept(r.id)} className="mt-3 rounded-full bg-primary px-5 py-2 text-xs font-semibold text-primary-foreground">Accept quote & confirm order</button>}
+              {r.status === "quoted" && <button onClick={() => accept(r.id)} className="mt-3 rounded-full bg-primary px-5 py-2 text-xs font-semibold text-primary-foreground">Approve & get it made</button>}
             </div>}
           </li>
         ))}

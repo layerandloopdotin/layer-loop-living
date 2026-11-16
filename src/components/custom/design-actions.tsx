@@ -7,7 +7,8 @@ import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { fieldValue, phoneSchema } from "@/lib/account";
 import type { Design, Rates } from "@/lib/custom";
-import { estimate } from "@/lib/custom";
+import { depositFor, estimate } from "@/lib/custom";
+import { formatPrice } from "@/lib/currency";
 import { notifyNewRequest } from "@/lib/notify.functions";
 
 /** Captures the sandbox's 3D view as a small JPEG for the saved-design card. */
@@ -32,6 +33,8 @@ export function DesignActions({ design, rates, summary, loadedId }: { design: De
   const [asking, setAsking] = useState(false);
   const [sent, setSent] = useState(false);
   const uid = user.data?.id;
+  const est = estimate(design, rates);
+  const dep = depositFor(est.low, est.high);
 
   const save = async () => {
     if (!uid) { toast("Sign in to save designs to your profile", { action: { label: "Sign in", onClick: () => navigate({ to: "/signin" }) } }); return; }
@@ -63,13 +66,23 @@ export function DesignActions({ design, rates, summary, loadedId }: { design: De
     if (!phoneSchema.safeParse(phone).success) { toast.error("Enter a valid 10-digit mobile number"); return; }
     const pin = fieldValue(fd, "pin");
     if (!/^[1-9]\d{5}$/.test(pin)) { toast.error("Enter a 6-digit PIN code"); return; }
+    if (!uid) return;
     const s = estimate(design, rates);
     const id = crypto.randomUUID();
+    let thumbnail: string | null = null;
+    const blob = await snapshot();
+    if (blob) {
+      const path = `${uid}/${crypto.randomUUID()}.jpg`;
+      const up = await supabase.storage.from("design-thumbs").upload(path, blob, { contentType: "image/jpeg" });
+      if (!up.error) thumbnail = path;
+    }
+    if (!loadedId) await supabase.from("saved_designs").insert({ name: `Requested design ${new Date().toLocaleDateString("en-IN")}`, design: design as never, ...(thumbnail ? { thumbnail } : {}) });
     const { error } = await supabase.from("custom_requests").insert({
-      id, user_id: uid ?? null, design: design as never, summary, estimate_low: s.low, estimate_high: s.high,
+      id, user_id: uid, thumbnail, design: design as never, summary, estimate_low: s.low, estimate_high: s.high,
       contact: { name: fieldValue(fd, "name"), phone, email: fieldValue(fd, "email"), note: fieldValue(fd, "note"), address: { name: fieldValue(fd, "name"), phone, pin } },
     });
     if (error) { toast.error("Couldn't send your request"); return; }
+    qc.invalidateQueries({ queryKey: ["my-designs"] }); qc.invalidateQueries({ queryKey: ["my-requests"] });
     notifyNewRequest({ data: { kind: "custom", id } }).catch(() => {});
     setSent(true);
   };
@@ -77,24 +90,26 @@ export function DesignActions({ design, rates, summary, loadedId }: { design: De
   return (
     <>
       <div className="mt-3 flex flex-wrap gap-2">
-        <button type="button" onClick={() => { setSent(false); setAsking(true); }} className="inline-flex flex-1 items-center justify-center gap-2 rounded-full bg-ink px-4 py-2.5 text-sm font-semibold text-ink-foreground"><Send className="h-4 w-4" /> Request this design</button>
+        <button type="button" onClick={() => {
+          if (!uid) { toast("Sign in to request this design", { action: { label: "Sign in", onClick: () => navigate({ to: "/signin" }) } }); return; }
+          setSent(false); setAsking(true); }} className="inline-flex flex-1 items-center justify-center gap-2 rounded-full bg-ink px-4 py-2.5 text-sm font-semibold text-ink-foreground"><Send className="h-4 w-4" /> Request this design</button>
         <button type="button" disabled={saving} onClick={save} className="inline-flex items-center justify-center gap-2 rounded-full border border-ink/30 px-4 py-2.5 text-sm font-semibold disabled:opacity-60"><Bookmark className="h-4 w-4" /> {saving ? "Saving…" : "Save design"}</button>
       </div>
       <Dialog open={asking} onOpenChange={setAsking}>
         <DialogContent className="max-w-md">
           <DialogTitle className="font-display">{sent ? "Request sent" : "Request this design"}</DialogTitle>
           {sent ? <div className="space-y-3 text-sm">
-            <p>Thanks! Our studio will review your design and send an exact price{uid ? " to your account" : " on WhatsApp or email"} shortly.</p>
-            {uid && <Link to="/account/orders" className="inline-flex rounded-full bg-primary px-5 py-2.5 font-semibold text-primary-foreground">See my requests</Link>}
+            <p>Your design is saved. Pay the 20% advance of <b>{formatPrice(dep)}</b> from your account — once it's received, our studio sends your exact final price there.</p>
+            <Link to="/account/orders" className="inline-flex rounded-full bg-primary px-5 py-2.5 font-semibold text-primary-foreground">Pay advance & track</Link>
           </div> : (
             <form onSubmit={request} className="space-y-3">
-              <p className="text-xs text-muted-foreground">We'll check printability and send you the exact price. Nothing is charged now.</p>
+              <p className="text-xs text-muted-foreground">To keep our studio queue for serious makers, we ask a 20% advance of the estimate — <b>{formatPrice(dep)}</b> — before we work out your exact price. It's adjusted in your final bill.</p>
               <input name="name" required placeholder="Your name" className="w-full rounded-md border border-border bg-background px-3 py-2.5 text-sm" />
               <input name="phone" required inputMode="numeric" maxLength={10} placeholder="Mobile number" className="w-full rounded-md border border-border bg-background px-3 py-2.5 text-sm" />
               <input name="email" type="email" defaultValue={user.data?.email ?? ""} placeholder="Email (optional)" className="w-full rounded-md border border-border bg-background px-3 py-2.5 text-sm" />
               <input name="pin" required inputMode="numeric" maxLength={6} placeholder="Delivery PIN code" className="w-full rounded-md border border-border bg-background px-3 py-2.5 text-sm" />
               <textarea name="note" rows={2} placeholder="Anything else? (optional)" className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm" />
-              <button className="w-full rounded-full bg-primary py-3 text-sm font-semibold text-primary-foreground">Send request</button>
+              <button className="w-full rounded-full bg-primary py-3 text-sm font-semibold text-primary-foreground">Request exact price</button>
             </form>
           )}
         </DialogContent>

@@ -95,7 +95,7 @@ const catalog = {
   returnPolicy: "Returns: eligible items can be returned within 2 days of delivery, unused and in original packaging.\n\nReplacements: items damaged in transit or with a manufacturing defect are replaced free. Record an unboxing video and report within 48 hours of delivery.\n\nMade-to-order, personalised and custom-colour pieces are not returnable.",
   fbtLabel: "Frequently bought together",
   paymentsLabel: "Payment options",
-  payments: ["Credit card", "Debit card", "UPI", "Net banking", "Wallets"],
+  payments: ["Credit card", "Debit card", "UPI", "Net banking", "Wallets", "Cash on delivery (COD)"],
   backLabel: "← Back to All Objects",
 };
 

@@ -186,6 +186,8 @@ export type Database = {
         Row: {
           contact: Json
           created_at: string
+          deposit_amount: number
+          deposit_status: string
           design: Json
           estimate_high: number
           estimate_low: number
@@ -194,12 +196,15 @@ export type Database = {
           quote_note: string | null
           status: string
           summary: string
+          thumbnail: string | null
           updated_at: string
           user_id: string | null
         }
         Insert: {
           contact?: Json
           created_at?: string
+          deposit_amount?: number
+          deposit_status?: string
           design: Json
           estimate_high?: number
           estimate_low?: number
@@ -208,12 +213,15 @@ export type Database = {
           quote_note?: string | null
           status?: string
           summary?: string
+          thumbnail?: string | null
           updated_at?: string
           user_id?: string | null
         }
         Update: {
           contact?: Json
           created_at?: string
+          deposit_amount?: number
+          deposit_status?: string
           design?: Json
           estimate_high?: number
           estimate_low?: number
@@ -222,6 +230,7 @@ export type Database = {
           quote_note?: string | null
           status?: string
           summary?: string
+          thumbnail?: string | null
           updated_at?: string
           user_id?: string | null
         }

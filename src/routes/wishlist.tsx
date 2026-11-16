@@ -21,13 +21,20 @@ export const Route = createFileRoute("/wishlist")({
 });
 
 function Wishlist() {
+  return (
+    <Page>
+      <DarkHero eyebrow="Wishlist" title="Saved for later" />
+      <section className="mx-auto max-w-7xl px-6 py-16"><WishlistGrid /></section>
+    </Page>
+  );
+}
+
+export function WishlistGrid() {
   const { wishlist } = useShop();
   const site = useSite();
   const items = site.products.filter((p) => wishlist.includes(p.slug));
   return (
-    <Page>
-      <DarkHero eyebrow="Wishlist" title="Saved for later" />
-      <section className="mx-auto max-w-7xl px-6 py-16">
+    <>
         {items.length === 0 ? (
           <div className="py-12 text-center">
             <p className="text-muted-foreground">Nothing saved yet — tap the smiley on any object.</p>
@@ -53,7 +60,6 @@ function Wishlist() {
             })}
           </div>
         )}
-      </section>
-    </Page>
+    </>
   );
 }

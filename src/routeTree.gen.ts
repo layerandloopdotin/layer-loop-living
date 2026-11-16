@@ -33,6 +33,7 @@ import { Route as AuthenticatedAccountAddressesRouteImport } from './routes/_aut
 import { Route as AuthenticatedAccountDesignsRouteImport } from './routes/_authenticated/account.designs'
 import { Route as AuthenticatedAccountPaymentsRouteImport } from './routes/_authenticated/account.payments'
 import { Route as AuthenticatedAccountReviewsRouteImport } from './routes/_authenticated/account.reviews'
+import { Route as AuthenticatedAccountWishlistRouteImport } from './routes/_authenticated/account.wishlist'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as AuthenticatedAdminAlertsRouteImport } from './routes/_authenticated/admin.alerts'
 import { Route as AuthenticatedAdminCouponsRouteImport } from './routes/_authenticated/admin.coupons'
@@ -173,6 +174,12 @@ const AuthenticatedAccountReviewsRoute =
     path: '/reviews',
     getParentRoute: () => AuthenticatedAccountRoute,
   } as any)
+const AuthenticatedAccountWishlistRoute =
+  AuthenticatedAccountWishlistRouteImport.update({
+    id: '/wishlist',
+    path: '/wishlist',
+    getParentRoute: () => AuthenticatedAccountRoute,
+  } as any)
 const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -284,6 +291,7 @@ export interface FileRoutesByFullPath {
   '/account/designs': typeof AuthenticatedAccountDesignsRoute
   '/account/payments': typeof AuthenticatedAccountPaymentsRoute
   '/account/reviews': typeof AuthenticatedAccountReviewsRoute
+  '/account/wishlist': typeof AuthenticatedAccountWishlistRoute
   '/admin/alerts': typeof AuthenticatedAdminAlertsRoute
   '/admin/coupons': typeof AuthenticatedAdminCouponsRoute
   '/admin/custom': typeof AuthenticatedAdminCustomRoute
@@ -322,6 +330,7 @@ export interface FileRoutesByTo {
   '/account/designs': typeof AuthenticatedAccountDesignsRoute
   '/account/payments': typeof AuthenticatedAccountPaymentsRoute
   '/account/reviews': typeof AuthenticatedAccountReviewsRoute
+  '/account/wishlist': typeof AuthenticatedAccountWishlistRoute
   '/admin/alerts': typeof AuthenticatedAdminAlertsRoute
   '/admin/coupons': typeof AuthenticatedAdminCouponsRoute
   '/admin/custom': typeof AuthenticatedAdminCustomRoute
@@ -364,6 +373,7 @@ export interface FileRoutesById {
   '/_authenticated/account/designs': typeof AuthenticatedAccountDesignsRoute
   '/_authenticated/account/payments': typeof AuthenticatedAccountPaymentsRoute
   '/_authenticated/account/reviews': typeof AuthenticatedAccountReviewsRoute
+  '/_authenticated/account/wishlist': typeof AuthenticatedAccountWishlistRoute
   '/_authenticated/admin/alerts': typeof AuthenticatedAdminAlertsRoute
   '/_authenticated/admin/coupons': typeof AuthenticatedAdminCouponsRoute
   '/_authenticated/admin/custom': typeof AuthenticatedAdminCustomRoute
@@ -406,6 +416,7 @@ export interface FileRouteTypes {
     | '/account/designs'
     | '/account/payments'
     | '/account/reviews'
+    | '/account/wishlist'
     | '/admin/alerts'
     | '/admin/coupons'
     | '/admin/custom'
@@ -444,6 +455,7 @@ export interface FileRouteTypes {
     | '/account/designs'
     | '/account/payments'
     | '/account/reviews'
+    | '/account/wishlist'
     | '/admin/alerts'
     | '/admin/coupons'
     | '/admin/custom'
@@ -485,6 +497,7 @@ export interface FileRouteTypes {
     | '/_authenticated/account/designs'
     | '/_authenticated/account/payments'
     | '/_authenticated/account/reviews'
+    | '/_authenticated/account/wishlist'
     | '/_authenticated/admin/alerts'
     | '/_authenticated/admin/coupons'
     | '/_authenticated/admin/custom'
@@ -695,6 +708,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAccountReviewsRouteImport
       parentRoute: typeof AuthenticatedAccountRoute
     }
+    '/_authenticated/account/wishlist': {
+      id: '/_authenticated/account/wishlist'
+      path: '/wishlist'
+      fullPath: '/account/wishlist'
+      preLoaderRoute: typeof AuthenticatedAccountWishlistRouteImport
+      parentRoute: typeof AuthenticatedAccountRoute
+    }
     '/_authenticated/admin/': {
       id: '/_authenticated/admin/'
       path: '/'
@@ -808,6 +828,7 @@ interface AuthenticatedAccountRouteChildren {
   AuthenticatedAccountDesignsRoute: typeof AuthenticatedAccountDesignsRoute
   AuthenticatedAccountPaymentsRoute: typeof AuthenticatedAccountPaymentsRoute
   AuthenticatedAccountReviewsRoute: typeof AuthenticatedAccountReviewsRoute
+  AuthenticatedAccountWishlistRoute: typeof AuthenticatedAccountWishlistRoute
   AuthenticatedAccountIndexRoute: typeof AuthenticatedAccountIndexRoute
   AuthenticatedAccountOrdersIdRoute: typeof AuthenticatedAccountOrdersIdRoute
   AuthenticatedAccountOrdersIndexRoute: typeof AuthenticatedAccountOrdersIndexRoute
@@ -818,6 +839,7 @@ const AuthenticatedAccountRouteChildren: AuthenticatedAccountRouteChildren = {
   AuthenticatedAccountDesignsRoute: AuthenticatedAccountDesignsRoute,
   AuthenticatedAccountPaymentsRoute: AuthenticatedAccountPaymentsRoute,
   AuthenticatedAccountReviewsRoute: AuthenticatedAccountReviewsRoute,
+  AuthenticatedAccountWishlistRoute: AuthenticatedAccountWishlistRoute,
   AuthenticatedAccountIndexRoute: AuthenticatedAccountIndexRoute,
   AuthenticatedAccountOrdersIdRoute: AuthenticatedAccountOrdersIdRoute,
   AuthenticatedAccountOrdersIndexRoute: AuthenticatedAccountOrdersIndexRoute,

@@ -62,8 +62,8 @@ function buildLathe(d: Design, shape: ShapeId, hCm: number, wCm: number, points:
       const a = (i / SEG) * Math.PI * 2;
       const rib = d.layers ? Math.cos(d.layers * a + twist * t) * 0.035 : 0;
       const hrib = d.hRibs ? Math.cos(d.hRibs * Math.PI * 2 * t) * 0.03 : 0;
-      const fuzz = inset ? 0 : (hash(i, j) - 0.5) * d.fuzzy * 0.09;
-      const layerLine = Math.sin(t * RINGS * Math.PI) * 0.004;
+      const fuzz = inset ? 0 : (hash(i % SEG, j) - 0.5) * d.fuzzy * 0.008;
+      const layerLine = Math.sin(t * RINGS * Math.PI) * 0.0006;
       const r = Math.max(0.05, base * (1 + rib + hrib + fuzz + layerLine) - inset);
       pos.push(Math.cos(a) * r, t * h, Math.sin(a) * r);
     }
@@ -72,7 +72,7 @@ function buildLathe(d: Design, shape: ShapeId, hCm: number, wCm: number, points:
   for (let j = 0; j < RINGS; j++)
     for (let i = 0; i < SEG; i++) {
       const a = j * (SEG + 1) + i, b = a + SEG + 1;
-      idx.push(a, b, a + 1, b, b + 1, a + 1);
+      idx.push(a, a + 1, b, b, a + 1, b + 1);
     }
   const g = new THREE.BufferGeometry();
   g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));

@@ -455,9 +455,9 @@ function Sandbox({ design: d, setDesign, rates, note, actions }: { design: Desig
     color: STUDIO_PALETTE[Math.floor(Math.random() * STUDIO_PALETTE.length)]?.hex ?? d.color,
   });
   return (
-    <div className="mt-10 grid gap-6 md:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] lg:gap-8">
+    <div className="mt-10 grid grid-cols-[minmax(0,1fr)] gap-6 md:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] lg:gap-8">
       {/* Controls */}
-      <div className="order-2 flex flex-col rounded-2xl border border-ink-line md:order-1 md:h-[640px]">
+      <div className="order-2 flex min-w-0 flex-col rounded-2xl border border-ink-line md:order-1 md:h-[640px]">
         <div className="flex flex-wrap gap-2 border-b border-ink-line p-4">
           {FORMS.map((f) => (
             <Chip key={f.id} on={d.form === f.id} onClick={() => set({ form: f.id, light: f.light ? d.light : false, waterproof: f.water ? d.waterproof : false })}>{f.label}</Chip>
@@ -544,7 +544,7 @@ function Sandbox({ design: d, setDesign, rates, note, actions }: { design: Desig
       </div>
 
       {/* Model + estimate */}
-      <div className="order-1 space-y-4 md:sticky md:top-24 md:order-2 md:self-start">
+      <div className="order-1 min-w-0 space-y-4 md:sticky md:top-24 md:order-2 md:self-start">
         <div className="relative h-[420px] overflow-hidden rounded-2xl bg-ink-soft md:h-[470px]">
           <Three><StudioModel design={d} lampPart={lampPart} assemblyView={assemblyView} onPoints={(points) => editingBase ? updateBase({ points }) : set({ points })} active={d.form === "stack" ? selIdx : undefined}
             onModulePoints={(i, points) => set({ modules: d.modules.map((m, k) => (k === i ? { ...m, points } : m)) })} /></Three>

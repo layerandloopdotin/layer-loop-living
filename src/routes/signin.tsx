@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { fieldValue, phoneSchema, toE164 } from "@/lib/account";
 
-export const Route = createFileRoute("/account/login")({
+export const Route = createFileRoute("/signin")({
   head: () => ({
     meta: [
       { title: "Sign in — Layer & Loop" },
@@ -48,7 +48,7 @@ function Login() {
   };
 
   const social = (p: "google" | "apple") => run(async () => {
-    const r = await lovable.auth.signInWithOAuth(p, { redirect_uri: window.location.origin + "/account/login" });
+    const r = await lovable.auth.signInWithOAuth(p, { redirect_uri: window.location.origin + "/signin" });
     if (r.error) throw new Error(r.error.message ?? "Sign in failed");
   });
 

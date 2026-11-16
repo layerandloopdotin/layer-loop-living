@@ -23,6 +23,7 @@ import { Route as TermsRouteImport } from './routes/terms'
 import { Route as TradeRouteImport } from './routes/trade'
 import { Route as WishlistRouteImport } from './routes/wishlist'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as AccountLoginRouteImport } from './routes/account.login'
 import { Route as ProductSlugRouteImport } from './routes/product.$slug'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as AuthenticatedAdminInboxRouteImport } from './routes/_authenticated/admin.inbox'
@@ -101,6 +102,11 @@ const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AccountLoginRoute = AccountLoginRouteImport.update({
+  id: '/account/login',
+  path: '/account/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProductSlugRoute = ProductSlugRouteImport.update({
   id: '/product/$slug',
   path: '/product/$slug',
@@ -160,6 +166,7 @@ export interface FileRoutesByFullPath {
   '/trade': typeof TradeRoute
   '/wishlist': typeof WishlistRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
+  '/account/login': typeof AccountLoginRoute
   '/product/$slug': typeof ProductSlugRoute
   '/admin/inbox': typeof AuthenticatedAdminInboxRoute
   '/admin/taxonomy': typeof AuthenticatedAdminTaxonomyRoute
@@ -182,6 +189,7 @@ export interface FileRoutesByTo {
   '/terms': typeof TermsRoute
   '/trade': typeof TradeRoute
   '/wishlist': typeof WishlistRoute
+  '/account/login': typeof AccountLoginRoute
   '/product/$slug': typeof ProductSlugRoute
   '/admin/inbox': typeof AuthenticatedAdminInboxRoute
   '/admin/taxonomy': typeof AuthenticatedAdminTaxonomyRoute
@@ -207,6 +215,7 @@ export interface FileRoutesById {
   '/trade': typeof TradeRoute
   '/wishlist': typeof WishlistRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
+  '/account/login': typeof AccountLoginRoute
   '/product/$slug': typeof ProductSlugRoute
   '/_authenticated/admin/inbox': typeof AuthenticatedAdminInboxRoute
   '/_authenticated/admin/taxonomy': typeof AuthenticatedAdminTaxonomyRoute
@@ -232,6 +241,7 @@ export interface FileRouteTypes {
     | '/trade'
     | '/wishlist'
     | '/admin'
+    | '/account/login'
     | '/product/$slug'
     | '/admin/inbox'
     | '/admin/taxonomy'
@@ -254,6 +264,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/trade'
     | '/wishlist'
+    | '/account/login'
     | '/product/$slug'
     | '/admin/inbox'
     | '/admin/taxonomy'
@@ -278,6 +289,7 @@ export interface FileRouteTypes {
     | '/trade'
     | '/wishlist'
     | '/_authenticated/admin'
+    | '/account/login'
     | '/product/$slug'
     | '/_authenticated/admin/inbox'
     | '/_authenticated/admin/taxonomy'
@@ -302,6 +314,7 @@ export interface RootRouteChildren {
   TermsRoute: typeof TermsRoute
   TradeRoute: typeof TradeRoute
   WishlistRoute: typeof WishlistRoute
+  AccountLoginRoute: typeof AccountLoginRoute
   ProductSlugRoute: typeof ProductSlugRoute
   ApiPublicMediaSplatRoute: typeof ApiPublicMediaSplatRoute
 }
@@ -405,6 +418,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin'
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/account/login': {
+      id: '/account/login'
+      path: '/account/login'
+      fullPath: '/account/login'
+      preLoaderRoute: typeof AccountLoginRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/product/$slug': {
       id: '/product/$slug'
@@ -511,6 +531,7 @@ const rootRouteChildren: RootRouteChildren = {
   TermsRoute: TermsRoute,
   TradeRoute: TradeRoute,
   WishlistRoute: WishlistRoute,
+  AccountLoginRoute: AccountLoginRoute,
   ProductSlugRoute: ProductSlugRoute,
   ApiPublicMediaSplatRoute: ApiPublicMediaSplatRoute,
 }

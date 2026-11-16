@@ -1,6 +1,12 @@
 # Roadmap
-- [ ] Customer accounts: login (OTP/Google/Apple/email/guest), profile, avatars, addresses, payments
-- [ ] My Orders + order detail (timeline, invoice, Shiprocket tracking) + admin orders
-- [ ] Product page: 7-day -> 2-day returns, return & replacement policy below care
-- [ ] Product page: frequently bought together, native share, copy link
-- [ ] Checkout: "Pay now" redirect page after checkout
+- [x] Customer accounts: login (OTP/Google/Apple/email/guest), profile, avatars, addresses, payments
+- [x] My Orders + order detail (timeline, invoice, Shiprocket tracking) + admin orders
+- [x] Product page: 7-day -> 2-day returns, return & replacement policy below care
+- [x] Product page: frequently bought together, native share, copy link
+- [x] Checkout: "Pay now" redirect page after checkout
+- [ ] Admin dashboard: revenue, orders, analytics, new-orders list
+- [ ] New-order alerts: admin bell (live), email, WhatsApp
+- [ ] Custom page: Request this design + admin quotes + accept quote
+- [ ] Saved designs in profile (no export)
+- [ ] Coupons managed in admin; only live coupons accepted
+- [ ] Reviews: write from account, subtle display on product, admin moderation

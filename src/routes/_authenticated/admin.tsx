@@ -2,7 +2,7 @@ import { createFileRoute, Link, Outlet, useNavigate } from "@tanstack/react-rout
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { toast } from "sonner";
-import { ExternalLink, FileText, Inbox, LayoutDashboard, Loader2, LogOut, Package, ShoppingCart, Bell, Sparkles, TicketPercent, MessageSquareQuote, Settings, Tags } from "lucide-react";
+import { ExternalLink, FileText, Inbox, LayoutDashboard, Loader2, LogOut, Package, ShoppingCart, Bell, Sparkles, TicketPercent, MessageSquareQuote, Settings, KeyRound, Tags } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { sections, type ContentKey } from "@/lib/cms-schema";
 
@@ -73,6 +73,7 @@ function AdminLayout() {
           <AlertsLink />
           <Link to="/admin/inbox" className={item} activeProps={active}><Inbox className="h-4 w-4" /> Inbox</Link>
           <Link to="/admin/content/$key" params={{ key: "settings" }} className={item} activeProps={active}><Settings className="h-4 w-4" /> Site settings</Link>
+          <Link to="/admin/login" className={item} activeProps={active}><KeyRound className="h-4 w-4" /> Admin login</Link>
         </nav>
         <p className="mt-6 px-3 text-[10px] font-bold uppercase tracking-widest text-ink-muted">Pages</p>
         <nav className="mt-2 space-y-0.5">

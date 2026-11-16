@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Eye, EyeOff } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { toAdminEmail, toAdminPassword } from "@/lib/admin-login";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
@@ -19,9 +20,8 @@ export const Route = createFileRoute("/auth")({
   component: AuthPage,
 });
 
-const ADMIN_EMAIL = "admin@layerandloop.in";
-const toPassword = (p: string) => `${p}::layerandloop-cms`;
-const toEmail = (u: string) => (u.trim().toLowerCase() === "admin" ? ADMIN_EMAIL : u.trim());
+const toPassword = toAdminPassword;
+const toEmail = toAdminEmail;
 const field = "mt-2 w-full rounded-md border border-border bg-background px-3 py-2.5 text-sm";
 
 function AuthPage() {

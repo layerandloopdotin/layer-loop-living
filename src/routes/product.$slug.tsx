@@ -1,6 +1,9 @@
 import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
 import { useRef, useState, type PointerEvent } from "react";
-import { Check, CreditCard, Heart, Landmark, MapPin, Minus, Plus, ShieldCheck, Smartphone, Truck, Wallet } from "lucide-react";
+import { Check, CreditCard, Heart, Landmark, Link2, MapPin, Minus, Plus, Share2, ShieldCheck, Smartphone, Truck, Wallet } from "lucide-react";
+import { toast } from "sonner";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import type { Product } from "@/lib/catalog";
 import { Page } from "@/components/site";
 import { ProductGallery } from "@/components/product-gallery";
 import { galleryFor, unitPrice, type Variant } from "@/lib/catalog";
@@ -59,6 +62,76 @@ function VariantPeek({ src, name, x, gridTop, gridBottom }: { src: string; name:
 
 
 
+function ShareMenu({ name }: { name: string }) {
+  const url = () => window.location.href;
+  const copy = async () => {
+    try { await navigator.clipboard.writeText(url()); toast.success("Link copied"); } catch { toast.error("Couldn't copy the link"); }
+  };
+  const native = async () => {
+    try { await navigator.share({ title: name, text: `${name} — Layer & Loop`, url: url() }); } catch { /* dismissed */ }
+  };
+  const enc = (v: string) => encodeURIComponent(v);
+  const links = () => [
+    { label: "WhatsApp", href: `https://wa.me/?text=${enc(`${name} — ${url()}`)}` },
+    { label: "Facebook", href: `https://www.facebook.com/sharer/sharer.php?u=${enc(url())}` },
+    { label: "X", href: `https://twitter.com/intent/tweet?text=${enc(name)}&url=${enc(url())}` },
+    { label: "Pinterest", href: `https://pinterest.com/pin/create/button/?url=${enc(url())}&description=${enc(name)}` },
+    { label: "Email", href: `mailto:?subject=${enc(name)}&body=${enc(url())}` },
+  ];
+  return (
+    <div className="flex items-center gap-2">
+      <Popover>
+        <PopoverTrigger asChild>
+          <button type="button" onClick={(e) => { if (typeof navigator !== "undefined" && "share" in navigator) { e.preventDefault(); native(); } }} className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs hover:border-foreground"><Share2 className="h-3.5 w-3.5" /> Share</button>
+        </PopoverTrigger>
+        <PopoverContent align="start" className="w-44 p-1">
+          {typeof window !== "undefined" && links().map((l) => <a key={l.label} href={l.href} target="_blank" rel="noreferrer" className="block rounded-md px-3 py-2 text-sm hover:bg-muted">{l.label}</a>)}
+        </PopoverContent>
+      </Popover>
+      <button type="button" onClick={copy} className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs hover:border-foreground"><Link2 className="h-3.5 w-3.5" /> Copy link</button>
+    </div>
+  );
+}
+
+function BoughtTogether({ p, others, title }: { p: Product; others: Product[]; title: string }) {
+  const [picked, setPicked] = useState<string[]>(others.map((o) => o.slug));
+  const [added, setAdded] = useState(false);
+  if (others.length === 0) return null;
+  const all = [p, ...others];
+  const total = all.filter((x) => x.slug === p.slug || picked.includes(x.slug)).reduce((s, x) => s + x.price, 0);
+  const addAll = () => { shop.add(p.slug, 1); picked.forEach((sl) => shop.add(sl, 1)); setAdded(true); setTimeout(() => setAdded(false), 1800); };
+  return (
+    <section className="mx-auto max-w-7xl px-6 pb-20">
+      <h2 className="font-display text-2xl font-bold">{title}</h2>
+      <div className="mt-6 grid items-center gap-8 lg:grid-cols-[1fr_auto]">
+        <div className="-mx-6 flex items-center gap-3 overflow-x-auto px-6 pb-2">
+          {all.map((x, i) => {
+            const on = x.slug === p.slug || picked.includes(x.slug);
+            return (
+              <div key={x.slug} className="flex shrink-0 items-center gap-3">
+                {i > 0 && <Plus className="h-4 w-4 text-muted-foreground" />}
+                <label className={`block w-40 cursor-pointer rounded-xl border p-2 transition ${on ? "border-foreground" : "border-border opacity-60"}`}>
+                  <div className="relative">
+                    <img src={x.image} alt={x.name} loading="lazy" className="aspect-square w-full rounded-lg object-cover" />
+                    <input type="checkbox" checked={on} disabled={x.slug === p.slug} onChange={() => setPicked((s) => s.includes(x.slug) ? s.filter((v) => v !== x.slug) : [...s, x.slug])} className="absolute left-2 top-2 h-4 w-4 accent-primary" aria-label={`Include ${x.name}`} />
+                  </div>
+                  <p className="mt-2 truncate text-sm font-semibold">{i === 0 ? "This item: " : ""}{x.name}</p>
+                  <p className="text-xs text-muted-foreground">{formatPrice(x.price)}</p>
+                </label>
+              </div>
+            );
+          })}
+        </div>
+        <div className="rounded-xl bg-card p-5 lg:w-64">
+          <p className="text-xs uppercase tracking-widest text-muted-foreground">Total for {1 + picked.length} items</p>
+          <p className="mt-1 font-display text-2xl font-semibold">{formatPrice(total)}</p>
+          <button onClick={addAll} className="mt-4 w-full rounded-full bg-primary py-3 text-sm font-semibold text-primary-foreground">{added ? "Added to cart" : "Add all to cart"}</button>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function ProductDetail() {
   const { slug } = Route.useParams();
   const site = useSite();
@@ -97,6 +170,7 @@ function ProductDetail() {
           <p className="text-xs font-bold uppercase tracking-widest text-primary">{p.categories.join(" · ")}</p>
           <h1 className="mt-3 font-display text-5xl font-bold">{p.name}</h1>
           <p className="mt-2 text-muted-foreground">{p.note}</p>
+          <div className="mt-4"><ShareMenu name={p.name} /></div>
           <p className="mt-5 max-w-md">{p.short}</p>
 
           <p className="mt-8 font-display text-3xl font-semibold">{formatPrice(unitPrice(p, variant))}{p.compareAt && p.compareAt > p.price && <s className="ml-3 text-lg font-normal text-muted-foreground">{formatPrice(p.compareAt)}</s>}</p>
@@ -192,11 +266,17 @@ function ProductDetail() {
                 {p.care.map(({ label, value }) => (<div key={label}><dt className="font-medium">{label}</dt><dd className="text-muted-foreground">{value}</dd></div>))}
               </dl>
             </details>
+            <details className="group py-4">
+              <summary className="cursor-pointer list-none font-display font-semibold">{c.returnPolicyLabel}</summary>
+              <p className="mt-3 whitespace-pre-line text-sm leading-relaxed text-muted-foreground">{c.returnPolicy}</p>
+              <Link to="/returns" className="mt-3 inline-flex text-xs underline">Read the full policy</Link>
+            </details>
           </div>
 
           <Link to="/products" className="mt-10 inline-flex text-sm font-semibold underline-offset-4 hover:underline">{c.backLabel}</Link>
         </div>
       </section>
+      <BoughtTogether key={slug} p={p} title={c.fbtLabel} others={[...site.products.filter((x) => x.slug !== p.slug && x.categories.some((k) => p.categories.includes(k))), ...site.products.filter((x) => x.slug !== p.slug && !x.categories.some((k) => p.categories.includes(k)))].slice(0, 2)} />
     </Page>
   );
 }

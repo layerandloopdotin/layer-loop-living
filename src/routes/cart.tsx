@@ -2,7 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { unitPrice } from "@/lib/catalog";
 import { Minus, Plus, Tag, X } from "lucide-react";
 import { useState } from "react";
-import { applyCoupon, cartTotals, FREE_SHIPPING_FROM } from "@/lib/pricing";
+import { cartTotals, FREE_SHIPPING_FROM } from "@/lib/pricing";
+import { checkCoupon } from "@/lib/coupons";
 import { DarkHero, Page } from "@/components/site";
 import { useSite } from "@/lib/site";
 import { formatPrice } from "@/lib/currency";
@@ -33,8 +34,9 @@ function Cart() {
   const total = lines.reduce((s, l) => s + unitPrice(l.p, l.variant) * l.qty, 0);
   const [code, setCode] = useState("");
   const [coupon, setCoupon] = useState<string>();
+  const [discount, setDiscount] = useState(0);
   const [msg, setMsg] = useState("");
-  const t = cartTotals(total, coupon);
+  const t = cartTotals(total, discount);
 
   return (
     <Page>
@@ -68,14 +70,14 @@ function Cart() {
             </ul>
             <aside className="h-fit rounded-2xl bg-card p-7 md:sticky md:top-24">
               <p className="font-display text-lg font-semibold">Order summary</p>
-              <form onSubmit={(e) => { e.preventDefault(); const r = applyCoupon(code, total); if (r.ok) { setCoupon(r.code); setMsg(r.label + " applied."); setCode(""); } else setMsg(r.message); }} className="mt-5">
+              <form onSubmit={(e) => { e.preventDefault(); checkCoupon(code, total).then((r) => { if (r.ok) { setCoupon(r.code); setDiscount(r.discount); setMsg(r.label + " applied."); setCode(""); } else setMsg(r.message); }); }} className="mt-5">
                 <label className="text-xs uppercase tracking-widest text-muted-foreground" htmlFor="coupon">Coupon code</label>
                 <div className="mt-2 flex gap-2">
                   <input id="coupon" value={code} onChange={(e) => setCode(e.target.value)} placeholder="e.g. WELCOME10" className="min-w-0 flex-1 rounded-md border border-border bg-background px-3 py-2 text-sm uppercase" />
                   <button className="rounded-md border border-foreground px-4 text-sm font-medium">Apply</button>
                 </div>
                 {msg && <p className="mt-2 text-xs text-muted-foreground">{msg}</p>}
-                {coupon && <button type="button" onClick={() => { setCoupon(undefined); setMsg(""); }} className="mt-2 inline-flex items-center gap-1 rounded-full bg-background px-3 py-1 text-xs"><Tag className="h-3 w-3" />{coupon}<X className="h-3 w-3" /></button>}
+                {coupon && <button type="button" onClick={() => { setCoupon(undefined); setDiscount(0); setMsg(""); }} className="mt-2 inline-flex items-center gap-1 rounded-full bg-background px-3 py-1 text-xs"><Tag className="h-3 w-3" />{coupon}<X className="h-3 w-3" /></button>}
               </form>
               <div className="mt-6 space-y-2 border-t border-border pt-5 text-sm">
                 <div className="flex justify-between"><span>Subtotal</span><span>{formatPrice(t.subtotal)}</span></div>

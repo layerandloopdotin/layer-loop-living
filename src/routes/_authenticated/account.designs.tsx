@@ -2,13 +2,17 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { matchesSavedDesign } from "@/lib/account";
+import { myRequestsQuery } from "@/lib/account-requests";
+import { CustomProgress } from "@/components/account/custom-progress";
 
-export const Route = createFileRoute("/_authenticated/account/designs")({ component: Designs });
+export const Route = createFileRoute("/_authenticated/account/designs")({ component: Designs, head: () => ({ meta: [{ title: "My saved designs | Layer & Loop" }, { name: "description", content: "Revisit your saved Layer & Loop designs and track advance-paid requests and final prices." }, { property: "og:title", content: "My saved designs | Layer & Loop" }, { property: "og:description", content: "Your saved designs and studio request progress." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }) });
 
 function Designs() {
   const qc = useQueryClient();
+  const requests = useQuery(myRequestsQuery);
   const q = useQuery({ queryKey: ["my-designs"], queryFn: async () => {
-    const { data, error } = await supabase.from("saved_designs").select("id, name, thumbnail, updated_at").order("updated_at", { ascending: false });
+    const { data, error } = await supabase.from("saved_designs").select("id, name, design, thumbnail, updated_at").order("updated_at", { ascending: false });
     if (error) throw error;
     const paths = data.map((d) => d.thumbnail).filter((t): t is string => !!t);
     const signed = paths.length ? (await supabase.storage.from("design-thumbs").createSignedUrls(paths, 3600)).data ?? [] : [];
@@ -39,6 +43,10 @@ function Designs() {
             <div className="p-4">
               <p className="truncate font-semibold">{d.name}</p>
               <p className="text-xs text-muted-foreground">{new Date(d.updated_at).toLocaleDateString("en-IN", { dateStyle: "medium" })}</p>
+              {(() => {
+                const request = requests.data?.find((r) => r.deposit_status === "paid" && matchesSavedDesign(d, r));
+                return request ? <><CustomProgress request={request} compact /><Link to="/account/orders" className="mt-3 inline-block text-xs underline">View request & quote</Link></> : null;
+              })()}
               <div className="mt-3 flex gap-4 text-xs underline">
                 <Link to="/custom" search={{ design: d.id }} hash="sandbox">Open</Link>
                 <button onClick={() => rename(d.id, d.name)}>Rename</button>

@@ -24,6 +24,7 @@
 - Customer brief uploads go to the private `custom-briefs` bucket (anon insert under `briefs/`, admin-only read via signed URLs) so customer files are never public.
 - Photo-to-3D object mode calls the AI gateway only from the `analyzeObjectPhoto` server function, which returns simple primitive parts validated by `photoObjectSchema` in `src/lib/custom.ts`, so the key stays server-side and the browser just renders parts.
 - Customer accounts live under `src/routes/_authenticated/account*` (sign-in at `/signin`, admin sign-in stays at `/auth`); order status/tab rules live in `src/lib/account.ts` so they stay testable.
+- Custom request progress uses shared account helpers and a polling owner-scoped query; saved requests link via contact.saved_design_id with legacy snapshot matching so edits do not lose progress.
 - Orders are created only by admins or the `accept_custom_quote` database function, never directly by customers, so prices can't be tampered with.
 - Coupons are validated only by the `check_coupon` database function; `evaluateCoupon` in `src/lib/pricing.ts` mirrors it for tests/previews.
 - Review photos are private and served by `/api/public/review-media/*` only for approved reviews.

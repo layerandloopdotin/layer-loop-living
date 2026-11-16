@@ -5,10 +5,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { fieldValue } from "@/lib/account";
 import { formatPrice } from "@/lib/currency";
 import { waHref } from "@/lib/site";
+import { Button } from "@/components/ui/button";
 
-export const Route = createFileRoute("/_authenticated/admin/custom")({ component: CustomOrders });
+export const Route = createFileRoute("/_authenticated/admin/custom")({ component: CustomOrders, head: () => ({ meta: [{ title: "Custom orders administration | Layer & Loop" }, { name: "description", content: "Review advance-paid custom designs and send final quotes." }, { property: "og:title", content: "Custom orders administration | Layer & Loop" }, { property: "og:description", content: "Manage design reviews and customer quotes." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }) });
 
-const STATUS: Record<string, string> = { requested: "Awaiting quote", quoted: "Quoted", accepted: "Accepted", declined: "Declined" };
+const STATUS: Record<string, string> = { requested: "Awaiting review", reviewing: "Studio reviewing", quoted: "Quoted", accepted: "Accepted", declined: "Declined" };
 const input = "mt-1 w-full rounded-md border border-border bg-background px-3 py-2 text-sm";
 type Contact = { name?: string; phone?: string; email?: string; note?: string; address?: { pin?: string } };
 
@@ -34,6 +35,10 @@ function CustomOrders() {
   };
   const depositPaid = async (id: string) => { const { error } = await supabase.from("custom_requests").update({ deposit_status: "paid" }).eq("id", id); if (error) toast.error("Couldn't update"); else { toast.success("Advance marked received"); refresh(); } };
   const decline = async (id: string) => { await supabase.from("custom_requests").update({ status: "declined" }).eq("id", id); refresh(); };
+  const review = async (id: string) => {
+    const { error } = await supabase.from("custom_requests").update({ status: "reviewing" }).eq("id", id).eq("deposit_status", "paid").eq("status", "requested");
+    if (error) toast.error("Couldn't update review status"); else { toast.success("Customer can now see that the studio is reviewing their design"); refresh(); }
+  };
 
   return (
     <div className="max-w-5xl">
@@ -65,7 +70,8 @@ function CustomOrders() {
             </div>
             {c.note && <p className="mt-1 text-xs">Note: {c.note}</p>}
             <p className="mt-2">Estimate {formatPrice(Number(r.estimate_low))} – {formatPrice(Number(r.estimate_high))}{r.quote != null && <> · <b>Quoted {formatPrice(Number(r.quote))}</b></>}</p>
-            {(r.status === "requested" || r.status === "quoted") && (
+            {r.deposit_status === "paid" && r.status === "requested" && <Button type="button" variant="outline" size="sm" className="mt-4" onClick={() => review(r.id)}>Start studio review</Button>}
+            {r.deposit_status === "paid" && ["requested", "reviewing", "quoted"].includes(r.status) && (
               <form onSubmit={(e) => quote(r.id, e)} className="mt-4 grid gap-3 sm:grid-cols-[160px_1fr_auto_auto]">
                 <label className="text-[11px] uppercase tracking-widest text-muted-foreground">Exact price (₹)<input name="quote" type="number" min={1} defaultValue={r.quote ?? Math.round((Number(r.estimate_low) + Number(r.estimate_high)) / 2)} className={input} /></label>
                 <label className="text-[11px] uppercase tracking-widest text-muted-foreground">Note to customer<input name="note" defaultValue={r.quote_note ?? ""} placeholder="e.g. includes warm LED kit, ships in 7 days" className={input} /></label>

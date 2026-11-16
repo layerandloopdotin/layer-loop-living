@@ -274,7 +274,7 @@ export function StudioModel({ design, spin = false, interactive = true, onPoints
       <Canvas shadows dpr={[1, 1.75]} camera={{ position: [dist * 0.45, tall * 0.4, dist * 0.88], fov: 38 }} gl={{ antialias: true, alpha: true, preserveDrawingBuffer: true, toneMapping: THREE.ACESFilmicToneMapping }}>
         <Lights />
         <CameraFit dist={Math.hypot(dist, tall * 0.15)} />
-        <Piece d={design} spin={spin} onPoints={onPoints} active={active} onModulePoints={onModulePoints} setDragging={setDragging} lampPart={lampPart} assemblyView={assemblyView} />
+        <Piece d={design} spin={spin} onPoints={onPoints} active={active} onModulePoints={onModulePoints} setDragging={setDragging} lampPart={lampPart ?? "shade"} assemblyView={assemblyView ?? false} />
         <ContactShadows position={[0, -tall / 2 - 0.01, 0]} opacity={0.5} blur={2.4} scale={8} />
         {interactive && <OrbitControls enabled={!dragging} enablePan={false} minDistance={2.5} maxDistance={24} autoRotate={!dragging && !onPoints} autoRotateSpeed={0.6} />}
       </Canvas>

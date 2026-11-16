@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { ArrowRight, Heart, Menu, MessageCircle, ShoppingBag } from "lucide-react";
+import { ArrowRight, Heart, Menu, MessageCircle, ShoppingBag, User } from "lucide-react";
 import { type ReactNode, useState } from "react";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { formatPrice } from "@/lib/currency";
@@ -32,7 +32,7 @@ export function Logo({ dot = false }: { dot?: boolean }) {
   );
 }
 
-function HeaderIcon({ to, label, count, children }: { to: "/cart" | "/wishlist"; label: string; count: number; children: ReactNode }) {
+function HeaderIcon({ to, label, count, children }: { to: "/cart" | "/wishlist" | "/account"; label: string; count: number; children: ReactNode }) {
   return (
     <Link to={to} aria-label={`${label}${count ? ` (${count})` : ""}`} className="relative inline-flex h-9 w-9 items-center justify-center rounded-full border border-ink-line text-ink-foreground transition-colors hover:border-ink-foreground">
       {children}
@@ -60,6 +60,7 @@ function MobileMenu() {
               activeProps={{ className: "!text-ink-foreground" }}>{n.label}</Link>
           ))}
         </nav>
+        <Link to="/account" onClick={() => setOpen(false)} className="border-b border-ink-line py-4 font-display text-2xl font-bold uppercase text-ink-muted">My account</Link>
         <div className="mt-auto space-y-3 pb-4">
           <Link to="/contactus" onClick={() => setOpen(false)} className="flex items-center justify-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-medium text-primary-foreground">
             {s.contactButton} <ArrowRight className="h-4 w-4" />
@@ -98,6 +99,7 @@ export function SiteHeader() {
           </Link>
           <HeaderIcon to="/wishlist" label="Favourites" count={wishlist.length}><Heart className="h-4 w-4" fill={wishlist.length ? "currentColor" : "none"} /></HeaderIcon>
           <HeaderIcon to="/cart" label="Cart" count={cart.reduce((sum, c) => sum + c.qty, 0)}><ShoppingBag className="h-4 w-4" /></HeaderIcon>
+          <HeaderIcon to="/account" label="My account" count={0}><User className="h-4 w-4" /></HeaderIcon>
           <MobileMenu />
         </div>
       </div>

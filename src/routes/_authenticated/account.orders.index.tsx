@@ -5,6 +5,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { formatPrice } from "@/lib/currency";
+import { useSite, waHref } from "@/lib/site";
 import { inTab, ORDER_TABS, statusChip, STATUS_LABEL, type OrderItem, type OrderTab } from "@/lib/account";
 
 export const Route = createFileRoute("/_authenticated/account/orders/")({ component: Orders });
@@ -50,6 +51,7 @@ const REQ_LABEL: Record<string, string> = { requested: "Awaiting quote", quoted:
 
 function CustomRequests() {
   const qc = useQueryClient();
+  const site = useSite();
   const navigate = useNavigate();
   const q = useQuery({ queryKey: ["my-requests"], queryFn: async () => {
     const { data, error } = await supabase.from("custom_requests").select("id, summary, estimate_low, estimate_high, quote, quote_note, status, created_at, deposit_amount, deposit_status").order("created_at", { ascending: false });

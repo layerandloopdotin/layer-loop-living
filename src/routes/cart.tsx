@@ -87,7 +87,7 @@ function Cart() {
               </div>
               <div className="mt-5 flex justify-between border-t border-border pt-5 font-display text-lg font-semibold"><span>Total</span><span>{formatPrice(t.total)}</span></div>
               <p className="mt-1 text-xs text-muted-foreground">Inclusive of all taxes</p>
-              <Link to="/checkout" search={{ coupon }} className="mt-6 block w-full rounded-full bg-primary py-3.5 text-center text-sm font-semibold text-primary-foreground">Checkout</Link>
+              <Link to="/checkout" search={coupon ? { coupon } : {}} className="mt-6 block w-full rounded-full bg-primary py-3.5 text-center text-sm font-semibold text-primary-foreground">Checkout</Link>
               <p className="mt-3 text-center text-xs text-muted-foreground">Cards, UPI, net banking &amp; wallets</p>
             </aside>
           </div>

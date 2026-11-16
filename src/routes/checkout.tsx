@@ -14,7 +14,7 @@ import { useShop } from "@/lib/shop";
 import { useSite } from "@/lib/site";
 
 export const Route = createFileRoute("/checkout")({
-  validateSearch: (s: Record<string, unknown>) => ({ coupon: typeof s["coupon"] === "string" ? s["coupon"] : undefined }),
+  validateSearch: (s: Record<string, unknown>): { coupon?: string } => (typeof s["coupon"] === "string" ? { coupon: s["coupon"] } : {}),
   head: () => ({
     meta: [
       { title: "Checkout — Layer & Loop" },

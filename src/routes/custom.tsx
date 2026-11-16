@@ -22,7 +22,7 @@ const SketchModel = lazy(() => import("@/components/custom/studio-3d").then((m) 
 const PhotoRelief = lazy(() => import("@/components/custom/studio-3d").then((m) => ({ default: m.PhotoRelief })));
 
 export const Route = createFileRoute("/custom")({
-  validateSearch: (s: Record<string, unknown>) => ({ design: typeof s["design"] === "string" ? s["design"] : undefined }),
+  validateSearch: (s: Record<string, unknown>): { design?: string } => (typeof s["design"] === "string" ? { design: s["design"] } : {}),
   head: () => ({
     meta: [
       { title: "Custom & Bespoke 3D Printing — Layer & Loop" },

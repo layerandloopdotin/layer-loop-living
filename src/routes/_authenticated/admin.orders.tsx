@@ -10,7 +10,7 @@ import { formatPrice } from "@/lib/currency";
 import { useSite } from "@/lib/site";
 
 export const Route = createFileRoute("/_authenticated/admin/orders")({
-  validateSearch: (s: Record<string, unknown>): { q?: string; status?: string } => ({
+  validateSearch: (s: Record<string, unknown>): { q?: string | undefined; status?: string | undefined } => ({
     ...(typeof s["q"] === "string" ? { q: s["q"] } : {}), ...(typeof s["status"] === "string" ? { status: s["status"] } : {}),
   }),
   component: AdminOrders,

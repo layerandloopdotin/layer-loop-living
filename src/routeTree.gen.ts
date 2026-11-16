@@ -34,8 +34,12 @@ import { Route as AuthenticatedAccountDesignsRouteImport } from './routes/_authe
 import { Route as AuthenticatedAccountPaymentsRouteImport } from './routes/_authenticated/account.payments'
 import { Route as AuthenticatedAccountReviewsRouteImport } from './routes/_authenticated/account.reviews'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
+import { Route as AuthenticatedAdminAlertsRouteImport } from './routes/_authenticated/admin.alerts'
+import { Route as AuthenticatedAdminCouponsRouteImport } from './routes/_authenticated/admin.coupons'
+import { Route as AuthenticatedAdminCustomRouteImport } from './routes/_authenticated/admin.custom'
 import { Route as AuthenticatedAdminInboxRouteImport } from './routes/_authenticated/admin.inbox'
 import { Route as AuthenticatedAdminOrdersRouteImport } from './routes/_authenticated/admin.orders'
+import { Route as AuthenticatedAdminReviewsRouteImport } from './routes/_authenticated/admin.reviews'
 import { Route as AuthenticatedAdminTaxonomyRouteImport } from './routes/_authenticated/admin.taxonomy'
 import { Route as AuthenticatedAccountOrdersIndexRouteImport } from './routes/_authenticated/account.orders.index'
 import { Route as AuthenticatedAccountOrdersIdRouteImport } from './routes/_authenticated/account.orders.$id'
@@ -174,6 +178,24 @@ const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
+const AuthenticatedAdminAlertsRoute =
+  AuthenticatedAdminAlertsRouteImport.update({
+    id: '/alerts',
+    path: '/alerts',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminCouponsRoute =
+  AuthenticatedAdminCouponsRouteImport.update({
+    id: '/coupons',
+    path: '/coupons',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminCustomRoute =
+  AuthenticatedAdminCustomRouteImport.update({
+    id: '/custom',
+    path: '/custom',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminInboxRoute = AuthenticatedAdminInboxRouteImport.update({
   id: '/inbox',
   path: '/inbox',
@@ -183,6 +205,12 @@ const AuthenticatedAdminOrdersRoute =
   AuthenticatedAdminOrdersRouteImport.update({
     id: '/orders',
     path: '/orders',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminReviewsRoute =
+  AuthenticatedAdminReviewsRouteImport.update({
+    id: '/reviews',
+    path: '/reviews',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const AuthenticatedAdminTaxonomyRoute =
@@ -256,8 +284,12 @@ export interface FileRoutesByFullPath {
   '/account/designs': typeof AuthenticatedAccountDesignsRoute
   '/account/payments': typeof AuthenticatedAccountPaymentsRoute
   '/account/reviews': typeof AuthenticatedAccountReviewsRoute
+  '/admin/alerts': typeof AuthenticatedAdminAlertsRoute
+  '/admin/coupons': typeof AuthenticatedAdminCouponsRoute
+  '/admin/custom': typeof AuthenticatedAdminCustomRoute
   '/admin/inbox': typeof AuthenticatedAdminInboxRoute
   '/admin/orders': typeof AuthenticatedAdminOrdersRoute
+  '/admin/reviews': typeof AuthenticatedAdminReviewsRoute
   '/admin/taxonomy': typeof AuthenticatedAdminTaxonomyRoute
   '/account/': typeof AuthenticatedAccountIndexRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
@@ -290,8 +322,12 @@ export interface FileRoutesByTo {
   '/account/designs': typeof AuthenticatedAccountDesignsRoute
   '/account/payments': typeof AuthenticatedAccountPaymentsRoute
   '/account/reviews': typeof AuthenticatedAccountReviewsRoute
+  '/admin/alerts': typeof AuthenticatedAdminAlertsRoute
+  '/admin/coupons': typeof AuthenticatedAdminCouponsRoute
+  '/admin/custom': typeof AuthenticatedAdminCustomRoute
   '/admin/inbox': typeof AuthenticatedAdminInboxRoute
   '/admin/orders': typeof AuthenticatedAdminOrdersRoute
+  '/admin/reviews': typeof AuthenticatedAdminReviewsRoute
   '/admin/taxonomy': typeof AuthenticatedAdminTaxonomyRoute
   '/account': typeof AuthenticatedAccountIndexRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
@@ -328,8 +364,12 @@ export interface FileRoutesById {
   '/_authenticated/account/designs': typeof AuthenticatedAccountDesignsRoute
   '/_authenticated/account/payments': typeof AuthenticatedAccountPaymentsRoute
   '/_authenticated/account/reviews': typeof AuthenticatedAccountReviewsRoute
+  '/_authenticated/admin/alerts': typeof AuthenticatedAdminAlertsRoute
+  '/_authenticated/admin/coupons': typeof AuthenticatedAdminCouponsRoute
+  '/_authenticated/admin/custom': typeof AuthenticatedAdminCustomRoute
   '/_authenticated/admin/inbox': typeof AuthenticatedAdminInboxRoute
   '/_authenticated/admin/orders': typeof AuthenticatedAdminOrdersRoute
+  '/_authenticated/admin/reviews': typeof AuthenticatedAdminReviewsRoute
   '/_authenticated/admin/taxonomy': typeof AuthenticatedAdminTaxonomyRoute
   '/_authenticated/account/': typeof AuthenticatedAccountIndexRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
@@ -366,8 +406,12 @@ export interface FileRouteTypes {
     | '/account/designs'
     | '/account/payments'
     | '/account/reviews'
+    | '/admin/alerts'
+    | '/admin/coupons'
+    | '/admin/custom'
     | '/admin/inbox'
     | '/admin/orders'
+    | '/admin/reviews'
     | '/admin/taxonomy'
     | '/account/'
     | '/admin/'
@@ -400,8 +444,12 @@ export interface FileRouteTypes {
     | '/account/designs'
     | '/account/payments'
     | '/account/reviews'
+    | '/admin/alerts'
+    | '/admin/coupons'
+    | '/admin/custom'
     | '/admin/inbox'
     | '/admin/orders'
+    | '/admin/reviews'
     | '/admin/taxonomy'
     | '/account'
     | '/admin'
@@ -437,8 +485,12 @@ export interface FileRouteTypes {
     | '/_authenticated/account/designs'
     | '/_authenticated/account/payments'
     | '/_authenticated/account/reviews'
+    | '/_authenticated/admin/alerts'
+    | '/_authenticated/admin/coupons'
+    | '/_authenticated/admin/custom'
     | '/_authenticated/admin/inbox'
     | '/_authenticated/admin/orders'
+    | '/_authenticated/admin/reviews'
     | '/_authenticated/admin/taxonomy'
     | '/_authenticated/account/'
     | '/_authenticated/admin/'
@@ -650,6 +702,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/alerts': {
+      id: '/_authenticated/admin/alerts'
+      path: '/alerts'
+      fullPath: '/admin/alerts'
+      preLoaderRoute: typeof AuthenticatedAdminAlertsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/coupons': {
+      id: '/_authenticated/admin/coupons'
+      path: '/coupons'
+      fullPath: '/admin/coupons'
+      preLoaderRoute: typeof AuthenticatedAdminCouponsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/custom': {
+      id: '/_authenticated/admin/custom'
+      path: '/custom'
+      fullPath: '/admin/custom'
+      preLoaderRoute: typeof AuthenticatedAdminCustomRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/inbox': {
       id: '/_authenticated/admin/inbox'
       path: '/inbox'
@@ -662,6 +735,13 @@ declare module '@tanstack/react-router' {
       path: '/orders'
       fullPath: '/admin/orders'
       preLoaderRoute: typeof AuthenticatedAdminOrdersRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/reviews': {
+      id: '/_authenticated/admin/reviews'
+      path: '/reviews'
+      fullPath: '/admin/reviews'
+      preLoaderRoute: typeof AuthenticatedAdminReviewsRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/taxonomy': {
@@ -747,8 +827,12 @@ const AuthenticatedAccountRouteWithChildren =
   AuthenticatedAccountRoute._addFileChildren(AuthenticatedAccountRouteChildren)
 
 interface AuthenticatedAdminRouteChildren {
+  AuthenticatedAdminAlertsRoute: typeof AuthenticatedAdminAlertsRoute
+  AuthenticatedAdminCouponsRoute: typeof AuthenticatedAdminCouponsRoute
+  AuthenticatedAdminCustomRoute: typeof AuthenticatedAdminCustomRoute
   AuthenticatedAdminInboxRoute: typeof AuthenticatedAdminInboxRoute
   AuthenticatedAdminOrdersRoute: typeof AuthenticatedAdminOrdersRoute
+  AuthenticatedAdminReviewsRoute: typeof AuthenticatedAdminReviewsRoute
   AuthenticatedAdminTaxonomyRoute: typeof AuthenticatedAdminTaxonomyRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
   AuthenticatedAdminContentKeyRoute: typeof AuthenticatedAdminContentKeyRoute
@@ -757,8 +841,12 @@ interface AuthenticatedAdminRouteChildren {
 }
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
+  AuthenticatedAdminAlertsRoute: AuthenticatedAdminAlertsRoute,
+  AuthenticatedAdminCouponsRoute: AuthenticatedAdminCouponsRoute,
+  AuthenticatedAdminCustomRoute: AuthenticatedAdminCustomRoute,
   AuthenticatedAdminInboxRoute: AuthenticatedAdminInboxRoute,
   AuthenticatedAdminOrdersRoute: AuthenticatedAdminOrdersRoute,
+  AuthenticatedAdminReviewsRoute: AuthenticatedAdminReviewsRoute,
   AuthenticatedAdminTaxonomyRoute: AuthenticatedAdminTaxonomyRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
   AuthenticatedAdminContentKeyRoute: AuthenticatedAdminContentKeyRoute,

@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { Eye, EyeOff } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/auth")({
@@ -29,6 +30,7 @@ function AuthPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
+  const [show, setShow] = useState(false);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => { if (data.user) navigate({ to: "/admin", replace: true }); });
@@ -58,11 +60,15 @@ function AuthPage() {
           <input required value={setup ? "admin" : username} readOnly={!!setup} onChange={(e) => setUsername(e.target.value)} className={field} autoComplete="username" />
         </label>
         <label className="mt-4 block text-xs uppercase tracking-widest text-muted-foreground">Password
-          <input type="password" required minLength={setup ? 10 : 1} value={password} onChange={(e) => setPassword(e.target.value)} className={field} autoComplete={setup ? "new-password" : "current-password"} />
+          <span className="relative block">
+            <input type={show ? "text" : "password"} required minLength={setup ? 10 : 1} value={password} onChange={(e) => setPassword(e.target.value)} className={`${field} pr-10`} autoComplete={setup ? "new-password" : "current-password"} />
+            <button type="button" onClick={() => setShow((v) => !v)} aria-label={show ? "Hide password" : "Show password"} className="absolute right-2 top-1/2 mt-1 -translate-y-1/2 p-1.5 text-muted-foreground hover:text-foreground">{show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}</button>
+          </span>
         </label>
         <button disabled={busy} className="mt-6 w-full rounded-full bg-primary py-3 text-sm font-semibold text-primary-foreground disabled:opacity-60">
           {busy ? "Please wait…" : setup ? "Save & sign in" : "Sign in"}
         </button>
+        <a href="/signin" className="mt-4 block text-center text-xs text-muted-foreground underline">Owner? Sign in with your Google account instead</a>
       </form>
     </div>
   );

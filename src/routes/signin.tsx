@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Mail, Smartphone } from "lucide-react";
+import { Eye, EyeOff, Mail, Smartphone } from "lucide-react";
 import { Page } from "@/components/site";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
@@ -35,6 +35,7 @@ function Login() {
   const [phone, setPhone] = useState("");
   const [otpSent, setOtpSent] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [showPw, setShowPw] = useState(false);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => { if (data.user) navigate({ to: "/account", replace: true }); });
@@ -122,7 +123,7 @@ function Login() {
             <form onSubmit={emailSubmit} className="mt-5 space-y-4">
               {emailMode === "up" && <label className={label}>Name<input name="name" className={input} autoComplete="name" /></label>}
               <label className={label}>Email<input name="email" type="email" required className={input} autoComplete="email" /></label>
-              {emailMode !== "forgot" && <label className={label}>Password<input name="password" type="password" required minLength={emailMode === "up" ? 8 : 1} className={input} autoComplete={emailMode === "up" ? "new-password" : "current-password"} /></label>}
+              {emailMode !== "forgot" && <label className={label}>Password<span className="relative block"><input name="password" type={showPw ? "text" : "password"} required minLength={emailMode === "up" ? 8 : 1} className={`${input} pr-10`} autoComplete={emailMode === "up" ? "new-password" : "current-password"} /><button type="button" onClick={() => setShowPw((v) => !v)} aria-label={showPw ? "Hide password" : "Show password"} className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-muted-foreground hover:text-foreground">{showPw ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}</button></span></label>}
               <button disabled={busy} className="w-full rounded-full bg-primary py-3 text-sm font-semibold text-primary-foreground disabled:opacity-60">
                 {emailMode === "in" ? "Sign in" : emailMode === "up" ? "Create account" : "Send reset link"}
               </button>

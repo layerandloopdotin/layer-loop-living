@@ -263,6 +263,7 @@ export type Database = {
         Row: {
           address: Json | null
           awb: string | null
+          confirmed_at: string | null
           coupon_code: string | null
           courier: string | null
           created_at: string
@@ -284,6 +285,7 @@ export type Database = {
         Insert: {
           address?: Json | null
           awb?: string | null
+          confirmed_at?: string | null
           coupon_code?: string | null
           courier?: string | null
           created_at?: string
@@ -305,6 +307,7 @@ export type Database = {
         Update: {
           address?: Json | null
           awb?: string | null
+          confirmed_at?: string | null
           coupon_code?: string | null
           courier?: string | null
           created_at?: string

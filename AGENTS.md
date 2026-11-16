@@ -29,4 +29,4 @@
 - Review photos are private and served by `/api/public/review-media/*` only for approved reviews.
 - New orders/requests create `admin_notifications` rows via triggers; `notifyNewRequest` sends external alerts once per row within 15 minutes.
 
-- Separate admin username/password login is reset only from /admin/login by a signed-in admin via a server function (service role), with rules in src/lib/admin-login.ts; never seed or hard-code a default password.
+- Separate admin username/password login is reset only from /admin/login by a signed-in admin via a server function (service role), with rules in src/lib/admin-login.ts; strength is advisory (owner decides after a warning); never seed or hard-code a default password.

@@ -1,18 +1,18 @@
 import { describe, expect, it } from "vitest";
-import { adminLoginSchema, toAdminEmail } from "@/lib/admin-login";
+import { adminLoginSchema, passwordStrength, toAdminEmail } from "@/lib/admin-login";
 
 describe("admin login reset", () => {
-  it("rejects the guessable default admin/admin", () => {
-    expect(adminLoginSchema.safeParse({ username: "admin", password: "admin" }).success).toBe(false);
+  it("lets the owner choose any password, even admin/admin", () => {
+    expect(adminLoginSchema.safeParse({ username: "admin", password: "admin" }).success).toBe(true);
   });
-  it("rejects passwords containing 'admin' even when long", () => {
-    expect(adminLoginSchema.safeParse({ username: "studio", password: "admin123456" }).success).toBe(false);
+  it("rates admin/admin as weak", () => {
+    expect(passwordStrength("admin", "admin").level).toBe("weak");
   });
-  it("rejects passwords shorter than 10 characters", () => {
-    expect(adminLoginSchema.safeParse({ username: "studio", password: "Tr4ck9x" }).success).toBe(false);
+  it("rates a long mixed password as strong", () => {
+    expect(passwordStrength("Kiln7-orbit-Mango", "studio").level).toBe("strong");
   });
-  it("accepts a strong password", () => {
-    expect(adminLoginSchema.safeParse({ username: "studio", password: "Kiln7-orbit-Mango" }).success).toBe(true);
+  it("rejects an empty password", () => {
+    expect(adminLoginSchema.safeParse({ username: "admin", password: "" }).success).toBe(false);
   });
   it("maps a bare login ID to the shop domain", () => {
     expect(toAdminEmail("Admin")).toBe("admin@layerandloop.in");

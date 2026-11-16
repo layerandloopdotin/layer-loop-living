@@ -59,3 +59,22 @@ export const statusChip = (status: string) => {
   const t = tabOf(status);
   return t === "live" ? "bg-primary text-primary-foreground" : t === "cancelled" ? "bg-destructive/15 text-destructive" : "bg-muted text-foreground";
 };
+
+export type CustomProgress = "received" | "reviewing" | "quoted" | "accepted" | "declined";
+export function customProgress(request: { deposit_status: string; status: string }): CustomProgress | null {
+  if (request.deposit_status !== "paid") return null;
+  if (["reviewing", "quoted", "accepted", "declined"].includes(request.status)) return request.status as CustomProgress;
+  return "received";
+}
+
+/** Explicit links survive edits; older requests fall back to matching their saved snapshot. */
+export function matchesSavedDesign(saved: { id: string; design: unknown }, request: { contact: unknown; design: unknown }): boolean {
+  const contact = request.contact as { saved_design_id?: string } | null;
+  if (contact?.saved_design_id) return contact.saved_design_id === saved.id;
+  const canonical = (v: unknown): string => {
+    if (Array.isArray(v)) return `[${v.map(canonical).join(",")}]`;
+    if (v && typeof v === "object") return `{${Object.entries(v).sort(([a], [b]) => a.localeCompare(b)).map(([k, value]) => `${JSON.stringify(k)}:${canonical(value)}`).join(",")}}`;
+    return JSON.stringify(v) ?? "null";
+  };
+  return saved.design != null && request.design != null && canonical(saved.design) === canonical(request.design);
+}

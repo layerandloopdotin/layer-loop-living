@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { addressSchema, inTab, phoneSchema, stepIndex, tabOf } from "@/lib/account";
+import { addressSchema, customProgress, matchesSavedDesign, inTab, phoneSchema, stepIndex, tabOf } from "@/lib/account";
 
 describe("order tabs", () => {
   it("production through out-for-delivery is live", () => {
@@ -25,5 +25,28 @@ describe("customer details", () => {
     const base = { label: "Home", name: "A", phone: "9876543210", line1: "12 Road", line2: "", city: "Mumbai", state: "MH" };
     expect(addressSchema.safeParse({ ...base, pin: "400001" }).success).toBe(true);
     expect(addressSchema.safeParse({ ...base, pin: "4000" }).success).toBe(false);
+  });
+});
+
+describe("advance-paid custom progress", () => {
+  it("does not expose progress before the advance is paid, even for a quote", () => {
+    expect(customProgress({ deposit_status: "pending", status: "requested" })).toBeNull();
+    expect(customProgress({ deposit_status: "pending", status: "quoted" })).toBeNull();
+  });
+  it("starts at received once payment is confirmed", () => {
+    expect(customProgress({ deposit_status: "paid", status: "requested" })).toBe("received");
+  });
+  it("reflects the team's review, quote, acceptance and decline", () => {
+    for (const status of ["reviewing", "quoted", "accepted", "declined"] as const) {
+      expect(customProgress({ deposit_status: "paid", status })).toBe(status);
+    }
+  });
+  it("links requests to the saved design even after editing it", () => {
+    expect(matchesSavedDesign({ id: "lamp-1", design: { height: 30 } }, { contact: { saved_design_id: "lamp-1" }, design: { height: 20 } })).toBe(true);
+    expect(matchesSavedDesign({ id: "lamp-2", design: { height: 20 } }, { contact: { saved_design_id: "lamp-1" }, design: { height: 20 } })).toBe(false);
+  });
+  it("matches older snapshots regardless of object key ordering", () => {
+    expect(matchesSavedDesign({ id: "old", design: { shape: "lamp", height: 20 } }, { contact: {}, design: { height: 20, shape: "lamp" } })).toBe(true);
+    expect(matchesSavedDesign({ id: "old", design: { height: 30 } }, { contact: {}, design: { height: 20 } })).toBe(false);
   });
 });

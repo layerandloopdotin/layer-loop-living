@@ -4,9 +4,8 @@ import { useServerFn } from "@tanstack/react-start";
 import { Check, Download, ExternalLink, Printer, Truck } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { formatPrice } from "@/lib/currency";
-import { STATUS_LABEL, STEPS, stepIndex, type OrderItem } from "@/lib/account";
+import { STATUS_LABEL, STEPS, stepIndex, statusChip, type OrderItem } from "@/lib/account";
 import { getOrderTracking } from "@/lib/shiprocket.functions";
-import { chip } from "./account.orders.index";
 
 export const Route = createFileRoute("/_authenticated/account/orders/$id")({ component: OrderPage });
 
@@ -40,7 +39,7 @@ function OrderPage() {
           <p className="text-sm text-muted-foreground">Placed {fmt(o.created_at)}</p>
         </div>
         <div className="flex flex-wrap items-center gap-2 print:hidden">
-          <span className={`rounded-full px-3 py-1 text-xs font-semibold ${chip(o.status)}`}>{STATUS_LABEL[o.status] ?? o.status}</span>
+          <span className={`rounded-full px-3 py-1 text-xs font-semibold ${statusChip(o.status)}`}>{STATUS_LABEL[o.status] ?? o.status}</span>
           {o.invoice_url
             ? <a href={o.invoice_url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 rounded-full border border-foreground px-4 py-1.5 text-xs"><Download className="h-3.5 w-3.5" /> Invoice</a>
             : <button onClick={() => window.print()} className="inline-flex items-center gap-1.5 rounded-full border border-foreground px-4 py-1.5 text-xs"><Printer className="h-3.5 w-3.5" /> Invoice</button>}

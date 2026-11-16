@@ -54,3 +54,8 @@ export const inTab = (status: string, tab: OrderTab) => tab === "all" || tabOf(s
 export const stepIndex = (status: string) => (STEPS as readonly string[]).indexOf(status);
 
 export type OrderItem = { slug: string; name: string; qty: number; price: number; variant?: string; image?: string };
+
+export const statusChip = (status: string) => {
+  const t = tabOf(status);
+  return t === "live" ? "bg-primary text-primary-foreground" : t === "cancelled" ? "bg-destructive/15 text-destructive" : "bg-muted text-foreground";
+};

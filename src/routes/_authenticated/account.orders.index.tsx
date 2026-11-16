@@ -3,14 +3,9 @@ import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { formatPrice } from "@/lib/currency";
-import { inTab, ORDER_TABS, STATUS_LABEL, tabOf, type OrderItem, type OrderTab } from "@/lib/account";
+import { inTab, ORDER_TABS, statusChip, STATUS_LABEL, type OrderItem, type OrderTab } from "@/lib/account";
 
 export const Route = createFileRoute("/_authenticated/account/orders/")({ component: Orders });
-
-export const chip = (status: string) => {
-  const t = tabOf(status);
-  return t === "live" ? "bg-primary text-primary-foreground" : t === "cancelled" ? "bg-destructive/15 text-destructive" : "bg-muted text-foreground";
-};
 
 function Orders() {
   const [tab, setTab] = useState<OrderTab>("all");
@@ -39,7 +34,7 @@ function Orders() {
                 <p className="truncate text-xs text-muted-foreground">{items.map((i) => i.name).join(", ")}</p>
                 <p className="text-xs text-muted-foreground">{new Date(o.created_at).toLocaleDateString("en-IN", { dateStyle: "medium" })} · {formatPrice(Number(o.total))}</p>
               </div>
-              <span className={`shrink-0 rounded-full px-3 py-1 text-[11px] font-semibold ${chip(o.status)}`}>{STATUS_LABEL[o.status] ?? o.status}</span>
+              <span className={`shrink-0 rounded-full px-3 py-1 text-[11px] font-semibold ${statusChip(o.status)}`}>{STATUS_LABEL[o.status] ?? o.status}</span>
             </Link>
           </li>
         ); })}

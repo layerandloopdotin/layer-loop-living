@@ -14,7 +14,7 @@ const input = "mt-1.5 w-full rounded-md border border-border bg-background px-3 
 const label = "block text-xs uppercase tracking-widest text-muted-foreground";
 const KEYS = ["label", "name", "phone", "line1", "line2", "city", "state", "pin"] as const;
 
-export const addressesQuery = { queryKey: ["addresses"], queryFn: async () => {
+const addressesQuery = { queryKey: ["addresses"], queryFn: async () => {
   const { data, error } = await supabase.from("addresses").select("*").order("is_default", { ascending: false }).order("created_at");
   if (error) throw error; return data;
 } };

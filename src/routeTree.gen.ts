@@ -32,6 +32,8 @@ import { Route as AuthenticatedAccountPaymentsRouteImport } from './routes/_auth
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as AuthenticatedAdminInboxRouteImport } from './routes/_authenticated/admin.inbox'
 import { Route as AuthenticatedAdminTaxonomyRouteImport } from './routes/_authenticated/admin.taxonomy'
+import { Route as AuthenticatedAccountOrdersIndexRouteImport } from './routes/_authenticated/account.orders.index'
+import { Route as AuthenticatedAccountOrdersIdRouteImport } from './routes/_authenticated/account.orders.$id'
 import { Route as AuthenticatedAdminContentKeyRouteImport } from './routes/_authenticated/admin.content.$key'
 import { Route as AuthenticatedAdminProductsIndexRouteImport } from './routes/_authenticated/admin.products.index'
 import { Route as AuthenticatedAdminProductsIdRouteImport } from './routes/_authenticated/admin.products.$id'
@@ -155,6 +157,18 @@ const AuthenticatedAdminTaxonomyRoute =
     path: '/taxonomy',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAccountOrdersIndexRoute =
+  AuthenticatedAccountOrdersIndexRouteImport.update({
+    id: '/orders/',
+    path: '/orders/',
+    getParentRoute: () => AuthenticatedAccountRoute,
+  } as any)
+const AuthenticatedAccountOrdersIdRoute =
+  AuthenticatedAccountOrdersIdRouteImport.update({
+    id: '/orders/$id',
+    path: '/orders/$id',
+    getParentRoute: () => AuthenticatedAccountRoute,
+  } as any)
 const AuthenticatedAdminContentKeyRoute =
   AuthenticatedAdminContentKeyRouteImport.update({
     id: '/content/$key',
@@ -202,9 +216,11 @@ export interface FileRoutesByFullPath {
   '/admin/taxonomy': typeof AuthenticatedAdminTaxonomyRoute
   '/account/': typeof AuthenticatedAccountIndexRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
+  '/account/orders/$id': typeof AuthenticatedAccountOrdersIdRoute
   '/admin/content/$key': typeof AuthenticatedAdminContentKeyRoute
   '/admin/products/$id': typeof AuthenticatedAdminProductsIdRoute
   '/api/public/media/$': typeof ApiPublicMediaSplatRoute
+  '/account/orders/': typeof AuthenticatedAccountOrdersIndexRoute
   '/admin/products/': typeof AuthenticatedAdminProductsIndexRoute
 }
 export interface FileRoutesByTo {
@@ -228,9 +244,11 @@ export interface FileRoutesByTo {
   '/admin/taxonomy': typeof AuthenticatedAdminTaxonomyRoute
   '/account': typeof AuthenticatedAccountIndexRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
+  '/account/orders/$id': typeof AuthenticatedAccountOrdersIdRoute
   '/admin/content/$key': typeof AuthenticatedAdminContentKeyRoute
   '/admin/products/$id': typeof AuthenticatedAdminProductsIdRoute
   '/api/public/media/$': typeof ApiPublicMediaSplatRoute
+  '/account/orders': typeof AuthenticatedAccountOrdersIndexRoute
   '/admin/products': typeof AuthenticatedAdminProductsIndexRoute
 }
 export interface FileRoutesById {
@@ -258,9 +276,11 @@ export interface FileRoutesById {
   '/_authenticated/admin/taxonomy': typeof AuthenticatedAdminTaxonomyRoute
   '/_authenticated/account/': typeof AuthenticatedAccountIndexRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
+  '/_authenticated/account/orders/$id': typeof AuthenticatedAccountOrdersIdRoute
   '/_authenticated/admin/content/$key': typeof AuthenticatedAdminContentKeyRoute
   '/_authenticated/admin/products/$id': typeof AuthenticatedAdminProductsIdRoute
   '/api/public/media/$': typeof ApiPublicMediaSplatRoute
+  '/_authenticated/account/orders/': typeof AuthenticatedAccountOrdersIndexRoute
   '/_authenticated/admin/products/': typeof AuthenticatedAdminProductsIndexRoute
 }
 export interface FileRouteTypes {
@@ -288,9 +308,11 @@ export interface FileRouteTypes {
     | '/admin/taxonomy'
     | '/account/'
     | '/admin/'
+    | '/account/orders/$id'
     | '/admin/content/$key'
     | '/admin/products/$id'
     | '/api/public/media/$'
+    | '/account/orders/'
     | '/admin/products/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -314,9 +336,11 @@ export interface FileRouteTypes {
     | '/admin/taxonomy'
     | '/account'
     | '/admin'
+    | '/account/orders/$id'
     | '/admin/content/$key'
     | '/admin/products/$id'
     | '/api/public/media/$'
+    | '/account/orders'
     | '/admin/products'
   id:
     | '__root__'
@@ -343,9 +367,11 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/taxonomy'
     | '/_authenticated/account/'
     | '/_authenticated/admin/'
+    | '/_authenticated/account/orders/$id'
     | '/_authenticated/admin/content/$key'
     | '/_authenticated/admin/products/$id'
     | '/api/public/media/$'
+    | '/_authenticated/account/orders/'
     | '/_authenticated/admin/products/'
   fileRoutesById: FileRoutesById
 }
@@ -531,6 +557,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminTaxonomyRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/account/orders/': {
+      id: '/_authenticated/account/orders/'
+      path: '/orders'
+      fullPath: '/account/orders/'
+      preLoaderRoute: typeof AuthenticatedAccountOrdersIndexRouteImport
+      parentRoute: typeof AuthenticatedAccountRoute
+    }
+    '/_authenticated/account/orders/$id': {
+      id: '/_authenticated/account/orders/$id'
+      path: '/orders/$id'
+      fullPath: '/account/orders/$id'
+      preLoaderRoute: typeof AuthenticatedAccountOrdersIdRouteImport
+      parentRoute: typeof AuthenticatedAccountRoute
+    }
     '/_authenticated/admin/content/$key': {
       id: '/_authenticated/admin/content/$key'
       path: '/content/$key'
@@ -566,12 +606,16 @@ interface AuthenticatedAccountRouteChildren {
   AuthenticatedAccountAddressesRoute: typeof AuthenticatedAccountAddressesRoute
   AuthenticatedAccountPaymentsRoute: typeof AuthenticatedAccountPaymentsRoute
   AuthenticatedAccountIndexRoute: typeof AuthenticatedAccountIndexRoute
+  AuthenticatedAccountOrdersIdRoute: typeof AuthenticatedAccountOrdersIdRoute
+  AuthenticatedAccountOrdersIndexRoute: typeof AuthenticatedAccountOrdersIndexRoute
 }
 
 const AuthenticatedAccountRouteChildren: AuthenticatedAccountRouteChildren = {
   AuthenticatedAccountAddressesRoute: AuthenticatedAccountAddressesRoute,
   AuthenticatedAccountPaymentsRoute: AuthenticatedAccountPaymentsRoute,
   AuthenticatedAccountIndexRoute: AuthenticatedAccountIndexRoute,
+  AuthenticatedAccountOrdersIdRoute: AuthenticatedAccountOrdersIdRoute,
+  AuthenticatedAccountOrdersIndexRoute: AuthenticatedAccountOrdersIndexRoute,
 }
 
 const AuthenticatedAccountRouteWithChildren =

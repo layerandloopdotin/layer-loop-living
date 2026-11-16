@@ -59,6 +59,63 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_notifications: {
+        Row: {
+          created_at: string
+          id: string
+          kind: string
+          read_at: string | null
+          ref_id: string
+          sent_at: string | null
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          kind: string
+          read_at?: string | null
+          ref_id: string
+          sent_at?: string | null
+          title: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          kind?: string
+          read_at?: string | null
+          ref_id?: string
+          sent_at?: string | null
+          title?: string
+        }
+        Relationships: []
+      }
+      admin_settings: {
+        Row: {
+          email_on: boolean
+          id: boolean
+          notify_email: string | null
+          notify_whatsapp: string | null
+          updated_at: string
+          whatsapp_on: boolean
+        }
+        Insert: {
+          email_on?: boolean
+          id?: boolean
+          notify_email?: string | null
+          notify_whatsapp?: string | null
+          updated_at?: string
+          whatsapp_on?: boolean
+        }
+        Update: {
+          email_on?: boolean
+          id?: boolean
+          notify_email?: string | null
+          notify_whatsapp?: string | null
+          updated_at?: string
+          whatsapp_on?: boolean
+        }
+        Relationships: []
+      }
       categories: {
         Row: {
           created_at: string
@@ -80,6 +137,93 @@ export type Database = {
           image?: string
           name?: string
           sort?: number
+        }
+        Relationships: []
+      }
+      coupons: {
+        Row: {
+          active: boolean
+          amount: number
+          code: string
+          created_at: string
+          ends_at: string | null
+          id: string
+          kind: string
+          label: string
+          min_order: number
+          starts_at: string | null
+          usage_limit: number | null
+        }
+        Insert: {
+          active?: boolean
+          amount: number
+          code: string
+          created_at?: string
+          ends_at?: string | null
+          id?: string
+          kind?: string
+          label?: string
+          min_order?: number
+          starts_at?: string | null
+          usage_limit?: number | null
+        }
+        Update: {
+          active?: boolean
+          amount?: number
+          code?: string
+          created_at?: string
+          ends_at?: string | null
+          id?: string
+          kind?: string
+          label?: string
+          min_order?: number
+          starts_at?: string | null
+          usage_limit?: number | null
+        }
+        Relationships: []
+      }
+      custom_requests: {
+        Row: {
+          contact: Json
+          created_at: string
+          design: Json
+          estimate_high: number
+          estimate_low: number
+          id: string
+          quote: number | null
+          quote_note: string | null
+          status: string
+          summary: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          contact?: Json
+          created_at?: string
+          design: Json
+          estimate_high?: number
+          estimate_low?: number
+          id?: string
+          quote?: number | null
+          quote_note?: string | null
+          status?: string
+          summary?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          contact?: Json
+          created_at?: string
+          design?: Json
+          estimate_high?: number
+          estimate_low?: number
+          id?: string
+          quote?: number | null
+          quote_note?: string | null
+          status?: string
+          summary?: string
+          updated_at?: string
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -119,8 +263,10 @@ export type Database = {
         Row: {
           address: Json | null
           awb: string | null
+          coupon_code: string | null
           courier: string | null
           created_at: string
+          custom_request_id: string | null
           discount: number
           id: string
           invoice_url: string | null
@@ -138,8 +284,10 @@ export type Database = {
         Insert: {
           address?: Json | null
           awb?: string | null
+          coupon_code?: string | null
           courier?: string | null
           created_at?: string
+          custom_request_id?: string | null
           discount?: number
           id?: string
           invoice_url?: string | null
@@ -157,8 +305,10 @@ export type Database = {
         Update: {
           address?: Json | null
           awb?: string | null
+          coupon_code?: string | null
           courier?: string | null
           created_at?: string
+          custom_request_id?: string | null
           discount?: number
           id?: string
           invoice_url?: string | null
@@ -303,6 +453,72 @@ export type Database = {
         }
         Relationships: []
       }
+      reviews: {
+        Row: {
+          author_name: string
+          comment: string
+          created_at: string
+          id: string
+          images: string[]
+          product_slug: string
+          rating: number
+          status: string
+          user_id: string
+        }
+        Insert: {
+          author_name?: string
+          comment?: string
+          created_at?: string
+          id?: string
+          images?: string[]
+          product_slug: string
+          rating: number
+          status?: string
+          user_id?: string
+        }
+        Update: {
+          author_name?: string
+          comment?: string
+          created_at?: string
+          id?: string
+          images?: string[]
+          product_slug?: string
+          rating?: number
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      saved_designs: {
+        Row: {
+          created_at: string
+          design: Json
+          id: string
+          name: string
+          thumbnail: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          design: Json
+          id?: string
+          name?: string
+          thumbnail?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Update: {
+          created_at?: string
+          design?: Json
+          id?: string
+          name?: string
+          thumbnail?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       saved_payment_methods: {
         Row: {
           created_at: string
@@ -419,7 +635,12 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      accept_custom_quote: { Args: { _id: string }; Returns: string }
       admin_exists: { Args: never; Returns: boolean }
+      check_coupon: {
+        Args: { _code: string; _subtotal: number }
+        Returns: Json
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

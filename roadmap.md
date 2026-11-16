@@ -3,3 +3,4 @@
 - [ ] My Orders + order detail (timeline, invoice, Shiprocket tracking) + admin orders
 - [ ] Product page: 7-day -> 2-day returns, return & replacement policy below care
 - [ ] Product page: frequently bought together, native share, copy link
+- [ ] Checkout: "Pay now" redirect page after checkout

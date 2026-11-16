@@ -19,11 +19,11 @@ import { Route as CustomRouteImport } from './routes/custom'
 import { Route as ProductsRouteImport } from './routes/products'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as ReturnsRouteImport } from './routes/returns'
+import { Route as SigninRouteImport } from './routes/signin'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as TradeRouteImport } from './routes/trade'
 import { Route as WishlistRouteImport } from './routes/wishlist'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
-import { Route as AccountLoginRouteImport } from './routes/account.login'
 import { Route as ProductSlugRouteImport } from './routes/product.$slug'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as AuthenticatedAdminInboxRouteImport } from './routes/_authenticated/admin.inbox'
@@ -82,6 +82,11 @@ const ReturnsRoute = ReturnsRouteImport.update({
   path: '/returns',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SigninRoute = SigninRouteImport.update({
+  id: '/signin',
+  path: '/signin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
   path: '/terms',
@@ -101,11 +106,6 @@ const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   id: '/admin',
   path: '/admin',
   getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AccountLoginRoute = AccountLoginRouteImport.update({
-  id: '/account/login',
-  path: '/account/login',
-  getParentRoute: () => rootRouteImport,
 } as any)
 const ProductSlugRoute = ProductSlugRouteImport.update({
   id: '/product/$slug',
@@ -162,11 +162,11 @@ export interface FileRoutesByFullPath {
   '/products': typeof ProductsRoute
   '/reset-password': typeof ResetPasswordRoute
   '/returns': typeof ReturnsRoute
+  '/signin': typeof SigninRoute
   '/terms': typeof TermsRoute
   '/trade': typeof TradeRoute
   '/wishlist': typeof WishlistRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
-  '/account/login': typeof AccountLoginRoute
   '/product/$slug': typeof ProductSlugRoute
   '/admin/inbox': typeof AuthenticatedAdminInboxRoute
   '/admin/taxonomy': typeof AuthenticatedAdminTaxonomyRoute
@@ -186,10 +186,10 @@ export interface FileRoutesByTo {
   '/products': typeof ProductsRoute
   '/reset-password': typeof ResetPasswordRoute
   '/returns': typeof ReturnsRoute
+  '/signin': typeof SigninRoute
   '/terms': typeof TermsRoute
   '/trade': typeof TradeRoute
   '/wishlist': typeof WishlistRoute
-  '/account/login': typeof AccountLoginRoute
   '/product/$slug': typeof ProductSlugRoute
   '/admin/inbox': typeof AuthenticatedAdminInboxRoute
   '/admin/taxonomy': typeof AuthenticatedAdminTaxonomyRoute
@@ -211,11 +211,11 @@ export interface FileRoutesById {
   '/products': typeof ProductsRoute
   '/reset-password': typeof ResetPasswordRoute
   '/returns': typeof ReturnsRoute
+  '/signin': typeof SigninRoute
   '/terms': typeof TermsRoute
   '/trade': typeof TradeRoute
   '/wishlist': typeof WishlistRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
-  '/account/login': typeof AccountLoginRoute
   '/product/$slug': typeof ProductSlugRoute
   '/_authenticated/admin/inbox': typeof AuthenticatedAdminInboxRoute
   '/_authenticated/admin/taxonomy': typeof AuthenticatedAdminTaxonomyRoute
@@ -237,11 +237,11 @@ export interface FileRouteTypes {
     | '/products'
     | '/reset-password'
     | '/returns'
+    | '/signin'
     | '/terms'
     | '/trade'
     | '/wishlist'
     | '/admin'
-    | '/account/login'
     | '/product/$slug'
     | '/admin/inbox'
     | '/admin/taxonomy'
@@ -261,10 +261,10 @@ export interface FileRouteTypes {
     | '/products'
     | '/reset-password'
     | '/returns'
+    | '/signin'
     | '/terms'
     | '/trade'
     | '/wishlist'
-    | '/account/login'
     | '/product/$slug'
     | '/admin/inbox'
     | '/admin/taxonomy'
@@ -285,11 +285,11 @@ export interface FileRouteTypes {
     | '/products'
     | '/reset-password'
     | '/returns'
+    | '/signin'
     | '/terms'
     | '/trade'
     | '/wishlist'
     | '/_authenticated/admin'
-    | '/account/login'
     | '/product/$slug'
     | '/_authenticated/admin/inbox'
     | '/_authenticated/admin/taxonomy'
@@ -311,10 +311,10 @@ export interface RootRouteChildren {
   ProductsRoute: typeof ProductsRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   ReturnsRoute: typeof ReturnsRoute
+  SigninRoute: typeof SigninRoute
   TermsRoute: typeof TermsRoute
   TradeRoute: typeof TradeRoute
   WishlistRoute: typeof WishlistRoute
-  AccountLoginRoute: typeof AccountLoginRoute
   ProductSlugRoute: typeof ProductSlugRoute
   ApiPublicMediaSplatRoute: typeof ApiPublicMediaSplatRoute
 }
@@ -391,6 +391,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ReturnsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/signin': {
+      id: '/signin'
+      path: '/signin'
+      fullPath: '/signin'
+      preLoaderRoute: typeof SigninRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/terms': {
       id: '/terms'
       path: '/terms'
@@ -418,13 +425,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin'
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/account/login': {
-      id: '/account/login'
-      path: '/account/login'
-      fullPath: '/account/login'
-      preLoaderRoute: typeof AccountLoginRouteImport
-      parentRoute: typeof rootRouteImport
     }
     '/product/$slug': {
       id: '/product/$slug'
@@ -528,10 +528,10 @@ const rootRouteChildren: RootRouteChildren = {
   ProductsRoute: ProductsRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   ReturnsRoute: ReturnsRoute,
+  SigninRoute: SigninRoute,
   TermsRoute: TermsRoute,
   TradeRoute: TradeRoute,
   WishlistRoute: WishlistRoute,
-  AccountLoginRoute: AccountLoginRoute,
   ProductSlugRoute: ProductSlugRoute,
   ApiPublicMediaSplatRoute: ApiPublicMediaSplatRoute,
 }

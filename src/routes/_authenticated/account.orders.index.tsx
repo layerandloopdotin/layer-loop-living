@@ -1,5 +1,7 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { toast } from "sonner";
+import { notifyNewRequest } from "@/lib/notify.functions";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { formatPrice } from "@/lib/currency";
@@ -38,6 +40,49 @@ function Orders() {
             </Link>
           </li>
         ); })}
+      </ul>
+      <CustomRequests />
+    </div>
+  );
+}
+
+const REQ_LABEL: Record<string, string> = { requested: "Awaiting quote", quoted: "Quote ready", accepted: "Accepted", declined: "Declined" };
+
+function CustomRequests() {
+  const qc = useQueryClient();
+  const navigate = useNavigate();
+  const q = useQuery({ queryKey: ["my-requests"], queryFn: async () => {
+    const { data, error } = await supabase.from("custom_requests").select("id, summary, estimate_low, estimate_high, quote, quote_note, status, created_at").order("created_at", { ascending: false });
+    if (error) throw error; return data;
+  } });
+  const accept = async (id: string) => {
+    const { data, error } = await supabase.rpc("accept_custom_quote", { _id: id });
+    if (error || !data) { toast.error("Couldn't accept the quote"); return; }
+    notifyNewRequest({ data: { kind: "order", id: data } }).catch(() => {});
+    qc.invalidateQueries();
+    toast.success("Quote accepted — your order is in production");
+    navigate({ to: "/account/orders/$id", params: { id: data } });
+  };
+  if (!q.data?.length) return null;
+  return (
+    <div className="mt-12">
+      <h3 className="font-display text-lg font-bold">Custom requests</h3>
+      <ul className="mt-4 space-y-3">
+        {q.data.map((r) => (
+          <li key={r.id} className="rounded-xl border border-border p-4 text-sm">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <span className="font-semibold">Custom design · {new Date(r.created_at).toLocaleDateString("en-IN", { dateStyle: "medium" })}</span>
+              <span className={`rounded-full px-3 py-1 text-[11px] font-semibold ${r.status === "quoted" ? "bg-primary text-primary-foreground" : "bg-muted"}`}>{REQ_LABEL[r.status] ?? r.status}</span>
+            </div>
+            <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{r.summary}</p>
+            <p className="mt-2 text-xs">Estimate {formatPrice(Number(r.estimate_low))} – {formatPrice(Number(r.estimate_high))}</p>
+            {r.quote != null && <div className="mt-3 rounded-lg bg-card p-3">
+              <p className="font-semibold">Your price: {formatPrice(Number(r.quote))}</p>
+              {r.quote_note && <p className="mt-1 text-xs text-muted-foreground">{r.quote_note}</p>}
+              {r.status === "quoted" && <button onClick={() => accept(r.id)} className="mt-3 rounded-full bg-primary px-5 py-2 text-xs font-semibold text-primary-foreground">Accept quote & confirm order</button>}
+            </div>}
+          </li>
+        ))}
       </ul>
     </div>
   );

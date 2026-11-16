@@ -64,6 +64,20 @@
       "when": 1794834014359,
       "tag": "0008_customer_accounts_orders",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1794834809032,
+      "tag": "0009_dashboard_quotes_coupons_reviews",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1794835039788,
+      "tag": "0010_order_confirmation",
+      "breakpoints": true
     }
   ]
 }

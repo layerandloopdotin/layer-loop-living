@@ -1,6 +1,6 @@
 import { createFileRoute, Link, Outlet, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { CreditCard, Heart, LogOut, MapPin, Package, User } from "lucide-react";
+import { Boxes, CreditCard, Heart, LogOut, MapPin, Package, Star, User } from "lucide-react";
 import { Page } from "@/components/site";
 import { supabase } from "@/integrations/supabase/client";
 import { avatarRef } from "@/lib/account";
@@ -57,6 +57,8 @@ function AccountLayout() {
         <nav className="-mx-6 flex gap-1 overflow-x-auto px-6 md:mx-0 md:flex-col md:px-0">
           <Link to="/account" activeOptions={{ exact: true }} className={item} activeProps={active}><User className="h-4 w-4" /> Profile</Link>
           <Link to="/account/orders" className={item} activeProps={active}><Package className="h-4 w-4" /> My orders</Link>
+          <Link to="/account/designs" className={item} activeProps={active}><Boxes className="h-4 w-4" /> My designs</Link>
+          <Link to="/account/reviews" className={item} activeProps={active}><Star className="h-4 w-4" /> Reviews</Link>
           <Link to="/wishlist" className={item}><Heart className="h-4 w-4" /> Wishlist</Link>
           <Link to="/account/addresses" className={item} activeProps={active}><MapPin className="h-4 w-4" /> Addresses</Link>
           <Link to="/account/payments" className={item} activeProps={active}><CreditCard className="h-4 w-4" /> Payments</Link>

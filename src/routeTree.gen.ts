@@ -30,10 +30,16 @@ import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/
 import { Route as ProductSlugRouteImport } from './routes/product.$slug'
 import { Route as AuthenticatedAccountIndexRouteImport } from './routes/_authenticated/account.index'
 import { Route as AuthenticatedAccountAddressesRouteImport } from './routes/_authenticated/account.addresses'
+import { Route as AuthenticatedAccountDesignsRouteImport } from './routes/_authenticated/account.designs'
 import { Route as AuthenticatedAccountPaymentsRouteImport } from './routes/_authenticated/account.payments'
+import { Route as AuthenticatedAccountReviewsRouteImport } from './routes/_authenticated/account.reviews'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
+import { Route as AuthenticatedAdminAlertsRouteImport } from './routes/_authenticated/admin.alerts'
+import { Route as AuthenticatedAdminCouponsRouteImport } from './routes/_authenticated/admin.coupons'
+import { Route as AuthenticatedAdminCustomRouteImport } from './routes/_authenticated/admin.custom'
 import { Route as AuthenticatedAdminInboxRouteImport } from './routes/_authenticated/admin.inbox'
 import { Route as AuthenticatedAdminOrdersRouteImport } from './routes/_authenticated/admin.orders'
+import { Route as AuthenticatedAdminReviewsRouteImport } from './routes/_authenticated/admin.reviews'
 import { Route as AuthenticatedAdminTaxonomyRouteImport } from './routes/_authenticated/admin.taxonomy'
 import { Route as AuthenticatedAccountOrdersIndexRouteImport } from './routes/_authenticated/account.orders.index'
 import { Route as AuthenticatedAccountOrdersIdRouteImport } from './routes/_authenticated/account.orders.$id'
@@ -41,6 +47,7 @@ import { Route as AuthenticatedAdminContentKeyRouteImport } from './routes/_auth
 import { Route as AuthenticatedAdminProductsIndexRouteImport } from './routes/_authenticated/admin.products.index'
 import { Route as AuthenticatedAdminProductsIdRouteImport } from './routes/_authenticated/admin.products.$id'
 import { Route as ApiPublicMediaSplatRouteImport } from './routes/api/public/media/$'
+import { Route as ApiPublicReviewMediaSplatRouteImport } from './routes/api/public/review-media/$'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -148,10 +155,22 @@ const AuthenticatedAccountAddressesRoute =
     path: '/addresses',
     getParentRoute: () => AuthenticatedAccountRoute,
   } as any)
+const AuthenticatedAccountDesignsRoute =
+  AuthenticatedAccountDesignsRouteImport.update({
+    id: '/designs',
+    path: '/designs',
+    getParentRoute: () => AuthenticatedAccountRoute,
+  } as any)
 const AuthenticatedAccountPaymentsRoute =
   AuthenticatedAccountPaymentsRouteImport.update({
     id: '/payments',
     path: '/payments',
+    getParentRoute: () => AuthenticatedAccountRoute,
+  } as any)
+const AuthenticatedAccountReviewsRoute =
+  AuthenticatedAccountReviewsRouteImport.update({
+    id: '/reviews',
+    path: '/reviews',
     getParentRoute: () => AuthenticatedAccountRoute,
   } as any)
 const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
@@ -159,6 +178,24 @@ const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
+const AuthenticatedAdminAlertsRoute =
+  AuthenticatedAdminAlertsRouteImport.update({
+    id: '/alerts',
+    path: '/alerts',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminCouponsRoute =
+  AuthenticatedAdminCouponsRouteImport.update({
+    id: '/coupons',
+    path: '/coupons',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminCustomRoute =
+  AuthenticatedAdminCustomRouteImport.update({
+    id: '/custom',
+    path: '/custom',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminInboxRoute = AuthenticatedAdminInboxRouteImport.update({
   id: '/inbox',
   path: '/inbox',
@@ -168,6 +205,12 @@ const AuthenticatedAdminOrdersRoute =
   AuthenticatedAdminOrdersRouteImport.update({
     id: '/orders',
     path: '/orders',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminReviewsRoute =
+  AuthenticatedAdminReviewsRouteImport.update({
+    id: '/reviews',
+    path: '/reviews',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const AuthenticatedAdminTaxonomyRoute =
@@ -211,6 +254,12 @@ const ApiPublicMediaSplatRoute = ApiPublicMediaSplatRouteImport.update({
   path: '/api/public/media/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicReviewMediaSplatRoute =
+  ApiPublicReviewMediaSplatRouteImport.update({
+    id: '/api/public/review-media/$',
+    path: '/api/public/review-media/$',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -232,9 +281,15 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/product/$slug': typeof ProductSlugRoute
   '/account/addresses': typeof AuthenticatedAccountAddressesRoute
+  '/account/designs': typeof AuthenticatedAccountDesignsRoute
   '/account/payments': typeof AuthenticatedAccountPaymentsRoute
+  '/account/reviews': typeof AuthenticatedAccountReviewsRoute
+  '/admin/alerts': typeof AuthenticatedAdminAlertsRoute
+  '/admin/coupons': typeof AuthenticatedAdminCouponsRoute
+  '/admin/custom': typeof AuthenticatedAdminCustomRoute
   '/admin/inbox': typeof AuthenticatedAdminInboxRoute
   '/admin/orders': typeof AuthenticatedAdminOrdersRoute
+  '/admin/reviews': typeof AuthenticatedAdminReviewsRoute
   '/admin/taxonomy': typeof AuthenticatedAdminTaxonomyRoute
   '/account/': typeof AuthenticatedAccountIndexRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
@@ -242,6 +297,7 @@ export interface FileRoutesByFullPath {
   '/admin/content/$key': typeof AuthenticatedAdminContentKeyRoute
   '/admin/products/$id': typeof AuthenticatedAdminProductsIdRoute
   '/api/public/media/$': typeof ApiPublicMediaSplatRoute
+  '/api/public/review-media/$': typeof ApiPublicReviewMediaSplatRoute
   '/account/orders/': typeof AuthenticatedAccountOrdersIndexRoute
   '/admin/products/': typeof AuthenticatedAdminProductsIndexRoute
 }
@@ -263,9 +319,15 @@ export interface FileRoutesByTo {
   '/wishlist': typeof WishlistRoute
   '/product/$slug': typeof ProductSlugRoute
   '/account/addresses': typeof AuthenticatedAccountAddressesRoute
+  '/account/designs': typeof AuthenticatedAccountDesignsRoute
   '/account/payments': typeof AuthenticatedAccountPaymentsRoute
+  '/account/reviews': typeof AuthenticatedAccountReviewsRoute
+  '/admin/alerts': typeof AuthenticatedAdminAlertsRoute
+  '/admin/coupons': typeof AuthenticatedAdminCouponsRoute
+  '/admin/custom': typeof AuthenticatedAdminCustomRoute
   '/admin/inbox': typeof AuthenticatedAdminInboxRoute
   '/admin/orders': typeof AuthenticatedAdminOrdersRoute
+  '/admin/reviews': typeof AuthenticatedAdminReviewsRoute
   '/admin/taxonomy': typeof AuthenticatedAdminTaxonomyRoute
   '/account': typeof AuthenticatedAccountIndexRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
@@ -273,6 +335,7 @@ export interface FileRoutesByTo {
   '/admin/content/$key': typeof AuthenticatedAdminContentKeyRoute
   '/admin/products/$id': typeof AuthenticatedAdminProductsIdRoute
   '/api/public/media/$': typeof ApiPublicMediaSplatRoute
+  '/api/public/review-media/$': typeof ApiPublicReviewMediaSplatRoute
   '/account/orders': typeof AuthenticatedAccountOrdersIndexRoute
   '/admin/products': typeof AuthenticatedAdminProductsIndexRoute
 }
@@ -298,9 +361,15 @@ export interface FileRoutesById {
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/product/$slug': typeof ProductSlugRoute
   '/_authenticated/account/addresses': typeof AuthenticatedAccountAddressesRoute
+  '/_authenticated/account/designs': typeof AuthenticatedAccountDesignsRoute
   '/_authenticated/account/payments': typeof AuthenticatedAccountPaymentsRoute
+  '/_authenticated/account/reviews': typeof AuthenticatedAccountReviewsRoute
+  '/_authenticated/admin/alerts': typeof AuthenticatedAdminAlertsRoute
+  '/_authenticated/admin/coupons': typeof AuthenticatedAdminCouponsRoute
+  '/_authenticated/admin/custom': typeof AuthenticatedAdminCustomRoute
   '/_authenticated/admin/inbox': typeof AuthenticatedAdminInboxRoute
   '/_authenticated/admin/orders': typeof AuthenticatedAdminOrdersRoute
+  '/_authenticated/admin/reviews': typeof AuthenticatedAdminReviewsRoute
   '/_authenticated/admin/taxonomy': typeof AuthenticatedAdminTaxonomyRoute
   '/_authenticated/account/': typeof AuthenticatedAccountIndexRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
@@ -308,6 +377,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/content/$key': typeof AuthenticatedAdminContentKeyRoute
   '/_authenticated/admin/products/$id': typeof AuthenticatedAdminProductsIdRoute
   '/api/public/media/$': typeof ApiPublicMediaSplatRoute
+  '/api/public/review-media/$': typeof ApiPublicReviewMediaSplatRoute
   '/_authenticated/account/orders/': typeof AuthenticatedAccountOrdersIndexRoute
   '/_authenticated/admin/products/': typeof AuthenticatedAdminProductsIndexRoute
 }
@@ -333,9 +403,15 @@ export interface FileRouteTypes {
     | '/admin'
     | '/product/$slug'
     | '/account/addresses'
+    | '/account/designs'
     | '/account/payments'
+    | '/account/reviews'
+    | '/admin/alerts'
+    | '/admin/coupons'
+    | '/admin/custom'
     | '/admin/inbox'
     | '/admin/orders'
+    | '/admin/reviews'
     | '/admin/taxonomy'
     | '/account/'
     | '/admin/'
@@ -343,6 +419,7 @@ export interface FileRouteTypes {
     | '/admin/content/$key'
     | '/admin/products/$id'
     | '/api/public/media/$'
+    | '/api/public/review-media/$'
     | '/account/orders/'
     | '/admin/products/'
   fileRoutesByTo: FileRoutesByTo
@@ -364,9 +441,15 @@ export interface FileRouteTypes {
     | '/wishlist'
     | '/product/$slug'
     | '/account/addresses'
+    | '/account/designs'
     | '/account/payments'
+    | '/account/reviews'
+    | '/admin/alerts'
+    | '/admin/coupons'
+    | '/admin/custom'
     | '/admin/inbox'
     | '/admin/orders'
+    | '/admin/reviews'
     | '/admin/taxonomy'
     | '/account'
     | '/admin'
@@ -374,6 +457,7 @@ export interface FileRouteTypes {
     | '/admin/content/$key'
     | '/admin/products/$id'
     | '/api/public/media/$'
+    | '/api/public/review-media/$'
     | '/account/orders'
     | '/admin/products'
   id:
@@ -398,9 +482,15 @@ export interface FileRouteTypes {
     | '/_authenticated/admin'
     | '/product/$slug'
     | '/_authenticated/account/addresses'
+    | '/_authenticated/account/designs'
     | '/_authenticated/account/payments'
+    | '/_authenticated/account/reviews'
+    | '/_authenticated/admin/alerts'
+    | '/_authenticated/admin/coupons'
+    | '/_authenticated/admin/custom'
     | '/_authenticated/admin/inbox'
     | '/_authenticated/admin/orders'
+    | '/_authenticated/admin/reviews'
     | '/_authenticated/admin/taxonomy'
     | '/_authenticated/account/'
     | '/_authenticated/admin/'
@@ -408,6 +498,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/content/$key'
     | '/_authenticated/admin/products/$id'
     | '/api/public/media/$'
+    | '/api/public/review-media/$'
     | '/_authenticated/account/orders/'
     | '/_authenticated/admin/products/'
   fileRoutesById: FileRoutesById
@@ -431,6 +522,7 @@ export interface RootRouteChildren {
   WishlistRoute: typeof WishlistRoute
   ProductSlugRoute: typeof ProductSlugRoute
   ApiPublicMediaSplatRoute: typeof ApiPublicMediaSplatRoute
+  ApiPublicReviewMediaSplatRoute: typeof ApiPublicReviewMediaSplatRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -582,6 +674,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAccountAddressesRouteImport
       parentRoute: typeof AuthenticatedAccountRoute
     }
+    '/_authenticated/account/designs': {
+      id: '/_authenticated/account/designs'
+      path: '/designs'
+      fullPath: '/account/designs'
+      preLoaderRoute: typeof AuthenticatedAccountDesignsRouteImport
+      parentRoute: typeof AuthenticatedAccountRoute
+    }
     '/_authenticated/account/payments': {
       id: '/_authenticated/account/payments'
       path: '/payments'
@@ -589,11 +688,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAccountPaymentsRouteImport
       parentRoute: typeof AuthenticatedAccountRoute
     }
+    '/_authenticated/account/reviews': {
+      id: '/_authenticated/account/reviews'
+      path: '/reviews'
+      fullPath: '/account/reviews'
+      preLoaderRoute: typeof AuthenticatedAccountReviewsRouteImport
+      parentRoute: typeof AuthenticatedAccountRoute
+    }
     '/_authenticated/admin/': {
       id: '/_authenticated/admin/'
       path: '/'
       fullPath: '/admin/'
       preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/alerts': {
+      id: '/_authenticated/admin/alerts'
+      path: '/alerts'
+      fullPath: '/admin/alerts'
+      preLoaderRoute: typeof AuthenticatedAdminAlertsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/coupons': {
+      id: '/_authenticated/admin/coupons'
+      path: '/coupons'
+      fullPath: '/admin/coupons'
+      preLoaderRoute: typeof AuthenticatedAdminCouponsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/custom': {
+      id: '/_authenticated/admin/custom'
+      path: '/custom'
+      fullPath: '/admin/custom'
+      preLoaderRoute: typeof AuthenticatedAdminCustomRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/inbox': {
@@ -608,6 +735,13 @@ declare module '@tanstack/react-router' {
       path: '/orders'
       fullPath: '/admin/orders'
       preLoaderRoute: typeof AuthenticatedAdminOrdersRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/reviews': {
+      id: '/_authenticated/admin/reviews'
+      path: '/reviews'
+      fullPath: '/admin/reviews'
+      preLoaderRoute: typeof AuthenticatedAdminReviewsRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/taxonomy': {
@@ -659,12 +793,21 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicMediaSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/review-media/$': {
+      id: '/api/public/review-media/$'
+      path: '/api/public/review-media/$'
+      fullPath: '/api/public/review-media/$'
+      preLoaderRoute: typeof ApiPublicReviewMediaSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 interface AuthenticatedAccountRouteChildren {
   AuthenticatedAccountAddressesRoute: typeof AuthenticatedAccountAddressesRoute
+  AuthenticatedAccountDesignsRoute: typeof AuthenticatedAccountDesignsRoute
   AuthenticatedAccountPaymentsRoute: typeof AuthenticatedAccountPaymentsRoute
+  AuthenticatedAccountReviewsRoute: typeof AuthenticatedAccountReviewsRoute
   AuthenticatedAccountIndexRoute: typeof AuthenticatedAccountIndexRoute
   AuthenticatedAccountOrdersIdRoute: typeof AuthenticatedAccountOrdersIdRoute
   AuthenticatedAccountOrdersIndexRoute: typeof AuthenticatedAccountOrdersIndexRoute
@@ -672,7 +815,9 @@ interface AuthenticatedAccountRouteChildren {
 
 const AuthenticatedAccountRouteChildren: AuthenticatedAccountRouteChildren = {
   AuthenticatedAccountAddressesRoute: AuthenticatedAccountAddressesRoute,
+  AuthenticatedAccountDesignsRoute: AuthenticatedAccountDesignsRoute,
   AuthenticatedAccountPaymentsRoute: AuthenticatedAccountPaymentsRoute,
+  AuthenticatedAccountReviewsRoute: AuthenticatedAccountReviewsRoute,
   AuthenticatedAccountIndexRoute: AuthenticatedAccountIndexRoute,
   AuthenticatedAccountOrdersIdRoute: AuthenticatedAccountOrdersIdRoute,
   AuthenticatedAccountOrdersIndexRoute: AuthenticatedAccountOrdersIndexRoute,
@@ -682,8 +827,12 @@ const AuthenticatedAccountRouteWithChildren =
   AuthenticatedAccountRoute._addFileChildren(AuthenticatedAccountRouteChildren)
 
 interface AuthenticatedAdminRouteChildren {
+  AuthenticatedAdminAlertsRoute: typeof AuthenticatedAdminAlertsRoute
+  AuthenticatedAdminCouponsRoute: typeof AuthenticatedAdminCouponsRoute
+  AuthenticatedAdminCustomRoute: typeof AuthenticatedAdminCustomRoute
   AuthenticatedAdminInboxRoute: typeof AuthenticatedAdminInboxRoute
   AuthenticatedAdminOrdersRoute: typeof AuthenticatedAdminOrdersRoute
+  AuthenticatedAdminReviewsRoute: typeof AuthenticatedAdminReviewsRoute
   AuthenticatedAdminTaxonomyRoute: typeof AuthenticatedAdminTaxonomyRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
   AuthenticatedAdminContentKeyRoute: typeof AuthenticatedAdminContentKeyRoute
@@ -692,8 +841,12 @@ interface AuthenticatedAdminRouteChildren {
 }
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
+  AuthenticatedAdminAlertsRoute: AuthenticatedAdminAlertsRoute,
+  AuthenticatedAdminCouponsRoute: AuthenticatedAdminCouponsRoute,
+  AuthenticatedAdminCustomRoute: AuthenticatedAdminCustomRoute,
   AuthenticatedAdminInboxRoute: AuthenticatedAdminInboxRoute,
   AuthenticatedAdminOrdersRoute: AuthenticatedAdminOrdersRoute,
+  AuthenticatedAdminReviewsRoute: AuthenticatedAdminReviewsRoute,
   AuthenticatedAdminTaxonomyRoute: AuthenticatedAdminTaxonomyRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
   AuthenticatedAdminContentKeyRoute: AuthenticatedAdminContentKeyRoute,
@@ -736,6 +889,7 @@ const rootRouteChildren: RootRouteChildren = {
   WishlistRoute: WishlistRoute,
   ProductSlugRoute: ProductSlugRoute,
   ApiPublicMediaSplatRoute: ApiPublicMediaSplatRoute,
+  ApiPublicReviewMediaSplatRoute: ApiPublicReviewMediaSplatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

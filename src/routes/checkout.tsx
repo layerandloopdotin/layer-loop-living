@@ -9,11 +9,12 @@ import { addressSchema, fieldValue } from "@/lib/account";
 import { unitPrice } from "@/lib/catalog";
 import { formatPrice } from "@/lib/currency";
 import { cartTotals } from "@/lib/pricing";
+import { checkCoupon } from "@/lib/coupons";
 import { useShop } from "@/lib/shop";
 import { useSite } from "@/lib/site";
 
 export const Route = createFileRoute("/checkout")({
-  validateSearch: (s: Record<string, unknown>) => ({ coupon: typeof s["coupon"] === "string" ? s["coupon"] : undefined }),
+  validateSearch: (s: Record<string, unknown>): { coupon?: string } => (typeof s["coupon"] === "string" ? { coupon: s["coupon"] } : {}),
   head: () => ({
     meta: [
       { title: "Checkout — Layer & Loop" },
@@ -41,7 +42,9 @@ function Checkout() {
   const site = useSite();
   const [method, setMethod] = useState("UPI");
   const lines = cart.flatMap((c) => { const p = site.bySlug(c.slug); return p ? [{ ...c, p }] : []; });
-  const t = cartTotals(lines.reduce((s, l) => s + unitPrice(l.p, l.variant) * l.qty, 0), coupon);
+  const sub = lines.reduce((s, l) => s + unitPrice(l.p, l.variant) * l.qty, 0);
+  const cq = useQuery({ queryKey: ["coupon", coupon, sub], enabled: !!coupon, queryFn: () => checkCoupon(coupon!, sub) });
+  const t = cartTotals(sub, cq.data?.ok ? cq.data.discount : 0);
   const session = useQuery({ queryKey: ["checkout-user"], queryFn: async () => (await supabase.auth.getUser()).data.user });
   const saved = useQuery({ queryKey: ["addresses"], enabled: !!session.data, queryFn: async () => (await supabase.from("addresses").select("*").order("is_default", { ascending: false })).data ?? [] });
   const def = saved.data?.[0];
@@ -51,7 +54,7 @@ function Checkout() {
     const fd = new FormData(e.currentTarget);
     const v = addressSchema.safeParse({ label: "Delivery", ...Object.fromEntries(KEYS.map((k) => [k, fieldValue(fd, k)])) });
     if (!v.success) { toast.error(v.error.issues[0]?.message); return; }
-    sessionStorage.setItem(CHECKOUT_KEY, JSON.stringify({ address: v.data, email: fieldValue(fd, "email"), method, total: t.total, items: lines.map((l) => ({ name: l.p.name, qty: l.qty, variant: l.variant })) }));
+    sessionStorage.setItem(CHECKOUT_KEY, JSON.stringify({ address: v.data, email: fieldValue(fd, "email"), method, total: t.total, coupon: cq.data?.ok ? cq.data.code : undefined, items: lines.map((l) => ({ name: l.p.name, qty: l.qty, variant: l.variant })) }));
     navigate({ to: "/payment" });
   };
 

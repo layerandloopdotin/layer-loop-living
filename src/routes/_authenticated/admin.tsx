@@ -1,6 +1,6 @@
 import { createFileRoute, Link, Outlet, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { ExternalLink, FileText, Inbox, LayoutDashboard, Loader2, LogOut, Package, Settings, Tags } from "lucide-react";
+import { ExternalLink, FileText, Inbox, LayoutDashboard, Loader2, LogOut, Package, ShoppingCart, Settings, Tags } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { sections, type ContentKey } from "@/lib/cms-schema";
 
@@ -64,6 +64,7 @@ function AdminLayout() {
           <Link to="/admin" activeOptions={{ exact: true }} className={item} activeProps={active}><LayoutDashboard className="h-4 w-4" /> Overview</Link>
           <Link to="/admin/products" className={item} activeProps={active}><Package className="h-4 w-4" /> Products</Link>
           <Link to="/admin/taxonomy" className={item} activeProps={active}><Tags className="h-4 w-4" /> Categories &amp; spaces</Link>
+          <Link to="/admin/orders" className={item} activeProps={active}><ShoppingCart className="h-4 w-4" /> Orders</Link>
           <Link to="/admin/inbox" className={item} activeProps={active}><Inbox className="h-4 w-4" /> Inbox</Link>
           <Link to="/admin/content/$key" params={{ key: "settings" }} className={item} activeProps={active}><Settings className="h-4 w-4" /> Site settings</Link>
         </nav>

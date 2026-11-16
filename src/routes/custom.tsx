@@ -439,6 +439,11 @@ function Sandbox({ design: d, setDesign, rates, note, actions }: { design: Desig
   const c = useContent("custom");
   const [lampPart, setLampPart] = useState<"base" | "shade">("base");
   const [assemblyView, setAssemblyView] = useState(false);
+  useEffect(() => {
+    const assemble = () => setAssemblyView(false);
+    window.addEventListener("custom:assemble-preview", assemble);
+    return () => window.removeEventListener("custom:assemble-preview", assemble);
+  }, []);
   const base = lampBase(d);
   const updateBase = (p: Partial<StackModule>) => set({ lampBase: { ...base, ...p }, ...(p.shape ? { base: p.shape } : {}) });
   const editingBase = d.form === "table-lamp" && lampPart === "base";

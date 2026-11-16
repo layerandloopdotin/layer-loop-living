@@ -4,9 +4,12 @@
 - [x] Product page: 7-day -> 2-day returns, return & replacement policy below care
 - [x] Product page: frequently bought together, native share, copy link
 - [x] Checkout: "Pay now" redirect page after checkout
-- [ ] Admin dashboard: revenue, orders, analytics, new-orders list
-- [ ] New-order alerts: admin bell (live), email, WhatsApp
-- [ ] Custom page: Request this design + admin quotes + accept quote
-- [ ] Saved designs in profile (no export)
-- [ ] Coupons managed in admin; only live coupons accepted
-- [ ] Reviews: write from account, subtle display on product, admin moderation
+- [x] Admin dashboard: revenue, orders, analytics, new-orders list
+- [x] New-order alerts: admin bell (live) — [ ] email (needs sending domain), [ ] WhatsApp (needs WhatsApp Business connection)
+- [x] Custom page: Request this design + admin quotes + accept quote
+- [x] Saved designs in profile (no export)
+- [x] Coupons managed in admin; only live coupons accepted
+- [x] Reviews: write from account, subtle display on product, admin moderation
+- [ ] Mobile OTP sign-in — needs an SMS provider account
+- [ ] Live Shiprocket scans — needs Shiprocket API login
+- [ ] Real online payment — needs a payment provider

@@ -41,6 +41,7 @@ import { Route as AuthenticatedAdminContentKeyRouteImport } from './routes/_auth
 import { Route as AuthenticatedAdminProductsIndexRouteImport } from './routes/_authenticated/admin.products.index'
 import { Route as AuthenticatedAdminProductsIdRouteImport } from './routes/_authenticated/admin.products.$id'
 import { Route as ApiPublicMediaSplatRouteImport } from './routes/api/public/media/$'
+import { Route as ApiPublicReviewMediaSplatRouteImport } from './routes/api/public/review-media/$'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -211,6 +212,12 @@ const ApiPublicMediaSplatRoute = ApiPublicMediaSplatRouteImport.update({
   path: '/api/public/media/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicReviewMediaSplatRoute =
+  ApiPublicReviewMediaSplatRouteImport.update({
+    id: '/api/public/review-media/$',
+    path: '/api/public/review-media/$',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -242,6 +249,7 @@ export interface FileRoutesByFullPath {
   '/admin/content/$key': typeof AuthenticatedAdminContentKeyRoute
   '/admin/products/$id': typeof AuthenticatedAdminProductsIdRoute
   '/api/public/media/$': typeof ApiPublicMediaSplatRoute
+  '/api/public/review-media/$': typeof ApiPublicReviewMediaSplatRoute
   '/account/orders/': typeof AuthenticatedAccountOrdersIndexRoute
   '/admin/products/': typeof AuthenticatedAdminProductsIndexRoute
 }
@@ -273,6 +281,7 @@ export interface FileRoutesByTo {
   '/admin/content/$key': typeof AuthenticatedAdminContentKeyRoute
   '/admin/products/$id': typeof AuthenticatedAdminProductsIdRoute
   '/api/public/media/$': typeof ApiPublicMediaSplatRoute
+  '/api/public/review-media/$': typeof ApiPublicReviewMediaSplatRoute
   '/account/orders': typeof AuthenticatedAccountOrdersIndexRoute
   '/admin/products': typeof AuthenticatedAdminProductsIndexRoute
 }
@@ -308,6 +317,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/content/$key': typeof AuthenticatedAdminContentKeyRoute
   '/_authenticated/admin/products/$id': typeof AuthenticatedAdminProductsIdRoute
   '/api/public/media/$': typeof ApiPublicMediaSplatRoute
+  '/api/public/review-media/$': typeof ApiPublicReviewMediaSplatRoute
   '/_authenticated/account/orders/': typeof AuthenticatedAccountOrdersIndexRoute
   '/_authenticated/admin/products/': typeof AuthenticatedAdminProductsIndexRoute
 }
@@ -343,6 +353,7 @@ export interface FileRouteTypes {
     | '/admin/content/$key'
     | '/admin/products/$id'
     | '/api/public/media/$'
+    | '/api/public/review-media/$'
     | '/account/orders/'
     | '/admin/products/'
   fileRoutesByTo: FileRoutesByTo
@@ -374,6 +385,7 @@ export interface FileRouteTypes {
     | '/admin/content/$key'
     | '/admin/products/$id'
     | '/api/public/media/$'
+    | '/api/public/review-media/$'
     | '/account/orders'
     | '/admin/products'
   id:
@@ -408,6 +420,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/content/$key'
     | '/_authenticated/admin/products/$id'
     | '/api/public/media/$'
+    | '/api/public/review-media/$'
     | '/_authenticated/account/orders/'
     | '/_authenticated/admin/products/'
   fileRoutesById: FileRoutesById
@@ -431,6 +444,7 @@ export interface RootRouteChildren {
   WishlistRoute: typeof WishlistRoute
   ProductSlugRoute: typeof ProductSlugRoute
   ApiPublicMediaSplatRoute: typeof ApiPublicMediaSplatRoute
+  ApiPublicReviewMediaSplatRoute: typeof ApiPublicReviewMediaSplatRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -659,6 +673,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicMediaSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/review-media/$': {
+      id: '/api/public/review-media/$'
+      path: '/api/public/review-media/$'
+      fullPath: '/api/public/review-media/$'
+      preLoaderRoute: typeof ApiPublicReviewMediaSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -736,6 +757,7 @@ const rootRouteChildren: RootRouteChildren = {
   WishlistRoute: WishlistRoute,
   ProductSlugRoute: ProductSlugRoute,
   ApiPublicMediaSplatRoute: ApiPublicMediaSplatRoute,
+  ApiPublicReviewMediaSplatRoute: ApiPublicReviewMediaSplatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

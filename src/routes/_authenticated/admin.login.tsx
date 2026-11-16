@@ -36,7 +36,7 @@ function AdminLogin() {
   return (
     <div className="max-w-md">
       <h1 className="text-2xl font-bold">Admin login</h1>
-      <p className="mt-1 text-sm text-muted-foreground">Set a new login ID and password for the separate admin sign-in page. Anyone currently signed in with it will be signed out.</p>
+      <p className="mt-1 text-sm text-muted-foreground">Set a new login ID and password for the separate admin sign-in page. Only the owner account (signed in with the owner email) can save changes. Anyone signed in with the old details is signed out.</p>
       {q.data?.username && <p className="mt-4 text-sm">Current login ID: <b>{q.data.username}</b></p>}
       <form onSubmit={submit} className="mt-6 space-y-4">
         <label className="block text-xs uppercase tracking-widest text-muted-foreground">Login ID

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { DEFAULT_DESIGN, closestSwatches, estimate, pinch, rgbToHex, wallLoops } from "@/lib/custom";
+import { DEFAULT_DESIGN, closestSwatches, estimate, lampAssembly, lampBase, parts, pinch, rgbToHex, wallLoops } from "@/lib/custom";
 
 describe("custom studio rules", () => {
   it("waterproofing adds wall loops and weight", () => {
@@ -17,9 +17,9 @@ describe("custom studio rules", () => {
     const mixed = estimate({ ...DEFAULT_DESIGN, form: "stack", modules: [m, { ...m, shape: "donut", height: 5 }] });
     expect(mixed.totalHeight).toBe(15);
   });
-  it("a table lamp base adds 6 cm, no base adds nothing", () => {
+  it("a table lamp base adds 6 cm plus its connecting stem, no base adds nothing", () => {
     const lamp = { ...DEFAULT_DESIGN, form: "table-lamp" as const, height: 24 };
-    expect(estimate({ ...lamp, base: "box" }).totalHeight).toBe(30);
+    expect(estimate({ ...lamp, base: "box" }).totalHeight).toBe(34);
     expect(estimate({ ...lamp, base: "none" }).totalHeight).toBe(24);
   });
   it("touch points shape the width between a fixed top and bottom", () => {
@@ -37,6 +37,28 @@ describe("custom studio rules", () => {
     expect(closestSwatches("#c56b44")[0]?.name).toBe("Terracotta");
     expect(closestSwatches("not a colour")).toEqual([]);
     expect(rgbToHex(196, 106, 67)).toBe("#c46a43");
+  });
+});
+
+describe("practical lamp assembly", () => {
+  it("keeps base and shade shape, dimensions and touch points independent", () => {
+    const base = { shape: "custom" as const, height: 12, width: 14, color: "#30302e", points: [{ t: 0.5, s: 0.6 }], taper: 0.3 };
+    const d = { ...DEFAULT_DESIGN, form: "table-lamp" as const, lampBase: base, shadeShape: "cone" as const, height: 24, width: 30 };
+    expect(parts(d)[0]).toEqual(base);
+    expect(parts(d)[1]).toMatchObject({ shape: "cone", height: 24, width: 30 });
+    expect(lampBase({ ...d, width: 36 })).toEqual(base);
+  });
+  it("places the shade above feet, base and connecting stem", () => {
+    const d = { ...DEFAULT_DESIGN, form: "table-lamp" as const, legs: "tripod" as const, legHeight: 5, stemHeight: 4, height: 24 };
+    expect(lampAssembly(d)).toMatchObject({ feetHeight: 5, baseHeight: 6, stemHeight: 4, shadeY: 15, totalHeight: 39 });
+    expect(estimate(d).totalHeight).toBe(39);
+  });
+  it("uses a 27 mm E27 socket and shows it even with the light switched off", () => {
+    expect(lampAssembly({ ...DEFAULT_DESIGN, light: false }).socketDiameter).toBe(2.7);
+  });
+  it("keeps older saved designs usable without new base fields", () => {
+    expect(lampBase(DEFAULT_DESIGN)).toMatchObject({ height: 6, width: 11, shape: "cylinder" });
+    expect(lampAssembly({ ...DEFAULT_DESIGN, form: "table-lamp", base: "none", legs: "four" }).shadeY).toBe(0);
   });
 });
 

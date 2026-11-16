@@ -14,3 +14,16 @@ it("seals the base underside at the centre, but leaves lamp shade openings with 
   expect(Array.from({ length: shade.count }, (_, i) => Math.hypot(shade.getX(i), shade.getZ(i))).every((r) => r > 0.89)).toBe(true);
   expect(shade.count).toBe(96);
 });
+
+it("closes lamp end plates except for a small holder aperture, rather than leaving the full shell hollow", () => {
+  const ring = (radius: number) => {
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute("position", new THREE.Float32BufferAttribute([0, 1].flatMap(y => Array.from({ length: 9 }, (_, i) => [radius * Math.cos(i * Math.PI / 4), y, radius * Math.sin(i * Math.PI / 4)]).flat()), 3));
+    return geometry;
+  };
+  const plate = shellClosure(ring(1), ring(0.9), 8, 1, true, true, 0.16).getAttribute("position");
+  const radii = Array.from({ length: plate.count }, (_, i) => Math.hypot(plate.getX(i), plate.getZ(i)));
+  expect(Math.min(...radii)).toBeCloseTo(0.16);
+  expect(Math.max(...radii)).toBeCloseTo(1);
+  expect(plate.count).toBe(96);
+});

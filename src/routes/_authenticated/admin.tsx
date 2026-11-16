@@ -1,6 +1,8 @@
 import { createFileRoute, Link, Outlet, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { ExternalLink, FileText, Inbox, LayoutDashboard, Loader2, LogOut, Package, ShoppingCart, Settings, Tags } from "lucide-react";
+import { useEffect } from "react";
+import { toast } from "sonner";
+import { ExternalLink, FileText, Inbox, LayoutDashboard, Loader2, LogOut, Package, ShoppingCart, Bell, Sparkles, TicketPercent, MessageSquareQuote, Settings, Tags } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { sections, type ContentKey } from "@/lib/cms-schema";
 
@@ -61,10 +63,14 @@ function AdminLayout() {
       <aside className="sticky top-0 flex h-screen w-60 shrink-0 flex-col overflow-y-auto bg-ink p-4 text-ink-foreground">
         <Link to="/admin" className="px-3 py-2 font-display text-lg font-bold">L&amp;L Studio</Link>
         <nav className="mt-4 space-y-0.5">
-          <Link to="/admin" activeOptions={{ exact: true }} className={item} activeProps={active}><LayoutDashboard className="h-4 w-4" /> Overview</Link>
+          <Link to="/admin" activeOptions={{ exact: true }} className={item} activeProps={active}><LayoutDashboard className="h-4 w-4" /> Dashboard</Link>
           <Link to="/admin/products" className={item} activeProps={active}><Package className="h-4 w-4" /> Products</Link>
           <Link to="/admin/taxonomy" className={item} activeProps={active}><Tags className="h-4 w-4" /> Categories &amp; spaces</Link>
           <Link to="/admin/orders" className={item} activeProps={active}><ShoppingCart className="h-4 w-4" /> Orders</Link>
+          <Link to="/admin/custom" className={item} activeProps={active}><Sparkles className="h-4 w-4" /> Custom orders</Link>
+          <Link to="/admin/coupons" className={item} activeProps={active}><TicketPercent className="h-4 w-4" /> Coupons</Link>
+          <Link to="/admin/reviews" className={item} activeProps={active}><MessageSquareQuote className="h-4 w-4" /> Reviews</Link>
+          <AlertsLink />
           <Link to="/admin/inbox" className={item} activeProps={active}><Inbox className="h-4 w-4" /> Inbox</Link>
           <Link to="/admin/content/$key" params={{ key: "settings" }} className={item} activeProps={active}><Settings className="h-4 w-4" /> Site settings</Link>
         </nav>
@@ -84,5 +90,28 @@ function AdminLayout() {
         <Outlet />
       </main>
     </div>
+  );
+}
+
+function AlertsLink() {
+  const qc = useQueryClient();
+  const unread = useQuery({ queryKey: ["admin-unread"], queryFn: async () => (await supabase.from("admin_notifications").select("id", { count: "exact", head: true }).is("read_at", null)).count ?? 0 });
+  useEffect(() => {
+    const channel = supabase.channel(`admin-alerts-${Math.random().toString(36).slice(2)}`)
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "admin_notifications" }, (payload) => {
+        toast.success(String((payload.new as { title?: string }).title ?? "New order"));
+        qc.invalidateQueries({ queryKey: ["admin-unread"] });
+        qc.invalidateQueries({ queryKey: ["admin-notifications"] });
+        qc.invalidateQueries({ queryKey: ["admin-orders"] });
+        qc.invalidateQueries({ queryKey: ["admin-requests"] });
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [qc]);
+  return (
+    <Link to="/admin/alerts" className={item} activeProps={active}>
+      <Bell className="h-4 w-4" /> Alerts
+      {!!unread.data && <span className="ml-auto rounded-full bg-primary px-1.5 text-[10px] font-semibold text-primary-foreground">{unread.data}</span>}
+    </Link>
   );
 }

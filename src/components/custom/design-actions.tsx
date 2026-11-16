@@ -13,6 +13,9 @@ import { notifyNewRequest } from "@/lib/notify.functions";
 
 /** Captures the sandbox's 3D view as a small JPEG for the saved-design card. */
 async function snapshot(): Promise<Blob | null> {
+  // Saved/requested thumbnails always show the complete lamp, not its inspection view.
+  window.dispatchEvent(new Event("custom:assemble-preview"));
+  await new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
   const canvas = document.querySelector<HTMLCanvasElement>("#sandbox canvas");
   if (!canvas) return null;
   const out = document.createElement("canvas");

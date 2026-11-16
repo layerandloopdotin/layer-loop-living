@@ -1,7 +1,7 @@
 import * as THREE from "three";
 
 /** Join exact outer/inner edge samples; solid parts receive a sealed floor. */
-export function shellClosure(outer: THREE.BufferGeometry, inner: THREE.BufferGeometry, segments: number, rings: number, closedBottom: boolean, closedTop = false) {
+export function shellClosure(outer: THREE.BufferGeometry, inner: THREE.BufferGeometry, segments: number, rings: number, closedBottom: boolean, closedTop = false, holeRadius = 0) {
   const a = outer.getAttribute("position"), b = inner.getAttribute("position");
   const vertices: number[] = [];
   const triangle = (p: number[], q: number[], r: number[]) => vertices.push(...p, ...q, ...r);
@@ -11,7 +11,12 @@ export function shellClosure(outer: THREE.BufferGeometry, inner: THREE.BufferGeo
     const closed = edge === 0 ? closedBottom : closedTop;
     for (let i = 0; i < segments; i++) {
       const p = point(a, row + i), q = point(a, row + i + 1);
-      if (closed) triangle(p, q, [0, p[1] ?? 0, 0]);
+      if (closed && holeRadius > 0) {
+        const inset = (v: number[]) => { const length = Math.hypot(v[0] ?? 0, v[2] ?? 0); const k = Math.min(holeRadius, length * 0.8) / Math.max(length, 0.001); return [(v[0] ?? 0) * k, v[1] ?? 0, (v[2] ?? 0) * k]; };
+        const r = inset(p), s = inset(q);
+        triangle(p, q, r); triangle(q, s, r);
+      }
+      else if (closed) triangle(p, q, [0, p[1] ?? 0, 0]);
       else {
         const r = point(b, row + i), s = point(b, row + i + 1);
         triangle(p, q, r); triangle(q, s, r);

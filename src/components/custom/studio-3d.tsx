@@ -88,7 +88,10 @@ function Part({ d, shape, h, w, color, points, taper, lit, glow, solid = false, 
   const lathe = shape !== "box" && shape !== "donut";
   const outer = useMemo(() => (lathe ? buildLathe(d, shape, h, w, points, 0, taper) : null), [d, shape, h, w, points, lathe, taper]);
   const inner = useMemo(() => (lathe ? buildLathe(d, shape, h, w, points, 0.012 * loops, taper) : null), [d, shape, h, w, points, loops, lathe, taper]);
-  const rim = useMemo(() => outer && inner ? shellClosure(outer, inner, SEG, RINGS, solid || d.form === "vase" || d.form === "planter", solid) : null, [outer, inner, solid, d.form]);
+  const rim = useMemo(() => {
+    const lamp = d.form === "stack" || d.form === "pendant";
+    return outer && inner ? shellClosure(outer, inner, SEG, RINGS, solid || lamp || d.form === "vase" || d.form === "planter", solid || lamp, !solid && lamp ? 0.16 : 0) : null;
+  }, [outer, inner, solid, d.form]);
   useEffect(() => () => { outer?.dispose(); inner?.dispose(); rim?.dispose(); }, [outer, inner, rim]);
   const rough = 0.48 + d.fuzzy * 0.35;
   const H = h / 10, R = w / 20;
@@ -209,7 +212,7 @@ function Piece({ d, spin, onPoints, active, onModulePoints, setDragging, lampPar
           const isBase = d.form === "table-lamp" && !isMain;
           return (
             <group key={i} position={[0, offsets[i] ?? 0, 0]}>
-              {!(table && !isBase && assemblyView) && <Part d={d} shape={p.shape} h={p.height} w={p.width} color={p.color ?? (isBase ? shade(d.color, -0.25) : d.color)}
+              {!((table || stack || d.form === "pendant") && !isBase && assemblyView) && <Part d={d} shape={p.shape} h={p.height} w={p.width} color={p.color ?? (isBase ? shade(d.color, -0.25) : d.color)}
                 points={isMain ? d.points : p.points ?? []} taper={isMain ? d.taper : p.taper ?? 0} lit={lit && !isBase && litModule(i)} glow={glow} solid={isBase} />}
             </group>
           );
@@ -229,18 +232,29 @@ function Piece({ d, spin, onPoints, active, onModulePoints, setDragging, lampPar
           <mesh position={[0, assembly.shadeY / 10 + 0.22, 0]} rotation={[Math.PI / 2, 0, 0]}><torusGeometry args={[0.2, 0.025, 12, 48]} /><meshStandardMaterial color="#bab7ab" metalness={0.65} roughness={0.3} /></mesh>
           {[0, 1, 2].map((i) => { const angle = i * Math.PI * 2 / 3; const r = d.width / 20 * shapeProfile(d.shadeShape ?? "classic", d, 0.22, d.taper) * pinch(d.points, 0.22); return <Rod key={i} from={[Math.cos(angle) * 0.2, assembly.shadeY / 10 + 0.22, Math.sin(angle) * 0.2]} to={[Math.cos(angle) * (r - 0.03), assembly.shadeY / 10 + d.height / 10 * 0.22, Math.sin(angle) * (r - 0.03)]} radius={0.025} color="#bab7ab" />; })}
         </>}
-        {d.form === "pendant" && <E27 y={total - 0.18} down lit={lit} glow={glow} />}
+        {stack && <>
+          <mesh position={[0, 0.08, 0]} castShadow><cylinderGeometry args={[Math.max(0.45, (ps[0]?.width ?? d.width) / 20), Math.max(0.45, (ps[0]?.width ?? d.width) / 20), 0.16, 64]} /><meshStandardMaterial color="#30302e" roughness={0.55} metalness={0.2} /></mesh>
+          <Rod from={[0, 0.16, 0]} to={[0, total - 0.08, 0]} radius={0.065} />
+          {ps.map((p, i) => <mesh key={i} position={[0, (offsets[i] ?? 0) + 0.05, 0]} castShadow><cylinderGeometry args={[p.width / 20 * 0.72, p.width / 20 * 0.72, 0.1, 48]} /><meshStandardMaterial color="#30302e" roughness={0.55} /></mesh>)}
+          {fit?.count === 1 && <E27 y={(offsets[fit.from] ?? 0) + 0.1} lit={lit} glow={glow} />}
+          <mesh position={[0, total - 0.045, 0]}><cylinderGeometry args={[0.18, 0.18, 0.09, 32]} /><meshStandardMaterial color="#30302e" metalness={0.3} roughness={0.4} /></mesh>
+          <Rod from={[0, 0.09, 0]} to={[0, 0.04, -(ps[0]?.width ?? d.width) / 20 - 0.3]} radius={0.025} />
+        </>}
+        {d.form === "pendant" && <>
+          <E27 y={total - 0.18} down lit={lit} glow={glow} />
+          <mesh position={[0, total - 0.1, 0]}><cylinderGeometry args={[0.23, 0.23, 0.16, 40]} /><meshStandardMaterial color="#30302e" roughness={0.45} /></mesh>
+          {[0, 1, 2].map(i => { const a = i * Math.PI * 2 / 3, r = d.width / 20 * formProfile("pendant", 0.95, d.taper); return <Rod key={i} from={[0, total - 0.1, 0]} to={[Math.cos(a) * r, total - 0.1, Math.sin(a) * r]} radius={0.025} />; })}
+          <Rod from={[0, total, 0]} to={[0, total + 1.5, 0]} radius={0.025} />
+          <mesh position={[0, total + 1.56, 0]} castShadow><cylinderGeometry args={[0.36, 0.36, 0.12, 48]} /><meshStandardMaterial color="#30302e" roughness={0.5} /></mesh>
+        </>}
       </group>
       {onPoints && !stack && handlePart.shape !== "box" && handlePart.shape !== "donut" && <Handles points={handlePart.points ?? []} hCm={handlePart.height} wCm={handlePart.width} prof={(t) => shapeProfile(handlePart.shape, d, t, handlePart.taper ?? 0)} y0={handleBase ? assembly.feetHeight / 10 : offsets[mainIndex] ?? 0} onPoints={onPoints} setDragging={setDragging} />}
       {am && amLathe && onModulePoints && active !== undefined && (
         <Handles points={am.points ?? []} hCm={am.height} wCm={am.width} prof={(t) => shapeProfile(am.shape, d, t, am.taper ?? 0)} y0={offsets[active] ?? 0}
           onPoints={(p) => onModulePoints(active, p)} setDragging={setDragging} />
       )}
-      {lit && fit && (fit.count === 1
-        ? <mesh position={[0, lightY, 0]}><sphereGeometry args={[0.16, 24, 24]} /><meshBasicMaterial color={glow} /></mesh>
-        : <mesh position={[0, lightY, 0]}><cylinderGeometry args={[fit.count && d.lightKind === "tube" ? 0.07 : 0.035, d.lightKind === "tube" ? 0.07 : 0.035, (offsets[fit.to] ?? 0) + (ps[fit.to]?.height ?? 0) / 10 - (offsets[fit.from] ?? 0) - 0.1, 16]} /><meshBasicMaterial color={glow} /></mesh>)}
+      {fit && fit.count > 1 && <mesh position={[0.1, lightY, 0]}><cylinderGeometry args={[d.lightKind === "tube" ? 0.07 : 0.035, d.lightKind === "tube" ? 0.07 : 0.035, Math.max(0.1, (offsets[fit.to] ?? 0) + (ps[fit.to]?.height ?? 0) / 10 - (offsets[fit.from] ?? 0) - 0.2), 16]} /><meshStandardMaterial color="#eeece5" emissive={glow} emissiveIntensity={lit ? 1 : 0} /></mesh>}
       {lit && <pointLight position={[0, lightY, 0]} intensity={3} distance={8} color={glow} />}
-      {d.form === "pendant" && <mesh position={[0, total + 1.5, 0]}><cylinderGeometry args={[0.015, 0.015, 3]} /><meshStandardMaterial color="#222" /></mesh>}
     </group>
   );
 }
@@ -274,7 +288,7 @@ function CameraFit({ dist }: { dist: number }) {
 
 export function StudioModel({ design, spin = false, interactive = true, onPoints, active, onModulePoints, lampPart, assemblyView }: { design: Design; spin?: boolean; interactive?: boolean; onPoints?: (p: TouchPoint[]) => void; active?: number | undefined; onModulePoints?: (i: number, p: TouchPoint[]) => void; lampPart?: "base" | "shade"; assemblyView?: boolean }) {
   const tall = design.form === "table-lamp" ? lampAssembly(design).totalHeight / 10 : parts(design).reduce((s, p) => s + p.height / 10, 0);
-  const dist = Math.max(5.5, tall * 2.4, (design.width / 10) * 3.2);
+  const dist = Math.max(5.5, (tall + (design.form === "pendant" ? 1.7 : 0)) * 2.4, (design.width / 10) * 3.2);
   const [dragging, setDragging] = useState(false);
   return (
     <div className="h-full w-full touch-none" data-scene-ready>

@@ -1,4 +1,5 @@
 # Roadmap
+- [x] Close stack/pendant shells and add connected bases, holders and fitting inspection; verify rendering
 - [x] Match uploaded lamp base: tapered black tripod legs and compact socket housing
 - [x] Practical lamp sandbox: closed bases, independent base/shade design, legs, E27 assembly, realistic rendering and desktop/mobile verification
 - [x] Advance-paid custom requests: customer progress/final quotes, matching saved designs, admin review updates and verification

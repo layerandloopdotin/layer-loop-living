@@ -18,6 +18,11 @@ Already built this session (account, orders, checkout, product page updates) sta
 - New admin page **Custom orders**: preview the design settings, see the estimate, enter the exact quoted price and a note, then **Send quote**. Status: Requested → Quoted → Accepted → In production (becomes a normal order) or Declined.
 - Customer sees the quote on their account and can **Accept quote**, which creates the order at the quoted price. Guests get the quote by WhatsApp/email from the team.
 
+## Saved designs
+- On the Custom page, a **Save design** button (asks to sign in if needed) with a name for the design.
+- Profile gets a **My designs** tab: thumbnail, name, date; open it back in the sandbox to keep editing, rename, delete, or "Request this design".
+- No export: there is no download of 3D files or design data; designs only reopen inside the site.
+
 ## Coupons
 - New admin page **Coupons**: code, % or fixed amount, minimum order, start/end date, usage limit, active on/off.
 - Cart and checkout accept only live coupons from this list; the current hard-coded coupons are removed.
@@ -38,4 +43,5 @@ Already built this session (account, orders, checkout, product page updates) sta
 - `reviews` table (product_id, user_id, order_id, rating 1–5, comment, images text[], status pending/approved/hidden); insert allowed only when the user owns a delivered order containing the product (trigger check); public reads only approved. Photos in a private `review-media` bucket served via the existing media route pattern.
 - `admin_notifications` table (kind, ref id, title, read_at), filled by triggers on `orders` and `custom_requests` inserts; admin-only RLS; live updates via realtime.
 - Email via Lovable app emails (one fixed "new order" template to the configured shop address); WhatsApp via the WhatsApp Business connector, sent from a server route called by a database webhook on new orders, with sends logged.
+- `saved_designs` table (user_id, name, design jsonb, thumbnail ref) owner-only RLS; thumbnail is a canvas snapshot in a private bucket. Custom page reads `?design=<id>` to reload. No file export paths added (screenshots can't be fully prevented in a browser).
 - Test rating average, coupon validity (dates, minimum, limit) and quote acceptance rules.

@@ -1,13 +1,20 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
+import { useNavigate } from "@tanstack/react-router";
+import { notifyNewRequest } from "@/lib/notify.functions";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { ALL_STATUSES, STATUS_LABEL, statusChip, fieldValue, type OrderItem } from "@/lib/account";
 import { formatPrice } from "@/lib/currency";
 import { useSite } from "@/lib/site";
 
-export const Route = createFileRoute("/_authenticated/admin/orders")({ component: AdminOrders });
+export const Route = createFileRoute("/_authenticated/admin/orders")({
+  validateSearch: (s: Record<string, unknown>): { q?: string; status?: string } => ({
+    ...(typeof s["q"] === "string" ? { q: s["q"] } : {}), ...(typeof s["status"] === "string" ? { status: s["status"] } : {}),
+  }),
+  component: AdminOrders,
+});
 
 const input = "mt-1 w-full rounded-md border border-border bg-background px-3 py-2 text-sm";
 const label = "block text-[11px] uppercase tracking-widest text-muted-foreground";
@@ -16,6 +23,13 @@ function AdminOrders() {
   const qc = useQueryClient();
   const site = useSite();
   const [creating, setCreating] = useState(false);
+  const search = Route.useSearch();
+  const navigate = useNavigate({ from: Route.fullPath });
+  const quick = async (id: string, patch: { status?: string; confirmed_at?: string }, msg: string) => {
+    const { error } = await supabase.from("orders").update(patch).eq("id", id);
+    if (error) { toast.error("Couldn't update order"); return; }
+    toast.success(msg); refresh();
+  };
   const orders = useQuery({ queryKey: ["admin-orders"], queryFn: async () => {
     const { data, error } = await supabase.from("orders").select("*").order("created_at", { ascending: false });
     if (error) throw error; return data;
@@ -47,8 +61,9 @@ function AdminOrders() {
     if (!p || !user_id) { toast.error("Pick a customer and a product"); return; }
     const items: OrderItem[] = [{ slug: p.slug, name: p.name, qty, price: p.price, image: p.image }];
     const subtotal = p.price * qty;
-    const { error } = await supabase.from("orders").insert({ user_id, items, subtotal, total: subtotal, payment_label: fieldValue(fd, "payment") || null });
+    const { data: row, error } = await supabase.from("orders").insert({ user_id, items, subtotal, total: subtotal, payment_label: fieldValue(fd, "payment") || null }).select("id").single();
     if (error) { toast.error("Couldn't create order"); return; }
+    notifyNewRequest({ data: { kind: "order", id: row.id } }).catch(() => {});
     setCreating(false); refresh(); toast.success("Order created");
   };
 
@@ -70,13 +85,21 @@ function AdminOrders() {
         </form>
       )}
 
+      <div className="mt-6 flex flex-wrap gap-2">
+        <input value={search.q ?? ""} onChange={(e) => navigate({ search: (p) => ({ ...p, q: e.target.value || undefined }), replace: true })} placeholder="Search order no. or customer" className="min-w-0 flex-1 rounded-md border border-border bg-background px-3 py-2 text-sm" />
+        <select value={search.status ?? ""} onChange={(e) => navigate({ search: (p) => ({ ...p, status: e.target.value || undefined }), replace: true })} className="rounded-md border border-border bg-background px-3 py-2 text-sm">
+          <option value="">All statuses</option>{ALL_STATUSES.map((s) => <option key={s} value={s}>{STATUS_LABEL[s]}</option>)}
+        </select>
+      </div>
       <ul className="mt-6 space-y-4">
         {orders.data?.length === 0 && <p className="text-sm text-muted-foreground">No orders yet.</p>}
-        {orders.data?.map((o) => (
+        {orders.data?.filter((o) => (!search.status || o.status === search.status) && (!search.q || `${o.number} ${who(o.user_id)}`.toLowerCase().includes(search.q.toLowerCase()))).map((o) => (
           <li key={o.id} className="rounded-xl border border-border p-5">
             <div className="flex flex-wrap items-center gap-3 text-sm">
               <span className="font-semibold">#{o.number}</span>
               <span className={`rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${statusChip(o.status)}`}>{STATUS_LABEL[o.status]}</span>
+              {o.confirmed_at ? <span className="text-[11px] text-muted-foreground">Confirmed</span> : <button onClick={() => quick(o.id, { confirmed_at: new Date().toISOString() }, "Order confirmed")} className="rounded-full bg-primary px-3 py-0.5 text-[11px] font-semibold text-primary-foreground">Confirm</button>}
+              {o.status !== "cancelled" && <button onClick={() => window.confirm("Cancel this order?") && quick(o.id, { status: "cancelled" }, "Order cancelled")} className="rounded-full border border-destructive px-3 py-0.5 text-[11px] text-destructive">Cancel</button>}
               <span className="text-muted-foreground">{who(o.user_id)} · {formatPrice(Number(o.total))} · {new Date(o.created_at).toLocaleDateString("en-IN")}</span>
             </div>
             <p className="mt-1 text-xs text-muted-foreground">{(o.items as OrderItem[]).map((i) => `${i.name} × ${i.qty}`).join(", ")}</p>

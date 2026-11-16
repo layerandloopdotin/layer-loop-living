@@ -26,7 +26,7 @@ function Dashboard() {
   } });
   const orders = q.data ?? [];
   const day = (n: number) => { const d = new Date(); d.setHours(0, 0, 0, 0); d.setDate(d.getDate() - n + 1); return d; };
-  const fresh = orders.filter((o) => o.status === "in_production" && !o.awb).slice(0, 6);
+  const fresh = orders.filter((o) => !o.confirmed_at && o.status !== "cancelled").slice(0, 6);
   const r = rates(orders);
 
   return (

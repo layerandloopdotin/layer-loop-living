@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { fieldValue, phoneSchema } from "@/lib/account";
 import type { Design, Rates } from "@/lib/custom";
 import { estimate } from "@/lib/custom";
+import { notifyNewRequest } from "@/lib/notify.functions";
 
 /** Captures the sandbox's 3D view as a small JPEG for the saved-design card. */
 async function snapshot(): Promise<Blob | null> {
@@ -69,7 +70,7 @@ export function DesignActions({ design, rates, summary, loadedId }: { design: De
       contact: { name: fieldValue(fd, "name"), phone, email: fieldValue(fd, "email"), note: fieldValue(fd, "note"), address: { name: fieldValue(fd, "name"), phone, pin } },
     });
     if (error) { toast.error("Couldn't send your request"); return; }
-    import("@/lib/notify.functions").then((m) => m.notifyNewRequest({ data: { kind: "custom", id } })).catch(() => {});
+    notifyNewRequest({ data: { kind: "custom", id } }).catch(() => {});
     setSent(true);
   };
 

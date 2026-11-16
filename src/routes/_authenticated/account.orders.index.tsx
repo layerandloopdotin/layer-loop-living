@@ -83,7 +83,7 @@ function CustomRequests() {
               : <div className="mt-3 rounded-lg bg-card p-3 text-xs">
                   <p className="font-semibold">Pay 20% advance: {formatPrice(Number(r.deposit_amount))}</p>
                   <p className="mt-1 text-muted-foreground">We price your design once the advance is in. It's adjusted in your final bill.</p>
-                  <a href={waHref(site.settings.whatsapp, `Hi, I'd like to pay the ${formatPrice(Number(r.deposit_amount))} advance for my custom design request ${r.id.slice(0, 8).toUpperCase()}.`)} target="_blank" rel="noreferrer" className="mt-3 inline-flex rounded-full bg-primary px-5 py-2 font-semibold text-primary-foreground">Pay advance</a>
+                  <a href={waHref(String(site.content("settings").whatsapp ?? ""), `Hi, I'd like to pay the ${formatPrice(Number(r.deposit_amount))} advance for my custom design request ${r.id.slice(0, 8).toUpperCase()}.`)} target="_blank" rel="noreferrer" className="mt-3 inline-flex rounded-full bg-primary px-5 py-2 font-semibold text-primary-foreground">Pay advance</a>
                 </div>)}
             {r.quote != null && <div className="mt-3 rounded-lg bg-card p-3">
               <p className="font-semibold">Final quoted price: {formatPrice(Number(r.quote))}</p>

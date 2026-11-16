@@ -433,7 +433,7 @@ const TABS = [
   { id: "extras", label: "Light & water" },
 ] as const;
 
-function Sandbox({ design: d, setDesign, rates, note, sendLabel, onSend, actions }: { design: Design; setDesign: (d: Design) => void; rates: Rates; note: string; sendLabel: string; onSend: () => void; actions?: ReactNode }) {
+function Sandbox({ design: d, setDesign, rates, note, actions }: { design: Design; setDesign: (d: Design) => void; rates: Rates; note: string; sendLabel: string; onSend: () => void; actions?: ReactNode }) {
   const set = (p: Partial<Design>) => setDesign({ ...d, ...p });
   const [tab, setTab] = useState<(typeof TABS)[number]["id"]>("shape");
   const [sel, setSel] = useState(0);

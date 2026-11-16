@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 export type TrackingScan = { date: string; activity: string; location: string };
-export type Tracking = { connected: boolean; status?: string; etd?: string; url?: string; scans: TrackingScan[] };
+export type Tracking = { connected: boolean; status?: string | undefined; etd?: string | undefined; url?: string | undefined; scans: TrackingScan[] };
 
 /** Live Shiprocket tracking for one of the caller's own orders (looked up by RLS). */
 export const getOrderTracking = createServerFn({ method: "POST" })

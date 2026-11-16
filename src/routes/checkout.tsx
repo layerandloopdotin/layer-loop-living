@@ -52,7 +52,7 @@ function Checkout() {
     const v = addressSchema.safeParse({ label: "Delivery", ...Object.fromEntries(KEYS.map((k) => [k, fieldValue(fd, k)])) });
     if (!v.success) { toast.error(v.error.issues[0]?.message); return; }
     sessionStorage.setItem(CHECKOUT_KEY, JSON.stringify({ address: v.data, email: fieldValue(fd, "email"), method, total: t.total, items: lines.map((l) => ({ name: l.p.name, qty: l.qty, variant: l.variant })) }));
-    navigate({ to: "/checkout/pay" });
+    navigate({ to: "/payment" });
   };
 
   if (lines.length === 0) return <Page><section className="mx-auto max-w-xl px-6 py-24 text-center"><p className="text-muted-foreground">Your cart is empty.</p><Link to="/products" className="mt-6 inline-flex rounded-full border border-foreground px-6 py-3 text-sm font-semibold">Browse objects</Link></section></Page>;

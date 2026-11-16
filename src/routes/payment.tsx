@@ -5,7 +5,7 @@ import { Page } from "@/components/site";
 import { formatPrice } from "@/lib/currency";
 import { useSite, waHref } from "@/lib/site";
 
-export const Route = createFileRoute("/checkout/pay")({
+export const Route = createFileRoute("/payment")({
   head: () => ({
     meta: [
       { title: "Redirecting to payment — Layer & Loop" },

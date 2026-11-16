@@ -2,7 +2,7 @@
 import { z } from "zod";
 
 export const AVATARS = ["fox", "cat", "panda", "bunny", "owl", "redpanda", "penguin", "shiba"].map((a) => `asset:avatar-${a}.jpg`);
-export const DEFAULT_AVATAR = AVATARS[0];
+export const DEFAULT_AVATAR = "asset:avatar-fox.jpg";
 export const avatarRef = (ref: string | null | undefined) => (!ref || ref === "asset:avatar-fox" ? DEFAULT_AVATAR : ref);
 
 export const fieldValue = (fd: FormData, k: string) => String(fd.get(k) ?? "").trim();

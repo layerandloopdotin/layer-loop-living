@@ -226,7 +226,7 @@ export function StudioModel({ design, spin = false, interactive = true, onPoints
   const [dragging, setDragging] = useState(false);
   return (
     <div className="h-full w-full touch-none" data-scene-ready>
-      <Canvas shadows dpr={[1, 1.75]} camera={{ position: [0, tall * 0.15, dist], fov: 38 }} gl={{ antialias: true, alpha: true }}>
+      <Canvas shadows dpr={[1, 1.75]} camera={{ position: [0, tall * 0.15, dist], fov: 38 }} gl={{ antialias: true, alpha: true, preserveDrawingBuffer: true }}>
         <Lights />
         <CameraFit dist={Math.hypot(dist, tall * 0.15)} />
         <Piece d={design} spin={spin} onPoints={onPoints} active={active} onModulePoints={onModulePoints} setDragging={setDragging} />

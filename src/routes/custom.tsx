@@ -1,4 +1,5 @@
 import { ClientOnly, createFileRoute } from "@tanstack/react-router";
+import { DesignActions } from "@/components/custom/design-actions";
 import { Suspense, lazy, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { ArrowRight, Check, ChevronDown, ChevronUp, Copy, Droplets, Eraser, GripVertical, Lightbulb, Minus, PencilLine, Plus, Shuffle, Upload, X } from "lucide-react";
 import { toast } from "sonner";
@@ -21,6 +22,7 @@ const SketchModel = lazy(() => import("@/components/custom/studio-3d").then((m) 
 const PhotoRelief = lazy(() => import("@/components/custom/studio-3d").then((m) => ({ default: m.PhotoRelief })));
 
 export const Route = createFileRoute("/custom")({
+  validateSearch: (s: Record<string, unknown>) => ({ design: typeof s["design"] === "string" ? s["design"] : undefined }),
   head: () => ({
     meta: [
       { title: "Custom & Bespoke 3D Printing — Layer & Loop" },
@@ -63,6 +65,13 @@ function Custom() {
   };
   const [design, setDesign] = useState<Design>(DEFAULT_DESIGN);
   const [sentDesign, setSentDesign] = useState<Design | null>(null);
+  const { design: designId } = Route.useSearch();
+  useEffect(() => {
+    if (!designId) return;
+    supabase.from("saved_designs").select("design").eq("id", designId).maybeSingle().then(({ data }) => {
+      if (data?.design) { setDesign({ ...DEFAULT_DESIGN, ...(data.design as Partial<Design>) }); setTimeout(() => document.getElementById("sandbox")?.scrollIntoView(), 300); }
+    });
+  }, [designId]);
   const go = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
 
   return (
@@ -124,7 +133,8 @@ function Custom() {
             <p className="mt-3 max-w-xl text-ink-muted">{c.sandboxText}</p>
           </Reveal>
           <Sandbox design={design} setDesign={setDesign} rates={rates} note={c.sandboxNote} sendLabel={c.sendLabel}
-            onSend={() => { setSentDesign(design); go("brief"); toast.success("Design attached to your brief"); }} />
+            onSend={() => { setSentDesign(design); go("brief"); toast.success("Design attached to your brief"); }}
+            actions={<DesignActions design={design} rates={rates} summary={designSummary(design, rates)} loadedId={designId} />} />
         </div>
       </section>
 
@@ -423,7 +433,7 @@ const TABS = [
   { id: "extras", label: "Light & water" },
 ] as const;
 
-function Sandbox({ design: d, setDesign, rates, note, sendLabel, onSend }: { design: Design; setDesign: (d: Design) => void; rates: Rates; note: string; sendLabel: string; onSend: () => void }) {
+function Sandbox({ design: d, setDesign, rates, note, sendLabel, onSend, actions }: { design: Design; setDesign: (d: Design) => void; rates: Rates; note: string; sendLabel: string; onSend: () => void; actions?: ReactNode }) {
   const set = (p: Partial<Design>) => setDesign({ ...d, ...p });
   const [tab, setTab] = useState<(typeof TABS)[number]["id"]>("shape");
   const [sel, setSel] = useState(0);
@@ -535,6 +545,7 @@ function Sandbox({ design: d, setDesign, rates, note, sendLabel, onSend }: { des
             <div><dt className="opacity-60">Print</dt><dd className="font-semibold tabular-nums">~{spec.hours} h</dd></div>
             <div><dt className="opacity-60">Walls</dt><dd className="font-semibold tabular-nums">{spec.loops} loops</dd></div>
           </dl>
+          {actions}
           <p className="mt-2 text-[10px] opacity-60">{note}</p>
         </div>
       </div>

@@ -3,7 +3,8 @@ import { Canvas, useFrame, useThree, type ThreeEvent } from "@react-three/fiber"
 import { ContactShadows, Environment, Lightformer, OrbitControls } from "@react-three/drei";
 import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
-import { type Design, type PhotoMode, type PhotoObject, type ShapeId, type TouchPoint, lightFitting, parts, pinch, wallLoops } from "@/lib/custom";
+import { type Design, type PhotoMode, type PhotoObject, type ShapeId, type TouchPoint, lampAssembly, lampBase, lightFitting, parts, pinch, wallLoops } from "@/lib/custom";
+import { shellClosure } from "@/lib/printed-shell";
 
 // Dev-only: the source-inspector adds a `data-tsd-source` prop to every JSX tag, which R3F reads as the
 // nested path object.data.tsd.source and crashes on when a mesh is swapped (e.g. picking Donut or Box).
@@ -80,26 +81,32 @@ function buildLathe(d: Design, shape: ShapeId, hCm: number, wCm: number, points:
   return g;
 }
 
-type PartProps = { d: Design; shape: ShapeId; h: number; w: number; color: string; points: TouchPoint[]; taper: number; lit: boolean; glow: string };
+type PartProps = { d: Design; shape: ShapeId; h: number; w: number; color: string; points: TouchPoint[]; taper: number; lit: boolean; glow: string; solid?: boolean; translucent?: boolean };
 
-function Part({ d, shape, h, w, color, points, taper, lit, glow }: PartProps) {
+function Part({ d, shape, h, w, color, points, taper, lit, glow, solid = false, translucent = false }: PartProps) {
   const loops = wallLoops(d);
   const lathe = shape !== "box" && shape !== "donut";
   const outer = useMemo(() => (lathe ? buildLathe(d, shape, h, w, points, 0, taper) : null), [d, shape, h, w, points, lathe, taper]);
   const inner = useMemo(() => (lathe ? buildLathe(d, shape, h, w, points, 0.012 * loops, taper) : null), [d, shape, h, w, points, loops, lathe, taper]);
-  const rough = 0.55 + d.fuzzy * 0.4;
+  const rim = useMemo(() => outer && inner ? shellClosure(outer, inner, SEG, RINGS, solid || d.form === "vase" || d.form === "planter", solid) : null, [outer, inner, solid, d.form]);
+  useEffect(() => () => { outer?.dispose(); inner?.dispose(); rim?.dispose(); }, [outer, inner, rim]);
+  const rough = 0.48 + d.fuzzy * 0.35;
   const H = h / 10, R = w / 20;
-  const mat = <meshStandardMaterial color={color} roughness={rough} emissive={lit ? glow : "#000"} emissiveIntensity={lit ? 0.18 : 0} />;
+  const mat = <meshPhysicalMaterial color={color} roughness={rough} metalness={0} clearcoat={0.08} emissive={lit ? glow : "#000"} emissiveIntensity={lit ? 0.12 : 0} transparent={translucent} opacity={translucent ? 0.28 : 1} depthWrite={!translucent} />;
   if (shape === "box") return <mesh position={[0, H / 2, 0]} castShadow><boxGeometry args={[R * 1.6, H, R * 1.6]} />{mat}</mesh>;
   if (shape === "donut") {
     const tube = Math.min(H / 2, R * 0.45);
     return <mesh position={[0, tube, 0]} rotation={[Math.PI / 2, 0, 0]} castShadow><torusGeometry args={[R - tube, tube, 32, 96]} />{mat}</mesh>;
   }
+  if (!outer || !inner || !rim) return null;
   return (
     <>
-      <mesh geometry={outer!} castShadow>{mat}</mesh>
-      <mesh geometry={inner!}>
-        <meshStandardMaterial color={lit ? glow : color} roughness={0.9} side={THREE.BackSide} emissive={lit ? glow : "#000"} emissiveIntensity={lit ? 1.4 : 0} />
+      <mesh geometry={outer} castShadow receiveShadow>{mat}</mesh>
+      {!solid && <mesh geometry={inner}>
+        <meshStandardMaterial color={color} roughness={0.8} side={THREE.BackSide} emissive={lit ? glow : "#000"} emissiveIntensity={lit ? 0.45 : 0} transparent={translucent} opacity={translucent ? 0.15 : 1} depthWrite={!translucent} />
+      </mesh>}
+      <mesh geometry={rim} castShadow receiveShadow>
+        <meshStandardMaterial color={color} roughness={rough} side={THREE.DoubleSide} transparent={translucent} opacity={translucent ? 0.28 : 1} depthWrite={!translucent} />
       </mesh>
     </>
   );
@@ -150,22 +157,44 @@ function Handles({ points, hCm, wCm, prof, y0, onPoints, setDragging }: HandlePr
   );
 }
 
-type PieceProps = { d: Design; spin: boolean; onPoints?: ((p: TouchPoint[]) => void) | undefined; active?: number | undefined; onModulePoints?: ((i: number, p: TouchPoint[]) => void) | undefined; setDragging: (b: boolean) => void };
-function Piece({ d, spin, onPoints, active, onModulePoints, setDragging }: PieceProps) {
+function Rod({ from, to, radius = 0.04, color = "#343432" }: { from: [number, number, number]; to: [number, number, number]; radius?: number; color?: string }) {
+  const start = new THREE.Vector3(...from), end = new THREE.Vector3(...to);
+  const delta = end.clone().sub(start);
+  const quaternion = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), delta.clone().normalize());
+  return <mesh position={start.add(end).multiplyScalar(0.5)} quaternion={quaternion} castShadow><cylinderGeometry args={[radius, radius, delta.length(), 24]} /><meshStandardMaterial color={color} roughness={0.3} metalness={0.65} /></mesh>;
+}
+
+function E27({ y, lit, glow, down = false }: { y: number; lit: boolean; glow: string; down?: boolean }) {
+  return <group position={[0, y, 0]} rotation={down ? [Math.PI, 0, 0] : [0, 0, 0]}>
+    <mesh position={[0, 0.17, 0]} castShadow><cylinderGeometry args={[0.17, 0.17, 0.34, 40]} /><meshStandardMaterial color="#343432" roughness={0.45} /></mesh>
+    <mesh position={[0, 0.39, 0]}><cylinderGeometry args={[0.135, 0.135, 0.15, 40]} /><meshStandardMaterial color="#b7b6af" metalness={0.8} roughness={0.24} /></mesh>
+    {[0.34, 0.38, 0.42, 0.46].map((h) => <mesh key={h} position={[0, h, 0]} rotation={[Math.PI / 2, 0, 0]}><torusGeometry args={[0.135, 0.012, 8, 40]} /><meshStandardMaterial color="#99998f" metalness={0.8} roughness={0.28} /></mesh>)}
+    <mesh position={[0, 0.61, 0]}><cylinderGeometry args={[0.24, 0.12, 0.35, 40]} /><meshStandardMaterial color="#eeece5" roughness={0.5} /></mesh>
+    <mesh position={[0, 0.87, 0]} scale={[1, 1.15, 1]}><sphereGeometry args={[0.3, 40, 32]} /><meshPhysicalMaterial color="#faf4e8" roughness={0.38} emissive={glow} emissiveIntensity={lit ? 1.4 : 0} /></mesh>
+  </group>;
+}
+
+type PieceProps = { d: Design; spin: boolean; onPoints?: ((p: TouchPoint[]) => void) | undefined; active?: number | undefined; onModulePoints?: ((i: number, p: TouchPoint[]) => void) | undefined; setDragging: (b: boolean) => void; lampPart?: "base" | "shade"; assemblyView?: boolean };
+function Piece({ d, spin, onPoints, active, onModulePoints, setDragging, lampPart = "shade", assemblyView = false }: PieceProps) {
   const group = useRef<THREE.Group>(null);
   const ps = parts(d);
   const lit = d.light && (d.form === "pendant" || d.form === "table-lamp" || d.form === "stack");
   const glow = d.warm ? "#ffb066" : "#fff1dc";
   useFrame((_, dt) => { if (spin && group.current) group.current.rotation.y += Math.min(dt, 0.05) * 0.35; });
-  const offsets = ps.reduce<number[]>((acc, p, i) => [...acc, i ? acc[i - 1]! + ps[i - 1]!.height / 10 : 0], []);
-  const total = ps.reduce((s, p) => s + p.height / 10, 0);
+  const assembly = lampAssembly(d);
+  const table = d.form === "table-lamp";
+  const offsets = ps.reduce<number[]>((acc, p, i) => [...acc, table ? (i === 0 && ps.length > 1 ? assembly.feetHeight / 10 : assembly.shadeY / 10) : i ? (acc[i - 1] ?? 0) + (ps[i - 1]?.height ?? 0) / 10 : 0], []);
+  const total = table ? assembly.totalHeight / 10 : ps.reduce((s, p) => s + p.height / 10, 0);
   const mainIndex = ps.length - 1;
   const stack = d.form === "stack";
   const fit = stack ? lightFitting(d) : null;
   const litModule = (i: number) => !fit || (i >= fit.from && i <= fit.to);
   const am = stack && active !== undefined ? ps[active] : undefined;
   const amLathe = am && am.shape !== "box" && am.shape !== "donut";
-  const lightY = fit ? (offsets[fit.from]! + offsets[fit.to]! + ps[fit.to]!.height / 10) / 2 : total * 0.6;
+  const lightY = fit ? ((offsets[fit.from] ?? 0) + (offsets[fit.to] ?? 0) + (ps[fit.to]?.height ?? 0) / 10) / 2 : table ? assembly.shadeY / 10 + 0.85 : total * 0.6;
+  const base = lampBase(d);
+  const handleBase = table && lampPart === "base" && d.base !== "none";
+  const handlePart = handleBase ? base : { height: d.height, width: d.width, shape: table ? d.shadeShape ?? "classic" : "classic" as ShapeId, taper: d.taper, points: d.points };
   return (
     <group position={[0, -total / 2, 0]}>
       <group ref={group}>
@@ -173,22 +202,37 @@ function Piece({ d, spin, onPoints, active, onModulePoints, setDragging }: Piece
           const isMain = d.form !== "stack" && i === mainIndex;
           const isBase = d.form === "table-lamp" && !isMain;
           return (
-            <group key={i} position={[0, offsets[i]!, 0]}>
+            <group key={i} position={[0, offsets[i] ?? 0, 0]}>
               <Part d={d} shape={p.shape} h={p.height} w={p.width} color={p.color ?? (isBase ? shade(d.color, -0.25) : d.color)}
-                points={isMain ? d.points : stack ? (p.points ?? []) : []} taper={p.taper ?? 0} lit={lit && !isBase && litModule(i)} glow={glow} />
+                points={isMain ? d.points : p.points ?? []} taper={isMain ? d.taper : p.taper ?? 0} lit={lit && !isBase && litModule(i)} glow={glow} solid={isBase} translucent={table && !isBase && assemblyView} />
             </group>
           );
         })}
+        {table && <>
+          {d.base !== "none" && <>
+            <Rod from={[0, assembly.feetHeight / 10, 0]} to={[0, assembly.shadeY / 10 + 0.1, 0]} radius={0.06} />
+            {d.legs && d.legs !== "none" && Array.from({ length: d.legs === "tripod" ? 3 : 4 }, (_, i) => {
+              const angle = i * Math.PI * 2 / (d.legs === "tripod" ? 3 : 4) + Math.PI / 6;
+              const inner = base.width / 20 * 0.65, outer = base.width / 20 + (d.legSpread ?? 3) / 10;
+              return <group key={i}><Rod from={[Math.cos(angle) * inner, assembly.feetHeight / 10 + 0.15, Math.sin(angle) * inner]} to={[Math.cos(angle) * outer, 0.06, Math.sin(angle) * outer]} radius={0.055} /><mesh position={[Math.cos(angle) * outer, 0.04, Math.sin(angle) * outer]}><cylinderGeometry args={[0.085, 0.085, 0.08, 24]} /><meshStandardMaterial color="#20201e" roughness={0.9} /></mesh></group>;
+            })}
+            <Rod from={[0, assembly.feetHeight / 10 + 0.1, -base.width / 20 * 0.6]} to={[0, 0.06, -base.width / 20 - 0.35]} radius={0.025} color="#20201e" />
+          </>}
+          <E27 y={assembly.shadeY / 10 + 0.05} lit={lit} glow={glow} />
+          <mesh position={[0, assembly.shadeY / 10 + 0.22, 0]} rotation={[Math.PI / 2, 0, 0]}><torusGeometry args={[0.2, 0.025, 12, 48]} /><meshStandardMaterial color="#bab7ab" metalness={0.65} roughness={0.3} /></mesh>
+          {[0, 1, 2].map((i) => { const angle = i * Math.PI * 2 / 3; const r = d.width / 20 * shapeProfile(d.shadeShape ?? "classic", d, 0.22, d.taper) * pinch(d.points, 0.22); return <Rod key={i} from={[Math.cos(angle) * 0.2, assembly.shadeY / 10 + 0.22, Math.sin(angle) * 0.2]} to={[Math.cos(angle) * (r - 0.03), assembly.shadeY / 10 + d.height / 10 * 0.22, Math.sin(angle) * (r - 0.03)]} radius={0.025} color="#bab7ab" />; })}
+        </>}
+        {d.form === "pendant" && <E27 y={total - 0.18} down lit={lit} glow={glow} />}
       </group>
-      {onPoints && !stack && <Handles points={d.points} hCm={d.height} wCm={d.width} prof={(t) => formProfile(d.form, t, d.taper)} y0={offsets[mainIndex]!} onPoints={onPoints} setDragging={setDragging} />}
+      {onPoints && !stack && handlePart.shape !== "box" && handlePart.shape !== "donut" && <Handles points={handlePart.points ?? []} hCm={handlePart.height} wCm={handlePart.width} prof={(t) => shapeProfile(handlePart.shape, d, t, handlePart.taper ?? 0)} y0={handleBase ? assembly.feetHeight / 10 : offsets[mainIndex] ?? 0} onPoints={onPoints} setDragging={setDragging} />}
       {am && amLathe && onModulePoints && active !== undefined && (
-        <Handles points={am.points ?? []} hCm={am.height} wCm={am.width} prof={(t) => shapeProfile(am.shape, d, t, am.taper ?? 0)} y0={offsets[active]!}
+        <Handles points={am.points ?? []} hCm={am.height} wCm={am.width} prof={(t) => shapeProfile(am.shape, d, t, am.taper ?? 0)} y0={offsets[active] ?? 0}
           onPoints={(p) => onModulePoints(active, p)} setDragging={setDragging} />
       )}
       {lit && fit && (fit.count === 1
         ? <mesh position={[0, lightY, 0]}><sphereGeometry args={[0.16, 24, 24]} /><meshBasicMaterial color={glow} /></mesh>
-        : <mesh position={[0, lightY, 0]}><cylinderGeometry args={[fit.count && d.lightKind === "tube" ? 0.07 : 0.035, d.lightKind === "tube" ? 0.07 : 0.035, offsets[fit.to]! + ps[fit.to]!.height / 10 - offsets[fit.from]! - 0.1, 16]} /><meshBasicMaterial color={glow} /></mesh>)}
-      {lit && <pointLight position={[0, lightY, 0]} intensity={6} distance={8} color={glow} />}
+        : <mesh position={[0, lightY, 0]}><cylinderGeometry args={[fit.count && d.lightKind === "tube" ? 0.07 : 0.035, d.lightKind === "tube" ? 0.07 : 0.035, (offsets[fit.to] ?? 0) + (ps[fit.to]?.height ?? 0) / 10 - (offsets[fit.from] ?? 0) - 0.1, 16]} /><meshBasicMaterial color={glow} /></mesh>)}
+      {lit && <pointLight position={[0, lightY, 0]} intensity={3} distance={8} color={glow} />}
       {d.form === "pendant" && <mesh position={[0, total + 1.5, 0]}><cylinderGeometry args={[0.015, 0.015, 3]} /><meshStandardMaterial color="#222" /></mesh>}
     </group>
   );
@@ -203,8 +247,9 @@ function shade(hex: string, k: number) {
 function Lights() {
   return (
     <>
-      <ambientLight intensity={0.35} />
-      <directionalLight position={[3, 5, 4]} intensity={1.6} castShadow />
+      <ambientLight intensity={0.6} />
+      <directionalLight position={[3, 5, 4]} intensity={2.4} castShadow shadow-mapSize={[1024, 1024]} shadow-normalBias={0.03} />
+      <directionalLight position={[-4, 2, -3]} intensity={1.1} />
       <Environment resolution={64}>
         <Lightformer intensity={2} position={[0, 5, 0]} scale={[10, 10, 1]} />
         <Lightformer intensity={1} color="#e8cdb0" position={[-5, 1, -1]} rotation-y={Math.PI / 2} scale={[20, 1, 1]} />
@@ -220,16 +265,16 @@ function CameraFit({ dist }: { dist: number }) {
   return null;
 }
 
-export function StudioModel({ design, spin = false, interactive = true, onPoints, active, onModulePoints }: { design: Design; spin?: boolean; interactive?: boolean; onPoints?: (p: TouchPoint[]) => void; active?: number | undefined; onModulePoints?: (i: number, p: TouchPoint[]) => void }) {
-  const tall = parts(design).reduce((s, p) => s + p.height / 10, 0);
+export function StudioModel({ design, spin = false, interactive = true, onPoints, active, onModulePoints, lampPart, assemblyView }: { design: Design; spin?: boolean; interactive?: boolean; onPoints?: (p: TouchPoint[]) => void; active?: number | undefined; onModulePoints?: (i: number, p: TouchPoint[]) => void; lampPart?: "base" | "shade"; assemblyView?: boolean }) {
+  const tall = design.form === "table-lamp" ? lampAssembly(design).totalHeight / 10 : parts(design).reduce((s, p) => s + p.height / 10, 0);
   const dist = Math.max(5.5, tall * 2.4, (design.width / 10) * 3.2);
   const [dragging, setDragging] = useState(false);
   return (
     <div className="h-full w-full touch-none" data-scene-ready>
-      <Canvas shadows dpr={[1, 1.75]} camera={{ position: [0, tall * 0.15, dist], fov: 38 }} gl={{ antialias: true, alpha: true, preserveDrawingBuffer: true }}>
+      <Canvas shadows dpr={[1, 1.75]} camera={{ position: [dist * 0.45, tall * 0.4, dist * 0.88], fov: 38 }} gl={{ antialias: true, alpha: true, preserveDrawingBuffer: true, toneMapping: THREE.ACESFilmicToneMapping }}>
         <Lights />
         <CameraFit dist={Math.hypot(dist, tall * 0.15)} />
-        <Piece d={design} spin={spin} onPoints={onPoints} active={active} onModulePoints={onModulePoints} setDragging={setDragging} />
+        <Piece d={design} spin={spin} onPoints={onPoints} active={active} onModulePoints={onModulePoints} setDragging={setDragging} lampPart={lampPart} assemblyView={assemblyView} />
         <ContactShadows position={[0, -tall / 2 - 0.01, 0]} opacity={0.5} blur={2.4} scale={8} />
         {interactive && <OrbitControls enabled={!dragging} enablePan={false} minDistance={2.5} maxDistance={24} autoRotate={!dragging && !onPoints} autoRotateSpeed={0.6} />}
       </Canvas>

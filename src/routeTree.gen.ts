@@ -17,6 +17,7 @@ import { Route as CartRouteImport } from './routes/cart'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as ContactusRouteImport } from './routes/contactus'
 import { Route as CustomRouteImport } from './routes/custom'
+import { Route as PaymentRouteImport } from './routes/payment'
 import { Route as ProductsRouteImport } from './routes/products'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as ReturnsRouteImport } from './routes/returns'
@@ -26,7 +27,6 @@ import { Route as TradeRouteImport } from './routes/trade'
 import { Route as WishlistRouteImport } from './routes/wishlist'
 import { Route as AuthenticatedAccountRouteImport } from './routes/_authenticated/account'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
-import { Route as CheckoutPayRouteImport } from './routes/checkout.pay'
 import { Route as ProductSlugRouteImport } from './routes/product.$slug'
 import { Route as AuthenticatedAccountIndexRouteImport } from './routes/_authenticated/account.index'
 import { Route as AuthenticatedAccountAddressesRouteImport } from './routes/_authenticated/account.addresses'
@@ -81,6 +81,11 @@ const CustomRoute = CustomRouteImport.update({
   path: '/custom',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PaymentRoute = PaymentRouteImport.update({
+  id: '/payment',
+  path: '/payment',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProductsRoute = ProductsRouteImport.update({
   id: '/products',
   path: '/products',
@@ -125,11 +130,6 @@ const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   id: '/admin',
   path: '/admin',
   getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const CheckoutPayRoute = CheckoutPayRouteImport.update({
-  id: '/pay',
-  path: '/pay',
-  getParentRoute: () => CheckoutRoute,
 } as any)
 const ProductSlugRoute = ProductSlugRouteImport.update({
   id: '/product/$slug',
@@ -217,9 +217,10 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/auth': typeof AuthRoute
   '/cart': typeof CartRoute
-  '/checkout': typeof CheckoutRouteWithChildren
+  '/checkout': typeof CheckoutRoute
   '/contactus': typeof ContactusRoute
   '/custom': typeof CustomRoute
+  '/payment': typeof PaymentRoute
   '/products': typeof ProductsRoute
   '/reset-password': typeof ResetPasswordRoute
   '/returns': typeof ReturnsRoute
@@ -229,7 +230,6 @@ export interface FileRoutesByFullPath {
   '/wishlist': typeof WishlistRoute
   '/account': typeof AuthenticatedAccountRouteWithChildren
   '/admin': typeof AuthenticatedAdminRouteWithChildren
-  '/checkout/pay': typeof CheckoutPayRoute
   '/product/$slug': typeof ProductSlugRoute
   '/account/addresses': typeof AuthenticatedAccountAddressesRoute
   '/account/payments': typeof AuthenticatedAccountPaymentsRoute
@@ -250,9 +250,10 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/auth': typeof AuthRoute
   '/cart': typeof CartRoute
-  '/checkout': typeof CheckoutRouteWithChildren
+  '/checkout': typeof CheckoutRoute
   '/contactus': typeof ContactusRoute
   '/custom': typeof CustomRoute
+  '/payment': typeof PaymentRoute
   '/products': typeof ProductsRoute
   '/reset-password': typeof ResetPasswordRoute
   '/returns': typeof ReturnsRoute
@@ -260,7 +261,6 @@ export interface FileRoutesByTo {
   '/terms': typeof TermsRoute
   '/trade': typeof TradeRoute
   '/wishlist': typeof WishlistRoute
-  '/checkout/pay': typeof CheckoutPayRoute
   '/product/$slug': typeof ProductSlugRoute
   '/account/addresses': typeof AuthenticatedAccountAddressesRoute
   '/account/payments': typeof AuthenticatedAccountPaymentsRoute
@@ -283,9 +283,10 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/auth': typeof AuthRoute
   '/cart': typeof CartRoute
-  '/checkout': typeof CheckoutRouteWithChildren
+  '/checkout': typeof CheckoutRoute
   '/contactus': typeof ContactusRoute
   '/custom': typeof CustomRoute
+  '/payment': typeof PaymentRoute
   '/products': typeof ProductsRoute
   '/reset-password': typeof ResetPasswordRoute
   '/returns': typeof ReturnsRoute
@@ -295,7 +296,6 @@ export interface FileRoutesById {
   '/wishlist': typeof WishlistRoute
   '/_authenticated/account': typeof AuthenticatedAccountRouteWithChildren
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
-  '/checkout/pay': typeof CheckoutPayRoute
   '/product/$slug': typeof ProductSlugRoute
   '/_authenticated/account/addresses': typeof AuthenticatedAccountAddressesRoute
   '/_authenticated/account/payments': typeof AuthenticatedAccountPaymentsRoute
@@ -321,6 +321,7 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/contactus'
     | '/custom'
+    | '/payment'
     | '/products'
     | '/reset-password'
     | '/returns'
@@ -330,7 +331,6 @@ export interface FileRouteTypes {
     | '/wishlist'
     | '/account'
     | '/admin'
-    | '/checkout/pay'
     | '/product/$slug'
     | '/account/addresses'
     | '/account/payments'
@@ -354,6 +354,7 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/contactus'
     | '/custom'
+    | '/payment'
     | '/products'
     | '/reset-password'
     | '/returns'
@@ -361,7 +362,6 @@ export interface FileRouteTypes {
     | '/terms'
     | '/trade'
     | '/wishlist'
-    | '/checkout/pay'
     | '/product/$slug'
     | '/account/addresses'
     | '/account/payments'
@@ -386,6 +386,7 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/contactus'
     | '/custom'
+    | '/payment'
     | '/products'
     | '/reset-password'
     | '/returns'
@@ -395,7 +396,6 @@ export interface FileRouteTypes {
     | '/wishlist'
     | '/_authenticated/account'
     | '/_authenticated/admin'
-    | '/checkout/pay'
     | '/product/$slug'
     | '/_authenticated/account/addresses'
     | '/_authenticated/account/payments'
@@ -418,9 +418,10 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   AuthRoute: typeof AuthRoute
   CartRoute: typeof CartRoute
-  CheckoutRoute: typeof CheckoutRouteWithChildren
+  CheckoutRoute: typeof CheckoutRoute
   ContactusRoute: typeof ContactusRoute
   CustomRoute: typeof CustomRoute
+  PaymentRoute: typeof PaymentRoute
   ProductsRoute: typeof ProductsRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   ReturnsRoute: typeof ReturnsRoute
@@ -490,6 +491,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CustomRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/payment': {
+      id: '/payment'
+      path: '/payment'
+      fullPath: '/payment'
+      preLoaderRoute: typeof PaymentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/products': {
       id: '/products'
       path: '/products'
@@ -552,13 +560,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin'
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/checkout/pay': {
-      id: '/checkout/pay'
-      path: '/pay'
-      fullPath: '/checkout/pay'
-      preLoaderRoute: typeof CheckoutPayRouteImport
-      parentRoute: typeof CheckoutRoute
     }
     '/product/$slug': {
       id: '/product/$slug'
@@ -716,27 +717,16 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
-interface CheckoutRouteChildren {
-  CheckoutPayRoute: typeof CheckoutPayRoute
-}
-
-const CheckoutRouteChildren: CheckoutRouteChildren = {
-  CheckoutPayRoute: CheckoutPayRoute,
-}
-
-const CheckoutRouteWithChildren = CheckoutRoute._addFileChildren(
-  CheckoutRouteChildren,
-)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AboutRoute: AboutRoute,
   AuthRoute: AuthRoute,
   CartRoute: CartRoute,
-  CheckoutRoute: CheckoutRouteWithChildren,
+  CheckoutRoute: CheckoutRoute,
   ContactusRoute: ContactusRoute,
   CustomRoute: CustomRoute,
+  PaymentRoute: PaymentRoute,
   ProductsRoute: ProductsRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   ReturnsRoute: ReturnsRoute,

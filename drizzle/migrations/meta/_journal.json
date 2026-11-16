@@ -50,6 +50,13 @@
       "when": 1794513973978,
       "tag": "0006_private_cms_media_reads",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1794832024189,
+      "tag": "0007_scope_public_spaces_read",
+      "breakpoints": true
     }
   ]
 }

@@ -7,11 +7,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { fieldValue } from "@/lib/contact";
 import {
   BRIEF_KINDS, CUSTOM_MODULE, DEFAULT_DESIGN, FORMS, MAX_MODULES, MAX_POINTS, PHOTO_MODES, POINT_PRESETS, SHAPES, STUDIO_PALETTE, TIMELINES, briefSchema, closestSwatches, estimate,
-  hexToRgb, lightFitting, rgbToHex, sketchProfile, wallLoops, type Design, type PhotoMode, type PhotoObject, type Rates, type ShapeId, type StackModule, type TouchPoint,
+  hexToRgb, lampBase, lightFitting, rgbToHex, sketchProfile, wallLoops, type Design, type PhotoMode, type PhotoObject, type Rates, type ShapeId, type StackModule, type TouchPoint,
 } from "@/lib/custom";
 import { formatPrice } from "@/lib/currency";
 import { img } from "@/lib/media";
-import { useSite, waHref } from "@/lib/site";
+import { useContent, useSite, waHref } from "@/lib/site";
+import { Button } from "@/components/ui/button";
 import { Page } from "@/components/site";
 import heroFallback from "@/assets/custom-hero.jpg";
 import { HexColorPicker } from "react-colorful";
@@ -319,7 +320,7 @@ function ShapePicker({ value, onChange, allowNone }: { value: ShapeId | "none"; 
   return (
     <div className="flex flex-wrap gap-1.5">
       {allowNone && <Chip on={value === "none"} onClick={() => onChange("none")}>No base</Chip>}
-      {SHAPES.filter((s) => !allowNone || s.id !== "custom").map((s) => (
+      {SHAPES.map((s) => (
         <button key={s.id} type="button" aria-pressed={value === s.id} title={s.label} onClick={() => onChange(s.id)}
           className={`flex flex-col items-center gap-0.5 rounded-lg border px-2 py-1.5 text-[10px] transition-colors ${value === s.id ? "border-primary bg-primary/15 text-ink-foreground" : "border-ink-line text-ink-muted hover:text-ink-foreground"}`}>
           <ShapeIcon shape={s.id} />{s.label}
@@ -435,12 +436,18 @@ const TABS = [
 
 function Sandbox({ design: d, setDesign, rates, note, actions }: { design: Design; setDesign: (d: Design) => void; rates: Rates; note: string; sendLabel: string; onSend: () => void; actions?: ReactNode }) {
   const set = (p: Partial<Design>) => setDesign({ ...d, ...p });
+  const c = useContent("custom");
+  const [lampPart, setLampPart] = useState<"base" | "shade">("base");
+  const [assemblyView, setAssemblyView] = useState(false);
+  const base = lampBase(d);
+  const updateBase = (p: Partial<StackModule>) => set({ lampBase: { ...base, ...p }, ...(p.shape ? { base: p.shape } : {}) });
+  const editingBase = d.form === "table-lamp" && lampPart === "base";
   const [tab, setTab] = useState<(typeof TABS)[number]["id"]>("shape");
   const [sel, setSel] = useState(0);
   const selIdx = Math.min(sel, d.modules.length - 1);
   const fit = lightFitting(d);
   const spec = estimate(d, rates);
-  const form = FORMS.find((f) => f.id === d.form)!;
+  const form = FORMS.find((f) => f.id === d.form) ?? FORMS[0];
   const shuffle = () => set({
     taper: +(Math.random() * 1.4 - 0.7).toFixed(2), twist: Math.round(Math.random() * 360), fuzzy: +Math.random().toFixed(2),
     layers: Math.round(Math.random() * 50), hRibs: Math.random() > 0.6 ? Math.round(Math.random() * 20) : 0,
@@ -463,17 +470,30 @@ function Sandbox({ design: d, setDesign, rates, note, actions }: { design: Desig
           ))}
         </div>
         <div className="flex-1 space-y-5 overflow-y-auto p-5">
-          {tab === "shape" && (d.form === "stack" ? <ModuleEditor d={d} set={set} sel={selIdx} setSel={setSel} /> : (
+          {d.form === "table-lamp" && <div role="tablist" aria-label="Lamp part" className="grid grid-cols-2 gap-2">
+            {(["base", "shade"] as const).map((part) => <Button key={part} variant="outline" role="tab" aria-selected={lampPart === part} onClick={() => setLampPart(part)} className={lampPart === part ? "border-primary bg-primary text-primary-foreground" : "border-ink-line bg-transparent text-ink-foreground"}>{part === "base" ? c.lampBaseLabel : c.lampShadeLabel}</Button>)}
+          </div>}
+          {tab === "shape" && (d.form === "stack" ? <ModuleEditor d={d} set={set} sel={selIdx} setSel={setSel} /> : editingBase ? <>
+            <ShapePicker value={d.base} allowNone onChange={(shape) => shape === "none" ? set({ base: "none" }) : updateBase({ shape })} />
+            {d.base !== "none" && <>
+              <Slider label="Base height" value={base.height} min={3} max={25} step={1} onChange={(height) => updateBase({ height })} show={`${base.height} cm`} />
+              <Slider label="Base width" value={base.width} min={8} max={30} step={1} onChange={(width) => updateBase({ width })} show={`${base.width} cm`} />
+              <Slider label="Base taper" value={base.taper ?? 0} min={-0.7} max={0.7} step={0.01} onChange={(taper) => updateBase({ taper })} show={(base.taper ?? 0).toFixed(2)} />
+              {base.shape !== "box" && base.shape !== "donut" && <PointsEditor pts={base.points ?? []} onChange={(points) => updateBase({ points })} />}
+              <p className="text-xs uppercase tracking-widest text-ink-muted">{c.lampLegsLabel}</p>
+              <div className="flex flex-wrap gap-2">{(["none", "tripod", "four"] as const).map((legs) => <Button key={legs} size="sm" variant="outline" aria-pressed={(d.legs ?? "none") === legs} onClick={() => set({ legs })} className={(d.legs ?? "none") === legs ? "border-primary bg-primary text-primary-foreground" : "border-ink-line bg-transparent text-ink-foreground"}>{legs === "none" ? "No legs" : legs === "tripod" ? "Tripod" : "Four legs"}</Button>)}</div>
+              {d.legs && d.legs !== "none" && <>
+                <Slider label="Leg height" value={d.legHeight ?? 5} min={3} max={12} step={1} onChange={(legHeight) => set({ legHeight })} show={`${d.legHeight ?? 5} cm`} />
+                <Slider label="Leg spread" value={d.legSpread ?? 3} min={1} max={8} step={1} onChange={(legSpread) => set({ legSpread })} show={`${d.legSpread ?? 3} cm`} />
+              </>}
+              <Slider label="Connecting stem" value={d.stemHeight ?? 4} min={2} max={18} step={1} onChange={(stemHeight) => set({ stemHeight })} show={`${d.stemHeight ?? 4} cm`} />
+            </>}
+          </> : (
             <>
+              {d.form === "table-lamp" && <ShapePicker value={d.shadeShape ?? "classic"} onChange={(shape) => shape !== "none" && set({ shadeShape: shape })} />}
               <Slider label="Height" value={d.height} min={8} max={45} step={1} onChange={(v) => set({ height: v })} show={`${d.height} cm`} />
               <Slider label="Width" value={d.width} min={8} max={40} step={1} onChange={(v) => set({ width: v })} show={`${d.width} cm`} />
               <Slider label="Taper" value={d.taper} min={-0.7} max={0.7} step={0.01} onChange={(v) => set({ taper: v })} show={d.taper.toFixed(2)} />
-              {d.form === "table-lamp" && (
-                <div className="space-y-2">
-                  <p className="text-xs uppercase tracking-widest text-ink-muted">Base</p>
-                  <ShapePicker value={d.base} onChange={(s) => set({ base: s })} allowNone />
-                </div>
-              )}
               <PointsEditor pts={d.points} onChange={(points) => set({ points })} />
             </>
           ))}
@@ -485,9 +505,10 @@ function Sandbox({ design: d, setDesign, rates, note, actions }: { design: Desig
               <Slider label="Horizontal ribs" value={d.hRibs} min={0} max={40} step={1} onChange={(v) => set({ hRibs: v })} show={d.hRibs ? String(d.hRibs) : "Off"} />
             </>
           )}
-          {tab === "colour" && <ColorPanel value={d.color} onChange={(color) => set({ color })} label="Pick your colour" />}
+          {tab === "colour" && <ColorPanel value={editingBase ? base.color ?? d.color : d.color} onChange={(color) => editingBase ? updateBase({ color }) : set({ color })} label={editingBase ? "Base colour" : "Shade / object colour"} />}
           {tab === "extras" && (
             <div className="space-y-3">
+              {d.form === "table-lamp" && <p className="text-xs text-ink-muted">{c.lampFittingNote}</p>}
               <div className="flex flex-wrap gap-2">
                 <Toggle on={d.light} disabled={!form.light} onClick={() => set({ light: !d.light })} icon={<Lightbulb className="h-3.5 w-3.5" />} label={d.light ? "Light on" : "Light off"} />
                 {d.light && form.light && <Toggle on={d.warm} onClick={() => set({ warm: !d.warm })} icon={null} label={d.warm ? "Warm 2200K" : "Soft 3000K"} />}
@@ -525,9 +546,10 @@ function Sandbox({ design: d, setDesign, rates, note, actions }: { design: Desig
       {/* Model + estimate */}
       <div className="order-1 space-y-4 md:sticky md:top-24 md:order-2 md:self-start">
         <div className="relative h-[420px] overflow-hidden rounded-2xl bg-ink-soft md:h-[470px]">
-          <Three><StudioModel design={d} onPoints={(points) => set({ points })} active={d.form === "stack" ? selIdx : undefined}
+          <Three><StudioModel design={d} lampPart={lampPart} assemblyView={assemblyView} onPoints={(points) => editingBase ? updateBase({ points }) : set({ points })} active={d.form === "stack" ? selIdx : undefined}
             onModulePoints={(i, points) => set({ modules: d.modules.map((m, k) => (k === i ? { ...m, points } : m)) })} /></Three>
           <button type="button" onClick={shuffle} className="absolute right-4 top-4 inline-flex items-center gap-1.5 rounded-full bg-ink/70 px-3 py-1.5 text-xs font-semibold backdrop-blur transition-transform hover:rotate-3 hover:scale-105"><Shuffle className="h-3.5 w-3.5" /> Surprise me</button>
+          {d.form === "table-lamp" && <Button size="sm" variant="outline" aria-pressed={assemblyView} onClick={() => setAssemblyView(!assemblyView)} className="absolute bottom-12 left-4 border-ink-line bg-ink/90 text-ink-foreground">{assemblyView ? c.lampAssembledLabel : c.lampAssemblyLabel}</Button>}
           <span className="absolute left-4 top-4 h-6 w-6 rounded-full border border-ink-line" style={{ background: d.color }} title={d.color} />
           <p className="pointer-events-none absolute bottom-4 left-4 text-[10px] uppercase tracking-widest text-ink-muted">Drag to spin · scroll to zoom{(d.form !== "stack" ? d.points.length : d.modules[selIdx]?.points?.length) ? " · drag dots to shape" : ""}</p>
         </div>

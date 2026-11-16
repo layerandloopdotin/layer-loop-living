@@ -251,3 +251,9 @@ export const briefSchema = z.object({
   phone: z.string().trim().regex(/^[+\d][\d\s-]{6,18}$/, "Enter a valid phone number"),
   pincode: z.string().trim().regex(/^\d{6}$/, "Enter a 6-digit PIN code"),
 });
+
+/** Share of the estimate paid upfront before the studio prices a custom design. Mirrors the set_custom_deposit trigger. */
+export const DEPOSIT_RATE = 0.2;
+export function depositFor(low: number, high: number) {
+  return Math.round(DEPOSIT_RATE * (low + high) / 2);
+}

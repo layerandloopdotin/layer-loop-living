@@ -16,7 +16,10 @@ function CustomOrders() {
   const qc = useQueryClient();
   const q = useQuery({ queryKey: ["admin-requests-all"], queryFn: async () => {
     const { data, error } = await supabase.from("custom_requests").select("*").order("created_at", { ascending: false });
-    if (error) throw error; return data;
+    if (error) throw error;
+    const paths = data.map((r) => r.thumbnail).filter((t): t is string => !!t);
+    const signed = paths.length ? (await supabase.storage.from("design-thumbs").createSignedUrls(paths, 3600)).data ?? [] : [];
+    return data.map((r) => ({ ...r, thumbUrl: signed.find((s) => s.path === r.thumbnail)?.signedUrl }));
   } });
   const refresh = () => { qc.invalidateQueries({ queryKey: ["admin-requests-all"] }); qc.invalidateQueries({ queryKey: ["admin-requests"] }); };
 
@@ -29,6 +32,7 @@ function CustomOrders() {
     if (error) { toast.error("Couldn't send quote"); return; }
     toast.success("Quote sent"); refresh();
   };
+  const depositPaid = async (id: string) => { const { error } = await supabase.from("custom_requests").update({ deposit_status: "paid" }).eq("id", id); if (error) toast.error("Couldn't update"); else { toast.success("Advance marked received"); refresh(); } };
   const decline = async (id: string) => { await supabase.from("custom_requests").update({ status: "declined" }).eq("id", id); refresh(); };
 
   return (
@@ -45,7 +49,20 @@ function CustomOrders() {
               <span className="text-muted-foreground">{c.phone} {c.email && `· ${c.email}`} · PIN {c.address?.pin} · {new Date(r.created_at).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" })}</span>
               {!r.user_id && <span className="text-[11px] text-muted-foreground">Guest</span>}
             </div>
-            <p className="mt-2 text-xs text-muted-foreground">{r.summary}</p>
+            <div className="mt-3 flex flex-col gap-4 sm:flex-row">
+              {r.thumbUrl ? <img src={r.thumbUrl} alt="Design preview" className="h-40 w-40 shrink-0 rounded-lg bg-ink object-cover" /> : <div className="grid h-40 w-40 shrink-0 place-items-center rounded-lg bg-muted text-xs text-muted-foreground">No preview</div>}
+              <div className="min-w-0 flex-1">
+                <p className="text-xs text-muted-foreground">{r.summary}</p>
+                <details className="mt-2"><summary className="cursor-pointer text-xs font-semibold">Model settings</summary>
+                  <dl className="mt-2 grid grid-cols-2 gap-x-4 gap-y-1 text-xs sm:grid-cols-3">
+                    {Object.entries((r.design ?? {}) as Record<string, unknown>).filter(([, v]) => v !== null && typeof v !== "object").map(([k, v]) => <div key={k} className="flex gap-1"><dt className="text-muted-foreground">{k}:</dt><dd className="truncate font-medium">{String(v)}</dd></div>)}
+                    {Object.entries((r.design ?? {}) as Record<string, unknown>).filter(([, v]) => Array.isArray(v)).map(([k, v]) => <div key={k} className="flex gap-1"><dt className="text-muted-foreground">{k}:</dt><dd className="font-medium">{(v as unknown[]).length}</dd></div>)}
+                  </dl>
+                </details>
+                <p className="mt-2 text-xs">20% advance {formatPrice(Number(r.deposit_amount))} · <b className={r.deposit_status === "paid" ? "text-primary" : ""}>{r.deposit_status === "paid" ? "Received" : "Pending"}</b>
+                  {r.deposit_status !== "paid" && r.status === "requested" && <button type="button" onClick={() => depositPaid(r.id)} className="ml-3 rounded-full border border-border px-3 py-1 text-[11px] font-semibold">Mark advance received</button>}</p>
+              </div>
+            </div>
             {c.note && <p className="mt-1 text-xs">Note: {c.note}</p>}
             <p className="mt-2">Estimate {formatPrice(Number(r.estimate_low))} – {formatPrice(Number(r.estimate_high))}{r.quote != null && <> · <b>Quoted {formatPrice(Number(r.quote))}</b></>}</p>
             {(r.status === "requested" || r.status === "quoted") && (

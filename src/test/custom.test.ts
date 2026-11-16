@@ -66,3 +66,10 @@ describe("sketch tracing", () => {
     expect(sketchProfile(new Float32Array(100).fill(1), 10, 10)).toBeNull();
   });
 });
+
+import { depositFor as _depositFor } from "@/lib/custom";
+describe("custom design deposit", () => {
+  it("is 20% of the shown estimate midpoint", () => {
+    expect(_depositFor(2000, 3000)).toBe(500);
+  });
+});

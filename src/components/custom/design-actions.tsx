@@ -18,7 +18,8 @@ async function snapshot(): Promise<Blob | null> {
   const out = document.createElement("canvas");
   const k = Math.min(1, 480 / Math.max(canvas.width, canvas.height));
   out.width = Math.round(canvas.width * k); out.height = Math.round(canvas.height * k);
-  const ctx = out.getContext("2d")!;
+  const ctx = out.getContext("2d");
+  if (!ctx) return null;
   ctx.fillStyle = "#1a1a1a";
   ctx.fillRect(0, 0, out.width, out.height);
   ctx.drawImage(canvas, 0, 0, out.width, out.height);
@@ -76,10 +77,15 @@ export function DesignActions({ design, rates, summary, loadedId }: { design: De
       const up = await supabase.storage.from("design-thumbs").upload(path, blob, { contentType: "image/jpeg" });
       if (!up.error) thumbnail = path;
     }
-    if (!loadedId) await supabase.from("saved_designs").insert({ name: `Requested design ${new Date().toLocaleDateString("en-IN")}`, design: design as never, ...(thumbnail ? { thumbnail } : {}) });
+    let savedId = loadedId;
+    if (!savedId) {
+      const saved = await supabase.from("saved_designs").insert({ name: `Requested design ${new Date().toLocaleDateString("en-IN")}`, design: design as never, ...(thumbnail ? { thumbnail } : {}) }).select("id").single();
+      if (saved.error) { toast.error("Couldn't save your design"); return; }
+      savedId = saved.data.id;
+    }
     const { error } = await supabase.from("custom_requests").insert({
       id, user_id: uid, thumbnail, design: design as never, summary, estimate_low: s.low, estimate_high: s.high,
-      contact: { name: fieldValue(fd, "name"), phone, email: fieldValue(fd, "email"), note: fieldValue(fd, "note"), address: { name: fieldValue(fd, "name"), phone, pin } },
+      contact: { saved_design_id: savedId, name: fieldValue(fd, "name"), phone, email: fieldValue(fd, "email"), note: fieldValue(fd, "note"), address: { name: fieldValue(fd, "name"), phone, pin } },
     });
     if (error) { toast.error("Couldn't send your request"); return; }
     qc.invalidateQueries({ queryKey: ["my-designs"] }); qc.invalidateQueries({ queryKey: ["my-requests"] });

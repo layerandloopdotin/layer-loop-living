@@ -1,4 +1,5 @@
 # Roadmap
+- [x] Advance-paid custom requests: customer progress/final quotes, matching saved designs, admin review updates and verification
 - [x] Customer accounts: login (OTP/Google/Apple/email/guest), profile, avatars, addresses, payments
 - [x] My Orders + order detail (timeline, invoice, Shiprocket tracking) + admin orders
 - [x] Product page: 7-day -> 2-day returns, return & replacement policy below care

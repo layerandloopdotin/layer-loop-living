@@ -224,8 +224,8 @@ const custom = {
   heroTitle: "Make it yours.",
   heroImage: "asset:custom-hero.jpg",
   heroText: "Engrave a name, ask for your colour, change the scale, print from your photo or stack a floor lamp. Play with it here — we'll make it real.",
-  tweakLabel: "Tweak one of ours",
-  scratchLabel: "Start from scratch",
+  tweakLabel: "Shape your own",
+  scratchLabel: "Bring us an idea",
   offersTitle: "What we can customise",
   offers: [
     { name: "Name & letter engraving", text: "Initials, names, dates or a short line — engraved into any piece." },

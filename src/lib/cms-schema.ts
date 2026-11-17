@@ -180,7 +180,7 @@ const contact = {
 
 const instagram = {
   eyebrow: "On Instagram",
-  handle: "layerandloop",
+  handle: "layerandloop.in",
   url: "https://instagram.com/layerandloop.in",
   text: "Fresh off the print bed — new drops, studio moments and your spaces.",
   buttonLabel: "Follow us",

@@ -27,12 +27,12 @@ type Form = {
   price: string; compare_at_price: string; featured: boolean; published: boolean;
   inventory_quantity: string;
   category_ids: string[]; space_ids: string[]; images: string[]; colors: Colour[]; specs: Pair[]; care: Pair[]; variants: { name: string; price: string; image: string }[];
-  engravable: boolean; engraving_price: string; engraving_max_chars: string; engraving_placements: string[];
+  engravable: boolean; engraving_price: string; engraving_max_chars: string; engraving_images: string[];
 };
 
 const emptyForm = (): Form => ({
   name: "", slug: "", tagline: "", short_description: "", long_description: "", price: "", compare_at_price: "",
-  featured: false, published: true, category_ids: [], space_ids: [], images: [], colors: [], variants: [], engravable: true, engraving_price: "199", engraving_max_chars: "20", engraving_placements: ["Front", "Base", "Back"],
+  featured: false, published: true, category_ids: [], space_ids: [], images: [], colors: [], variants: [], engravable: true, engraving_price: "199", engraving_max_chars: "20", engraving_images: [],
   inventory_quantity: "0",
   specs: ["Dimensions", "Weight", "Material", "Bulb", "Cable"].map((label) => ({ label, value: "" })),
   care: [{ label: "Cleaning", value: "" }, { label: "Wear & tear", value: "" }],
@@ -112,7 +112,7 @@ function ProductEditor() {
       featured: p.featured, published: p.published, category_ids: p.category_ids, space_ids: p.space_ids, images: p.images,
       colors: asColours(p.colors), specs: asPairs(p.specs), care: asPairs(p.care),
       variants: Array.isArray(p.variants) ? p.variants.map((x) => { const v = x as { name?: unknown; price?: unknown; image?: unknown }; return { name: String(v?.name ?? ""), price: String(v?.price ?? "0"), image: String(v?.image ?? "") }; }) : [],
-      engravable: p.engravable, engraving_price: String(p.engraving_price), engraving_max_chars: String(p.engraving_max_chars), engraving_placements: p.engraving_placements,
+      engravable: p.engravable, engraving_price: String(p.engraving_price), engraving_max_chars: String(p.engraving_max_chars), engraving_images: p.engraving_images ?? [],
     });
   }, [existing.data]);
 
@@ -139,7 +139,7 @@ function ProductEditor() {
       variants: f.variants.filter((v) => v.name.trim()).map((v) => ({ name: v.name.trim(), price: Number(v.price || 0), image: v.image })) as unknown as Json,
       engravable: f.engravable, engraving_price: Math.max(0, Number(f.engraving_price) || 0),
       engraving_max_chars: Math.min(60, Math.max(1, Math.round(Number(f.engraving_max_chars) || 20))),
-      engraving_placements: f.engraving_placements.length ? f.engraving_placements : ["Front"],
+      engraving_images: f.engraving_images,
     };
     if (f.variants.some((v) => v.name.trim() && !(Number(v.price || 0) >= 0))) { toast.error("Enter a valid extra price for each variant"); return; }
     setBusy(true);
@@ -230,8 +230,8 @@ function ProductEditor() {
           {f.engravable && <div className="flex flex-wrap gap-4">
             <label className={labelCls}>Extra price (₹)<input value={f.engraving_price} inputMode="decimal" onChange={(e) => set("engraving_price", e.target.value)} className={`${inputBase} mt-1.5 block w-28`} /></label>
             <label className={labelCls}>Max characters<input value={f.engraving_max_chars} inputMode="numeric" onChange={(e) => set("engraving_max_chars", e.target.value)} className={`${inputBase} mt-1.5 block w-28`} /></label>
-            <div><p className={labelCls}>Placements</p><div className="mt-1.5 flex gap-3">{["Front", "Base", "Back"].map((pl) => <label key={pl} className="flex items-center gap-1.5 text-sm"><input type="checkbox" checked={f.engraving_placements.includes(pl)} onChange={() => set("engraving_placements", f.engraving_placements.includes(pl) ? f.engraving_placements.filter((x) => x !== pl) : [...f.engraving_placements, pl])} className="accent-primary" />{pl}</label>)}</div></div>
           </div>}
+          {f.engravable && <div><p className={`${labelCls} mb-1.5`}>Example photos (optional) — show how engraving looks on this piece. Hidden on the product page when empty.</p><ImagesInput value={f.engraving_images} onChange={(v) => set("engraving_images", v)} /></div>}
         </Card>
 
         <Card title="Size & specification" help="Dimensions, weight, material, bulb, cable — add or remove rows freely.">

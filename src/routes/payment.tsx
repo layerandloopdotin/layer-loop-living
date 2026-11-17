@@ -20,7 +20,7 @@ export const Route = createFileRoute("/payment")({
   component: Pay,
 });
 
-type Pending = { method: string; total: number; address: { name: string; city: string; pin: string }; items: { name: string; qty: number; variant?: string; engraving?: { text: string; font: string; placement: string } }[] };
+type Pending = { method: string; total: number; address: { name: string; city: string; pin: string }; items: { name: string; qty: number; variant?: string; engraving?: { text: string; font: string } }[] };
 
 function Pay() {
   const s = useSite().content("settings");
@@ -33,7 +33,7 @@ function Pay() {
     return () => clearTimeout(id);
   }, []);
 
-  const summary = pending ? `Hi! I'd like to complete payment (${pending.method}) for: ${pending.items.map((i) => `${i.name}${i.variant ? ` (${i.variant})` : ""} × ${i.qty}${i.engraving ? ` [engrave “${i.engraving.text}”, ${i.engraving.font}, ${i.engraving.placement}]` : ""}`).join(", ")}. Total ${formatPrice(pending.total)}. Delivery: ${pending.address.name}, ${pending.address.city} ${pending.address.pin}.` : "Hi! I'd like to complete my order.";
+  const summary = pending ? `Hi! I'd like to complete payment (${pending.method}) for: ${pending.items.map((i) => `${i.name}${i.variant ? ` (${i.variant})` : ""} × ${i.qty}${i.engraving ? ` [engrave “${i.engraving.text}”, ${i.engraving.font}]` : ""}`).join(", ")}. Total ${formatPrice(pending.total)}. Delivery: ${pending.address.name}, ${pending.address.city} ${pending.address.pin}.` : "Hi! I'd like to complete my order.";
 
   return (
     <Page>

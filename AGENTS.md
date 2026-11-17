@@ -33,3 +33,5 @@
 - New orders/requests create `admin_notifications` rows via triggers; `notifyNewRequest` sends external alerts once per row within 15 minutes.
 
 - Separate admin username/password login is reset only from /admin/login by a signed-in admin via a server function (service role), with rules in src/lib/admin-login.ts; strength is advisory (owner decides after a warning); never seed or hard-code a default password.
+- Engraving rules (fonts, placements, price add-on, schema) live in `src/lib/engraving.ts`; cart lines carry an optional `engraving` that is part of line identity and priced via `unitPrice`, so catalogue and custom builds share one rule set.
+- Instagram posts come from the `getInstagramPosts` server function (token in `INSTAGRAM_ACCESS_TOKEN`); the strip falls back to CMS photos when it returns nothing, so the site never breaks without a token.

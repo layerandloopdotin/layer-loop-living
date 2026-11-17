@@ -238,6 +238,7 @@ const custom = {
   sandboxTitle: "Shape it. Texture it. Light it.",
   sandboxText: "Drag the sliders and spin the model. Fuzzy skin is the soft, matte texture our printers give the surface.",
   sandboxNote: "Estimates are a guide only — we confirm the final price after reviewing your design.",
+  engravingProofNote: "Once the studio accepts your request and shares the final quote, we'll show your engraved words on your exact custom design for approval before making it.",
   lampBaseLabel: "Build base",
   lampShadeLabel: "Build shade",
   lampLegsLabel: "Base legs",
@@ -365,7 +366,7 @@ export const sections: Record<ContentKey, { title: string; description: string; 
     groups: [
       { title: "Header", fields: [t("heroEyebrow", "Small label"), t("heroTitle", "Title"), im("heroImage", "Cover photo"), ta("heroText", "Intro"), t("tweakLabel", "Button 1"), t("scratchLabel", "Button 2")] },
       { title: "What we customise", fields: [t("offersTitle", "Heading"), { k: "offers", label: "Options", t: "list", item: "option", of: [t("name", "Title"), ta("text", "Text")] }] },
-      { title: "3D sandbox", fields: [t("sandboxEyebrow", "Small label"), t("sandboxTitle", "Heading"), ta("sandboxText", "Text"), ta("sandboxNote", "Estimate note"), t("sendLabel", "Send button")] },
+      { title: "3D sandbox", fields: [t("sandboxEyebrow", "Small label"), t("sandboxTitle", "Heading"), ta("sandboxText", "Text"), ta("sandboxNote", "Estimate note"), ta("engravingProofNote", "Custom engraving proof note"), t("sendLabel", "Send button")] },
       { title: "Lamp builder", fields: [t("lampBaseLabel", "Base tab"), t("lampShadeLabel", "Shade tab"), t("lampLegsLabel", "Legs label"), t("lampAssemblyLabel", "Connection view button"), t("lampAssembledLabel", "Assembled view button"), t("lampFittingNote", "Fitting details")] },
       { title: "Estimate settings (₹)", fields: [t("gramPrice", "Price per gram", "Numbers only"), t("basePrice", "Base fee"), t("lightKitPrice", "Light kit price"), t("waterproofLoops", "Extra wall loops for waterproofing")] },
       { title: "Customer request progress", fields: [t("progressReceived", "Advance received status"), ta("progressReceivedNote", "Advance received message"), t("progressReviewing", "Review status"), ta("progressReviewingNote", "Review message"), t("progressQuoted", "Quote ready status"), ta("progressQuotedNote", "Quote ready message"), t("progressAccepted", "Approved status"), ta("progressAcceptedNote", "Approved message"), t("progressDeclined", "Declined status"), ta("progressDeclinedNote", "Declined message"), t("progressAdvanceLabel", "Advance label"), t("progressQuoteLabel", "Final quote label"), t("progressBalanceLabel", "Balance label")] },

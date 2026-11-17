@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { addressSchema, customProgress, matchesSavedDesign, inTab, phoneSchema, stepIndex, tabOf } from "@/lib/account";
+import { addressSchema, customProgress, designRequestContactSchema, matchesSavedDesign, inTab, phoneSchema, stepIndex, tabOf } from "@/lib/account";
 
 describe("order tabs", () => {
   it("production through out-for-delivery is live", () => {
@@ -19,6 +19,18 @@ describe("order tabs", () => {
 });
 
 describe("customer details", () => {
+  const request = { name: "Asha", email: "asha@example.com", phone: "9876543210", pin: "400001" };
+  it("requires a name on design requests", () => {
+    expect(designRequestContactSchema.safeParse(request).success).toBe(true);
+    expect(designRequestContactSchema.safeParse({ ...request, name: " " }).success).toBe(false);
+  });
+  it("requires a valid email on design requests", () => {
+    expect(designRequestContactSchema.safeParse({ ...request, email: "" }).success).toBe(false);
+    expect(designRequestContactSchema.safeParse({ ...request, email: "invalid" }).success).toBe(false);
+  });
+  it("requires a phone number on design requests", () => {
+    expect(designRequestContactSchema.safeParse({ ...request, phone: "" }).success).toBe(false);
+  });
   it("accepts a 10-digit Indian mobile", () => expect(phoneSchema.safeParse("9876543210").success).toBe(true));
   it("rejects short mobiles", () => expect(phoneSchema.safeParse("98765").success).toBe(false));
   it("requires a 6-digit PIN", () => {

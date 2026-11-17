@@ -1,4 +1,4 @@
-import { CUSTOM_ENGRAVING_PRICE, ENGRAVING_FONTS, ENGRAVING_FONT_CSS } from "@/lib/engraving";
+import { CUSTOM_ENGRAVING_PRICE, ENGRAVING_FONTS } from "@/lib/engraving";
 import { ClientOnly, Link, createFileRoute } from "@tanstack/react-router";
 import { DesignActions } from "@/components/custom/design-actions";
 import { Suspense, lazy, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
@@ -194,17 +194,11 @@ function Custom() {
 /* ---------- Mini demos ---------- */
 
 function OfferDemo({ i, onPhoto }: { i: number; onPhoto: () => void }) {
-  const [text, setText] = useState("Aarav");
   const [hex, setHex] = useState("#2f7d6d");
   const [scale, setScale] = useState(1);
   const [stack, setStack] = useState(3);
   if (i === 0) return (
-    <div className="flex w-full flex-col items-center gap-3 px-3">
-      <div className="flex h-16 w-28 items-center justify-center rounded-t-[40px] rounded-b-md bg-[repeating-linear-gradient(0deg,var(--color-border)_0_2px,transparent_2px_5px)] bg-card shadow-inner">
-        <span className="max-w-24 truncate font-display text-sm font-bold tracking-wider text-muted-foreground [text-shadow:0_1px_0_var(--color-background)]">{text || "…"}</span>
-      </div>
-      <input value={text} maxLength={14} onChange={(e) => setText(e.target.value)} aria-label="Engraving text" className="w-full rounded-md border border-border bg-background px-2 py-1 text-center text-xs" />
-    </div>
+    <PencilLine aria-hidden className="h-12 w-12 text-muted-foreground" />
   );
   if (i === 1) {
     const near = closestSwatches(hex, STUDIO_PALETTE, 3);
@@ -516,8 +510,9 @@ function Sandbox({ design: d, setDesign, rates, note, actions }: { design: Desig
               <label className="block text-xs uppercase tracking-widest text-ink-muted">Words to engrave
                 <input value={e.text} maxLength={20} onChange={(ev) => setE({ text: ev.target.value })} placeholder="A name, initials or a date" className="mt-2 w-full rounded-md border border-ink-line bg-transparent px-3 py-2.5 text-sm normal-case tracking-normal text-ink-foreground" />
               </label>
-              <div role="radiogroup" aria-label="Engraving font" className="flex flex-wrap gap-2">{ENGRAVING_FONTS.map((f) => <button key={f} type="button" role="radio" aria-checked={e.font === f} onClick={() => setE({ font: f })} style={{ fontFamily: ENGRAVING_FONT_CSS[f] }} className={`rounded-full border px-3 py-1.5 text-sm ${e.font === f ? "border-primary bg-primary text-primary-foreground" : "border-ink-line"}`}>{f}</button>)}</div>
-              <p className="text-xs text-ink-muted">Adds about {formatPrice(CUSTOM_ENGRAVING_PRICE)} to the estimate. Leave the words empty for no engraving. We'll share a preview of the engraved text once you request it.</p>
+              <div role="radiogroup" aria-label="Engraving font" className="flex flex-wrap gap-2">{ENGRAVING_FONTS.map((f) => <button key={f} type="button" role="radio" aria-checked={e.font === f} onClick={() => setE({ font: f })} className={`rounded-full border px-3 py-1.5 text-sm ${e.font === f ? "border-primary bg-primary text-primary-foreground" : "border-ink-line"}`}>{f}</button>)}</div>
+              <p className="text-xs text-ink-muted">Adds about {formatPrice(CUSTOM_ENGRAVING_PRICE)} to the estimate. Leave the words empty for no engraving.</p>
+              <p className="text-xs text-ink-muted">{c.engravingProofNote}</p>
               {e.text && <button type="button" onClick={() => set({ engraving: undefined })} className="text-xs underline">Remove engraving</button>}
             </div>;
           })()}

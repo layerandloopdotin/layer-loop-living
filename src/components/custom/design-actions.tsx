@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { Bookmark, Send } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
-import { fieldValue, phoneSchema } from "@/lib/account";
+import { designRequestContactSchema, fieldValue } from "@/lib/account";
 import type { Design, Rates } from "@/lib/custom";
 import { depositFor, estimate } from "@/lib/custom";
 import { formatPrice } from "@/lib/currency";
@@ -66,10 +66,9 @@ export function DesignActions({ design, rates, summary, loadedId }: { design: De
   const request = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
-    const phone = fieldValue(fd, "phone");
-    if (!phoneSchema.safeParse(phone).success) { toast.error("Enter a valid 10-digit mobile number"); return; }
-    const pin = fieldValue(fd, "pin");
-    if (!/^[1-9]\d{5}$/.test(pin)) { toast.error("Enter a 6-digit PIN code"); return; }
+    const parsed = designRequestContactSchema.safeParse(Object.fromEntries(["name", "email", "phone", "pin"].map((k) => [k, fieldValue(fd, k)])));
+    if (!parsed.success) { toast.error(parsed.error.issues[0]?.message ?? "Check your contact details"); return; }
+    const { name, email, phone, pin } = parsed.data;
     if (!uid) return;
     const s = estimate(design, rates);
     const id = crypto.randomUUID();
@@ -88,7 +87,7 @@ export function DesignActions({ design, rates, summary, loadedId }: { design: De
     }
     const { error } = await supabase.from("custom_requests").insert({
       id, user_id: uid, thumbnail, design: design as never, summary, estimate_low: s.low, estimate_high: s.high,
-      contact: { saved_design_id: savedId, name: fieldValue(fd, "name"), phone, email: fieldValue(fd, "email"), note: fieldValue(fd, "note"), address: { name: fieldValue(fd, "name"), phone, pin } },
+      contact: { saved_design_id: savedId, name, phone, email, note: fieldValue(fd, "note"), address: { name, phone, pin } },
     });
     if (error) { toast.error("Couldn't send your request"); return; }
     qc.invalidateQueries({ queryKey: ["my-designs"] }); qc.invalidateQueries({ queryKey: ["my-requests"] });
@@ -115,7 +114,7 @@ export function DesignActions({ design, rates, summary, loadedId }: { design: De
               <p className="text-xs text-muted-foreground">To keep our studio queue for serious makers, we ask a 20% advance of the estimate — <b>{formatPrice(dep)}</b> — before we work out your exact price. It's adjusted in your final bill.</p>
               <input name="name" required placeholder="Your name" className="w-full rounded-md border border-border bg-background px-3 py-2.5 text-sm" />
               <input name="phone" required inputMode="numeric" maxLength={10} placeholder="Mobile number" className="w-full rounded-md border border-border bg-background px-3 py-2.5 text-sm" />
-              <input name="email" type="email" defaultValue={user.data?.email ?? ""} placeholder="Email (optional)" className="w-full rounded-md border border-border bg-background px-3 py-2.5 text-sm" />
+              <input name="email" required type="email" defaultValue={user.data?.email ?? ""} placeholder="Email" className="w-full rounded-md border border-border bg-background px-3 py-2.5 text-sm" />
               <input name="pin" required inputMode="numeric" maxLength={6} placeholder="Delivery PIN code" className="w-full rounded-md border border-border bg-background px-3 py-2.5 text-sm" />
               <textarea name="note" rows={2} placeholder="Anything else? (optional)" className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm" />
               <button className="w-full rounded-full bg-primary py-3 text-sm font-semibold text-primary-foreground">Request exact price</button>

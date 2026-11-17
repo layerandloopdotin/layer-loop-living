@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { fieldValue } from "@/lib/contact";
 import {
   BRIEF_KINDS, CUSTOM_MODULE, DEFAULT_DESIGN, FORMS, MAX_MODULES, MAX_POINTS, PHOTO_MODES, POINT_PRESETS, SHAPES, STUDIO_PALETTE, TIMELINES, briefSchema, closestSwatches, estimate,
-  hexToRgb, lampBase, lightFitting, rgbToHex, sketchProfile, wallLoops, type Design, type PhotoMode, type PhotoObject, type Rates, type ShapeId, type StackModule, type TouchPoint,
+  hexToRgb, lampBase, lightFitting, rgbToHex, wallLoops, type Design, type PhotoMode, type PhotoObject, type Rates, type ShapeId, type StackModule, type TouchPoint,
 } from "@/lib/custom";
 import { formatPrice } from "@/lib/currency";
 import { img } from "@/lib/media";
@@ -19,7 +19,6 @@ import { HexColorPicker } from "react-colorful";
 import { analyzeObjectPhoto } from "@/lib/photo-object.functions";
 
 const StudioModel = lazy(() => import("@/components/custom/studio-3d").then((m) => ({ default: m.StudioModel })));
-const SketchModel = lazy(() => import("@/components/custom/studio-3d").then((m) => ({ default: m.SketchModel })));
 const PhotoRelief = lazy(() => import("@/components/custom/studio-3d").then((m) => ({ default: m.PhotoRelief })));
 
 export const Route = createFileRoute("/custom")({
@@ -149,17 +148,6 @@ function Custom() {
             <p className="mt-4 text-xs text-muted-foreground">{c.photoNote}</p>
           </Reveal>
           <PhotoLab color={design.color} />
-        </div>
-      </section>
-
-      {/* Sketch to print */}
-      <section className="bg-ink text-ink-foreground">
-        <div className="mx-auto max-w-5xl px-6 py-20">
-          <Reveal>
-            <p className={eyebrow}>{c.sketchEyebrow}</p>
-            <h2 className="mt-3 font-display text-3xl font-bold md:text-4xl">{c.sketchTitle}</h2>
-          </Reveal>
-          <Reveal delay={150}><SketchLab before={img(c.sketchImage)} after={img(c.printImage)} color={design.color} /></Reveal>
         </div>
       </section>
 
@@ -668,127 +656,6 @@ function PhotoLab({ color }: { color: string }) {
           <label className="cursor-pointer rounded-full border border-border px-3 py-1.5 text-xs font-semibold">Change photo<input type="file" accept="image/png,image/jpeg,image/webp" className="sr-only" onChange={(e) => take(e.target.files?.[0])} /></label>
         </div>
       )}
-    </div>
-  );
-}
-
-/* ---------- Sketch to 3D ---------- */
-
-type SketchShape = { radii: number[]; aspect: number };
-
-/** Reads an image or canvas into a luminance grid and traces its outline into a turned profile. */
-function traceSketch(source: CanvasImageSource, w: number, h: number): SketchShape | null {
-  const N = 200, k = Math.min(N / w, N / h);
-  const cw = Math.max(8, Math.round(w * k)), ch = Math.max(8, Math.round(h * k));
-  const c = document.createElement("canvas"); c.width = cw; c.height = ch;
-  const ctx = c.getContext("2d")!;
-  ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, cw, ch);
-  ctx.drawImage(source, 0, 0, cw, ch);
-  const px = ctx.getImageData(0, 0, cw, ch).data;
-  const lum = new Float32Array(cw * ch);
-  for (let i = 0; i < lum.length; i++) lum[i] = (px[i * 4]! * 0.299 + px[i * 4 + 1]! * 0.587 + px[i * 4 + 2]! * 0.114) / 255;
-  return sketchProfile(lum, cw, ch);
-}
-
-function SketchLab({ before, after, color }: { before: string; after: string; color: string }) {
-  const [view, setView] = useState<"example" | "draw" | "result">("example");
-  const [shape, setShape] = useState<SketchShape | null>(null);
-  const [preview, setPreview] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const pad = useRef<HTMLCanvasElement>(null);
-  const last = useRef<{ x: number; y: number } | null>(null);
-  const finish = (sh: SketchShape | null, url: string) => {
-    if (!sh) { setError("We couldn't find a clear outline — try a darker line on a light background."); return; }
-    setError(null); setShape(sh); setPreview(url); setView("result");
-  };
-  const upload = (f?: File) => {
-    if (!f || !f.type.startsWith("image/")) return;
-    const url = URL.createObjectURL(f);
-    const im = new Image();
-    im.onload = () => finish(traceSketch(im, im.width, im.height), url);
-    im.src = url;
-  };
-  const clearPad = () => { const c = pad.current; if (!c) return; const x = c.getContext("2d")!; x.fillStyle = "#fff"; x.fillRect(0, 0, c.width, c.height); };
-  useEffect(() => { if (view === "draw") clearPad(); }, [view]);
-  const point = (e: React.PointerEvent<HTMLCanvasElement>) => { const r = e.currentTarget.getBoundingClientRect(); return { x: ((e.clientX - r.left) / r.width) * e.currentTarget.width, y: ((e.clientY - r.top) / r.height) * e.currentTarget.height }; };
-  const stroke = (e: React.PointerEvent<HTMLCanvasElement>) => {
-    if (!e.buttons || !last.current) return;
-    const p = point(e), x = e.currentTarget.getContext("2d")!;
-    // Mirror each stroke so the outline is symmetric, like a turned piece.
-    const W = e.currentTarget.width;
-    x.strokeStyle = "#1d1b1a"; x.lineWidth = 6; x.lineCap = "round";
-    for (const m of [false, true]) { x.beginPath(); x.moveTo(m ? W - last.current.x : last.current.x, last.current.y); x.lineTo(m ? W - p.x : p.x, p.y); x.stroke(); }
-    last.current = p;
-  };
-  const tools = [
-    { label: "Upload your sketch", icon: <Upload className="h-4 w-4" />, upload: true },
-    { label: "Draw a sketch", icon: <PencilLine className="h-4 w-4" />, onClick: () => { setView("draw"); setError(null); } },
-    { label: "Show example", icon: <Eraser className="h-4 w-4" />, onClick: () => { setView("example"); setError(null); } },
-  ];
-  return (
-    <div className="mt-10 flex gap-3 md:gap-4">
-      <div className="flex flex-col gap-2">
-        {tools.map((t) => t.upload ? (
-          <label key={t.label} title={t.label} aria-label={t.label} className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-full border border-ink-line transition-colors hover:border-primary hover:text-primary">
-            {t.icon}<input type="file" accept="image/png,image/jpeg,image/webp" className="sr-only" onChange={(e) => { upload(e.target.files?.[0]); e.target.value = ""; }} />
-          </label>
-        ) : (
-          <button key={t.label} type="button" title={t.label} aria-label={t.label} onClick={t.onClick}
-            className="flex h-11 w-11 items-center justify-center rounded-full border border-ink-line transition-colors hover:border-primary hover:text-primary">{t.icon}</button>
-        ))}
-      </div>
-      <div className="min-w-0 flex-1">
-        {view === "example" && <BeforeAfter before={before} after={after} />}
-        {view === "draw" && (
-          <div className="grid gap-3 md:grid-cols-2">
-            <canvas ref={pad} width={480} height={480} aria-label="Sketch pad" className="aspect-square w-full cursor-crosshair touch-none rounded-2xl"
-              onPointerDown={(e) => { e.currentTarget.setPointerCapture(e.pointerId); last.current = point(e); }} onPointerMove={stroke} onPointerUp={() => (last.current = null)} />
-            <div className="flex flex-col justify-center gap-4 rounded-2xl border border-ink-line p-6">
-              <p className="text-sm text-ink-muted">Draw one side of your vase or lamp from top to bottom — we mirror it as you go. Then turn it into 3D.</p>
-              <div className="flex flex-wrap gap-2">
-                <button type="button" onClick={() => { const c = pad.current; if (c) finish(traceSketch(c, c.width, c.height), c.toDataURL()); }}
-                  className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-transform hover:scale-[1.03]">Make it 3D <ArrowRight className="h-4 w-4" /></button>
-                <button type="button" onClick={clearPad} className="rounded-full border border-ink-line px-4 py-2.5 text-sm font-semibold">Clear</button>
-              </div>
-            </div>
-          </div>
-        )}
-        {view === "result" && shape && preview && (
-          <div className="grid gap-3 md:grid-cols-2">
-            <div className="relative aspect-square overflow-hidden rounded-2xl bg-ink-foreground">
-              <img src={preview} alt="Your sketch" className="h-full w-full object-contain" />
-              <span className="absolute left-4 top-4 rounded-full bg-ink/70 px-3 py-1 text-xs text-ink-foreground">Your sketch</span>
-            </div>
-            <div className="relative aspect-square overflow-hidden rounded-2xl bg-ink-soft">
-              <Three><SketchModel radii={shape.radii} aspect={shape.aspect} color={color} /></Three>
-              <span className="absolute left-4 top-4 rounded-full bg-ink/70 px-3 py-1 text-xs text-ink-foreground">3D preview · drag to spin</span>
-            </div>
-          </div>
-        )}
-        {error && <p className="mt-3 text-sm text-ink-muted">{error}</p>}
-      </div>
-    </div>
-  );
-}
-
-/* ---------- Before / after ---------- */
-
-function BeforeAfter({ before, after }: { before: string; after: string }) {
-  const [pos, setPos] = useState(50);
-  const ref = useRef<HTMLDivElement>(null);
-  const move = (x: number) => { const r = ref.current!.getBoundingClientRect(); setPos(Math.min(100, Math.max(0, ((x - r.left) / r.width) * 100))); };
-  return (
-    <div ref={ref} className="relative aspect-[4/3] cursor-ew-resize select-none overflow-hidden rounded-2xl touch-none"
-      onPointerDown={(e) => { e.currentTarget.setPointerCapture(e.pointerId); move(e.clientX); }}
-      onPointerMove={(e) => { if (e.buttons) move(e.clientX); }}>
-      <img src={after} alt="Finished 3D printed piece" loading="lazy" width={1200} height={912} className="absolute inset-0 h-full w-full object-cover" draggable={false} />
-      <img src={before} alt="Original design sketch" loading="lazy" width={1200} height={912} className="absolute inset-0 h-full w-full object-cover" style={{ clipPath: `inset(0 ${100 - pos}% 0 0)` }} draggable={false} />
-      <div className="absolute inset-y-0 w-0.5 bg-ink-foreground" style={{ left: `${pos}%` }}>
-        <span className="absolute left-1/2 top-1/2 flex h-11 w-11 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-ink-foreground text-xs font-bold text-ink shadow-lg">⇆</span>
-      </div>
-      <input type="range" min={0} max={100} value={pos} onChange={(e) => setPos(+e.target.value)} aria-label="Compare sketch and finished piece" className="sr-only" />
-      <span className="absolute left-4 top-4 rounded-full bg-ink/70 px-3 py-1 text-xs text-ink-foreground">Sketch</span>
-      <span className="absolute right-4 top-4 rounded-full bg-ink/70 px-3 py-1 text-xs text-ink-foreground">Printed</span>
     </div>
   );
 }

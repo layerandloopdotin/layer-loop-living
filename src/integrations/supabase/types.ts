@@ -371,6 +371,7 @@ export type Database = {
           compare_at_price: number | null
           created_at: string
           engravable: boolean
+          engraving_images: string[]
           engraving_max_chars: number
           engraving_placements: string[]
           engraving_price: number
@@ -397,6 +398,7 @@ export type Database = {
           compare_at_price?: number | null
           created_at?: string
           engravable?: boolean
+          engraving_images?: string[]
           engraving_max_chars?: number
           engraving_placements?: string[]
           engraving_price?: number
@@ -423,6 +425,7 @@ export type Database = {
           compare_at_price?: number | null
           created_at?: string
           engravable?: boolean
+          engraving_images?: string[]
           engraving_max_chars?: number
           engraving_placements?: string[]
           engraving_price?: number

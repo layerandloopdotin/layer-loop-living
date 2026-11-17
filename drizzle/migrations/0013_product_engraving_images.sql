@@ -1,0 +1,2 @@
+ALTER TABLE public.products ADD COLUMN IF NOT EXISTS engraving_images text[] NOT NULL DEFAULT '{}';
+COMMENT ON COLUMN public.products.engraving_placements IS 'DEPRECATED: engraving placement is no longer chosen by customers';

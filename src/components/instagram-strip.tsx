@@ -2,9 +2,13 @@ import { Instagram } from "lucide-react";
 import { useContent } from "@/lib/site";
 import { img } from "@/lib/media";
 import { CenterRail } from "@/components/center-rail";
+import { useQuery } from "@tanstack/react-query";
+import { getInstagramPosts } from "@/lib/instagram.functions";
 
 export function InstagramStrip() {
   const c = useContent("instagram");
+  const live = useQuery({ queryKey: ["instagram-posts"], queryFn: () => getInstagramPosts(), staleTime: 15 * 60_000 }).data ?? [];
+  const posts = live.length ? live.map((p) => ({ src: p.image, href: p.link, alt: p.caption })) : c.posts.map((src) => ({ src: img(src), href: c.url, alt: "" }));
   return (
     <section className="bg-ink py-16 text-ink-foreground">
       <div className="mx-auto flex max-w-7xl flex-wrap items-end justify-between gap-4 px-6">
@@ -18,10 +22,10 @@ export function InstagramStrip() {
         </a>
       </div>
       <CenterRail dark className="mt-8" itemClass="w-[60%] sm:w-64">
-        {c.posts.map((src, n) => (
-          <a key={n} href={c.url} target="_blank" rel="noreferrer" aria-label={`Instagram post ${n + 1}`}
+        {posts.map((p, n) => (
+          <a key={n} href={p.href} target="_blank" rel="noreferrer" aria-label={`Instagram post ${n + 1}`}
             className="group relative block aspect-square overflow-hidden rounded-xl">
-            <img src={img(src)} alt="" loading="lazy" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+            <img src={p.src} alt={p.alt} loading="lazy" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
             <span className="absolute inset-0 flex items-center justify-center bg-ink/0 opacity-0 transition group-hover:bg-ink/40 group-hover:opacity-100">
               <Instagram className="h-6 w-6" />
             </span>

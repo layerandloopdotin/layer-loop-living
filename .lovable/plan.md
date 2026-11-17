@@ -37,9 +37,8 @@ I searched the site's code and all saved content, and every return mention alrea
 - Instagram: a server function calls the Instagram Graph API (`/me/media`) using the `INSTAGRAM_ACCESS_TOKEN` secret, with cached results. Photos go through a server proxy so tokens never reach the browser.
 - Migration to update the `instagram` and `settings` content records to the new handle and URL.
 
-## 4. Photo to 3D object — remove it for now
-Blender can't run inside the website, and the current tool can only guess simple shapes, so it will never match a real object closely. The plan:
-- Remove the "3D object" photo mode from the Custom page. Keep Relief and Lithophane, which do turn a photo into an accurate surface.
-- Visitors can still upload a reference photo with "Request this design", so your studio can model the object yourself, in Blender or any other tool.
-- Optional later step: connect a dedicated photo-to-3D service such as Meshy or Tripo. This gives much closer results, but it needs a paid account and API key and takes about 1–2 minutes per model.
-- Technical: remove the object mode UI and the `analyzeObjectPhoto` server function and its schema, and update its tests and the AGENTS.md rule.
+## 4. Remove Sketch to Print, keep all photo modes
+- Remove the "Sketch to Print" section (upload or draw a sketch, then see a 3D preview) from the Custom page.
+- Keep "Turn a photo into an object" with all three modes: 3D object, Relief and Lithophane.
+- Visitors can still attach sketches as reference files when they choose "Request this design".
+- Technical: remove the sketch section and its lathe preview code and copy, plus any sketch-only tests.

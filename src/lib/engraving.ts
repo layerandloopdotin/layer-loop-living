@@ -19,7 +19,11 @@ export const CUSTOM_ENGRAVING_PRICE = 199;
 
 /** placement is kept optional only so older carts and saved designs still open. */
 export type Engraving = { text: string; font: string; placement?: string };
-export type EngravingRules = { enabled: boolean; price: number; maxChars: number; images: string[] };
+export type EngravingRules = { enabled: boolean; price: number; maxChars: number; images?: string[] };
+
+/** Older cached products may predate example photos. Never require them to personalise an item. */
+export const engravingImages = (rules: Pick<EngravingRules, "images">): string[] =>
+  Array.isArray(rules.images) ? rules.images.filter((src) => typeof src === "string" && src.trim().length > 0) : [];
 
 export function engravingSchema(rules: Pick<EngravingRules, "maxChars">) {
   return z.object({

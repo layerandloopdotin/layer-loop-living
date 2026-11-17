@@ -1,4 +1,4 @@
-import { ENGRAVING_FONTS, ENGRAVING_FONT_CSS, engravingSchema, type Engraving } from "@/lib/engraving";
+import { ENGRAVING_FONTS, ENGRAVING_FONT_CSS, engravingImages, engravingSchema, type Engraving } from "@/lib/engraving";
 import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
 import { useRef, useState, type PointerEvent } from "react";
 import { Check, CreditCard, Heart, Landmark, Link2, MapPin, Minus, Plus, Share2, ShieldCheck, Smartphone, Truck, Wallet, Banknote } from "lucide-react";
@@ -201,6 +201,7 @@ function ProductDetail() {
   const [eng, setEng] = useState<Engraving>({ text: "", font: ENGRAVING_FONTS[0] });
   const [engErr, setEngErr] = useState<string | null>(null);
   const chosen = engrave && p.engraving.enabled ? eng : undefined;
+  const exampleImages = engravingImages(p.engraving);
   const addToCart = () => {
     if (chosen) {
       const r = engravingSchema(p.engraving).safeParse(chosen);
@@ -270,9 +271,9 @@ function ProductDetail() {
               <div role="radiogroup" aria-label="Engraving font" className="flex flex-wrap gap-2">
                 {ENGRAVING_FONTS.map((f) => <button key={f} type="button" role="radio" aria-checked={eng.font === f} onClick={() => setEng({ ...eng, font: f })} style={{ fontFamily: ENGRAVING_FONT_CSS[f] }} className={`rounded-full border px-3 py-1.5 text-sm ${eng.font === f ? "border-foreground bg-card" : "border-border"}`}>{f}</button>)}
               </div>
-              {p.engraving.images.length > 0 && <div>
+              {exampleImages.length > 0 && <div>
                 <p className="text-xs uppercase tracking-widest text-muted-foreground">How engraving looks</p>
-                <div className="mt-2 flex gap-2 overflow-x-auto pb-1">{p.engraving.images.map((src, n) => <img key={n} src={src} alt={`Engraving example ${n + 1}`} loading="lazy" className="h-24 w-32 shrink-0 rounded-lg object-cover" />)}</div>
+                <div className="mt-2 flex gap-2 overflow-x-auto pb-1">{exampleImages.map((src, n) => <img key={n} src={src} alt={`Engraving example ${n + 1}`} loading="lazy" className="h-24 w-32 shrink-0 rounded-lg object-cover" />)}</div>
               </div>}
               <p className="text-xs text-muted-foreground">We'll share a preview of your engraved text before we make it.</p>
               <p className="text-xs text-muted-foreground">Engraved pieces are made for you, so they can't be returned. They're still replaced if they arrive damaged.</p>

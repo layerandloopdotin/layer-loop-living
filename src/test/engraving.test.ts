@@ -1,8 +1,17 @@
 import { describe, expect, it } from "vitest";
-import { engravingCost, engravingSchema } from "@/lib/engraving";
+import { engravingCost, engravingImages, engravingSchema } from "@/lib/engraving";
 
 const rules = { enabled: true, price: 199, maxChars: 20, images: [] };
 describe("engraving", () => {
+  it("allows older products without example photos", () => {
+    const legacy = { enabled: true, price: 199, maxChars: 20 };
+    expect(engravingImages(legacy)).toEqual([]);
+    expect(engravingSchema(legacy).safeParse({ text: "Asha", font: "Serif" }).success).toBe(true);
+  });
+  it("keeps supplied example photos and omits empty ones", () => {
+    expect(engravingImages({ images: ["", "  ", "/example.jpg"] })).toEqual(["/example.jpg"]);
+    expect(engravingImages({ images: [] })).toEqual([]);
+  });
   it("adds the engraving price only when text is chosen", () => {
     expect(engravingCost(rules, { text: "Asha", font: "Script" })).toBe(199);
     expect(engravingCost(rules, null)).toBe(0);

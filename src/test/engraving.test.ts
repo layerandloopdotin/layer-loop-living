@@ -15,3 +15,11 @@ describe("engraving", () => {
     expect(engravingSchema(rules).safeParse({ text: "Asha", font: "Script", placement: "Back" }).success).toBe(false);
   });
 });
+
+import { DEFAULT_DESIGN, estimate } from "@/lib/custom";
+describe("custom design engraving", () => {
+  it("raises the estimate when words are added", () => {
+    const plain = estimate(DEFAULT_DESIGN), eng = estimate({ ...DEFAULT_DESIGN, engraving: { text: "Asha", font: "Script", placement: "Front" } });
+    expect(eng.high).toBeGreaterThan(plain.high);
+  });
+});

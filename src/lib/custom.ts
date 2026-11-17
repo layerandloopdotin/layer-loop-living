@@ -1,3 +1,4 @@
+import { CUSTOM_ENGRAVING_PRICE } from "@/lib/engraving";
 import { z } from "zod";
 
 // Browser-safe rules for the Custom Studio page: sandbox options, shapes, touch points, estimates, colour matching and the brief form.
@@ -59,6 +60,7 @@ export type Design = {
   lightFrom: number; // stack only: lowest lit module (0 = bottom)
   lightTo: number; // stack only: highest lit module
   lightKind: LightKind; // stack only, when the light spans more than one module
+  engraving?: { text: string; font: string; placement: string }; // optional; saved designs without it still open
 };
 
 export const MAX_MODULES = 6;
@@ -153,7 +155,7 @@ export function estimate(d: Design, rates: Rates = DEFAULT_RATES) {
   const grams = Math.round(area * loops * 0.05 * (1 + d.fuzzy * 0.15) * (1 + Math.min(d.hRibs, 40) * 0.004));
   const hours = Math.round((grams / 12) * (1 + d.fuzzy * 0.4) * 10) / 10;
   const lightOn = d.light && FORMS.find((f) => f.id === d.form)!.light;
-  const price = rates.base + grams * rates.gramPrice + (lightOn ? rates.lightKit : 0);
+  const price = rates.base + grams * rates.gramPrice + (lightOn ? rates.lightKit : 0) + (d.engraving?.text.trim() ? CUSTOM_ENGRAVING_PRICE : 0);
   const low = Math.round((price * 0.9) / 50) * 50;
   const high = Math.round((price * 1.2) / 50) * 50;
   return { modules, totalHeight, width, grams, hours, loops, low, high };

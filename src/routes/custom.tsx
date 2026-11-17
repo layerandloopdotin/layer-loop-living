@@ -1,3 +1,4 @@
+import { CUSTOM_ENGRAVING_PRICE, ENGRAVING_FONTS, ENGRAVING_FONT_CSS, ENGRAVING_PLACEMENTS } from "@/lib/engraving";
 import { ClientOnly, createFileRoute } from "@tanstack/react-router";
 import { DesignActions } from "@/components/custom/design-actions";
 import { Suspense, lazy, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
@@ -117,6 +118,10 @@ function Custom() {
                   <div className="mb-5 flex h-36 items-center justify-center overflow-hidden rounded-xl bg-muted"><OfferDemo i={i} onPhoto={() => go("photo")} /></div>
                   <h3 className="font-display text-lg font-bold">{o.name}</h3>
                   <p className="mt-2 text-sm text-muted-foreground">{o.text}</p>
+                  {i === 0 && <div className="mt-4 flex flex-wrap gap-2 text-xs font-semibold">
+                    <button type="button" onClick={() => { go("sandbox"); window.dispatchEvent(new Event("custom:engrave")); }} className="rounded-full border border-foreground px-3 py-1.5">Engrave my design</button>
+                    <Link to="/products" className="rounded-full border border-border px-3 py-1.5">Engrave a product</Link>
+                  </div>}
                 </div>
               </Reveal>
             ))}
@@ -420,6 +425,7 @@ const TABS = [
   { id: "surface", label: "Surface" },
   { id: "colour", label: "Colour" },
   { id: "extras", label: "Light & water" },
+  { id: "engrave", label: "Engrave" },
 ] as const;
 
 function Sandbox({ design: d, setDesign, rates, note, actions }: { design: Design; setDesign: (d: Design) => void; rates: Rates; note: string; sendLabel: string; onSend: () => void; actions?: ReactNode }) {
@@ -429,8 +435,10 @@ function Sandbox({ design: d, setDesign, rates, note, actions }: { design: Desig
   const [assemblyView, setAssemblyView] = useState(false);
   useEffect(() => {
     const assemble = () => setAssemblyView(false);
+    const engraveTab = () => setTab("engrave");
     window.addEventListener("custom:assemble-preview", assemble);
-    return () => window.removeEventListener("custom:assemble-preview", assemble);
+    window.addEventListener("custom:engrave", engraveTab);
+    return () => { window.removeEventListener("custom:assemble-preview", assemble); window.removeEventListener("custom:engrave", engraveTab); };
   }, []);
   const base = lampBase(d);
   const updateBase = (p: Partial<StackModule>) => set({ lampBase: { ...base, ...p }, ...(p.shape ? { base: p.shape } : {}) });
@@ -501,6 +509,19 @@ function Sandbox({ design: d, setDesign, rates, note, actions }: { design: Desig
             </>
           )}
           {tab === "colour" && <ColorPanel value={editingBase ? base.color ?? d.color : d.color} onChange={(color) => editingBase ? updateBase({ color }) : set({ color })} label={editingBase ? "Base colour" : "Shade / object colour"} />}
+          {tab === "engrave" && (() => {
+            const e = d.engraving ?? { text: "", font: ENGRAVING_FONTS[0], placement: "Front" };
+            const setE = (p: Partial<typeof e>) => set({ engraving: { ...e, ...p } });
+            return <div className="space-y-4">
+              <label className="block text-xs uppercase tracking-widest text-ink-muted">Words to engrave
+                <input value={e.text} maxLength={20} onChange={(ev) => setE({ text: ev.target.value })} placeholder="A name, initials or a date" className="mt-2 w-full rounded-md border border-ink-line bg-transparent px-3 py-2.5 text-sm normal-case tracking-normal text-ink-foreground" />
+              </label>
+              <div role="radiogroup" aria-label="Engraving font" className="flex flex-wrap gap-2">{ENGRAVING_FONTS.map((f) => <button key={f} type="button" role="radio" aria-checked={e.font === f} onClick={() => setE({ font: f })} style={{ fontFamily: ENGRAVING_FONT_CSS[f] }} className={`rounded-full border px-3 py-1.5 text-sm ${e.font === f ? "border-primary bg-primary text-primary-foreground" : "border-ink-line"}`}>{f}</button>)}</div>
+              <div role="radiogroup" aria-label="Engraving placement" className="flex flex-wrap gap-2">{ENGRAVING_PLACEMENTS.map((pl) => <button key={pl} type="button" role="radio" aria-checked={e.placement === pl} onClick={() => setE({ placement: pl })} className={`rounded-full border px-3 py-1.5 text-xs uppercase tracking-widest ${e.placement === pl ? "border-primary bg-primary text-primary-foreground" : "border-ink-line"}`}>{pl}</button>)}</div>
+              <p className="text-xs text-ink-muted">Adds about {formatPrice(CUSTOM_ENGRAVING_PRICE)} to the estimate. Leave the words empty for no engraving.</p>
+              {e.text && <button type="button" onClick={() => set({ engraving: undefined })} className="text-xs underline">Remove engraving</button>}
+            </div>;
+          })()}
           {tab === "extras" && (
             <div className="space-y-3">
               {d.form === "table-lamp" && <p className="text-xs text-ink-muted">{c.lampFittingNote}</p>}
@@ -546,6 +567,7 @@ function Sandbox({ design: d, setDesign, rates, note, actions }: { design: Desig
           <button type="button" onClick={shuffle} className="absolute right-4 top-4 inline-flex items-center gap-1.5 rounded-full bg-ink/70 px-3 py-1.5 text-xs font-semibold backdrop-blur transition-transform hover:rotate-3 hover:scale-105"><Shuffle className="h-3.5 w-3.5" /> Surprise me</button>
           {form.light && <Button size="sm" variant="outline" aria-pressed={assemblyView} onClick={() => setAssemblyView(!assemblyView)} className="absolute bottom-12 left-4 border-ink-line bg-ink/90 text-ink-foreground">{assemblyView ? c.lampAssembledLabel : c.lampAssemblyLabel}</Button>}
           <span className="absolute left-4 top-4 h-6 w-6 rounded-full border border-ink-line" style={{ background: d.color }} title={d.color} />
+          {d.engraving?.text.trim() && <span className={`pointer-events-none absolute inset-x-0 text-center text-xl text-ink-foreground/80 drop-shadow ${d.engraving.placement === "Base" ? "bottom-20" : d.engraving.placement === "Back" ? "top-14 opacity-50" : "top-1/2"}`} style={{ fontFamily: ENGRAVING_FONT_CSS[d.engraving.font] }}>{d.engraving.text}<span className="block font-sans text-[9px] uppercase tracking-widest text-ink-muted">Engraved · {d.engraving.placement}</span></span>}
           <p className="pointer-events-none absolute bottom-4 left-4 text-[10px] uppercase tracking-widest text-ink-muted">Drag to spin · scroll to zoom{(d.form !== "stack" ? d.points.length : d.modules[selIdx]?.points?.length) ? " · drag dots to shape" : ""}</p>
         </div>
         <div className="rounded-2xl bg-ink-foreground p-4 text-ink">
@@ -671,7 +693,7 @@ function designSummary(d: Design, rates: Rates) {
   const shape = d.form === "stack"
     ? ` · modules (bottom→top): ${d.modules.map((m) => `${SHAPES.find((x) => x.id === m.shape)?.label} ${m.height}×${m.width}${m.points?.length ? ` pts ${m.points.map((p) => `${Math.round(p.t * 100)}%@${Math.round(p.s * 100)}%`).join(" ")}` : ""}${m.color ? ` ${m.color}` : ""}`).join(", ")}${d.light ? ` · light modules ${lightFitting(d).from + 1}–${lightFitting(d).to + 1} (${lightFitting(d).fitting})` : ""}`
     : `${d.points.length ? ` · touch points ${d.points.map((p) => `${Math.round(p.t * 100)}%@${Math.round(p.s * 100)}%`).join(" ")}` : ""}${d.form === "table-lamp" ? ` · base ${d.base === "none" ? "none" : SHAPES.find((x) => x.id === d.base)?.label}` : ""}`;
-  return `${FORMS.find((f) => f.id === d.form)!.label} · ${s.totalHeight}×${s.width} cm · fuzzy ${Math.round(d.fuzzy * 100)}% · ${d.layers} vertical / ${d.hRibs} horizontal ribs · twist ${d.twist}° · taper ${d.taper} · ${d.color}${d.light ? ` · light ${d.warm ? "warm" : "soft"}` : ""}${d.waterproof ? " · waterproof" : ""}${shape} · est. ₹${s.low}–${s.high}`;
+  return `${FORMS.find((f) => f.id === d.form)!.label} · ${s.totalHeight}×${s.width} cm · fuzzy ${Math.round(d.fuzzy * 100)}% · ${d.layers} vertical / ${d.hRibs} horizontal ribs · twist ${d.twist}° · taper ${d.taper} · ${d.color}${d.light ? ` · light ${d.warm ? "warm" : "soft"}` : ""}${d.waterproof ? " · waterproof" : ""}${shape}${d.engraving?.text.trim() ? ` · engrave “${d.engraving.text.trim()}” (${d.engraving.font}, ${d.engraving.placement})` : ""} · est. ₹${s.low}–${s.high}`;
 }
 
 function Brief({ design, clearDesign, rates, submitLabel, thankYou }: { design: Design | null; clearDesign: () => void; rates: Rates; submitLabel: string; thankYou: string }) {

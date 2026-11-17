@@ -12,7 +12,7 @@ export type ProductRow = {
   id: string; slug: string; name: string; tagline: string; short_description: string; long_description: string;
   price: number; compare_at_price: number | null; featured: boolean; published: boolean; sort: number;
   category_ids: string[]; space_ids: string[]; images: string[]; colors: unknown; specs: unknown; care: unknown; variants?: unknown;
-  engravable?: boolean; engraving_price?: number; engraving_max_chars?: number; engraving_placements?: string[];
+  engravable?: boolean; engraving_price?: number; engraving_max_chars?: number; engraving_placements?: string[]; engraving_images?: string[];
 };
 
 export type Product = {
@@ -60,7 +60,7 @@ export function toProduct(r: ProductRow, cats: Category[], spaces: Space[]): Pro
     categories: cats.filter((c) => r.category_ids?.includes(c.id)).map((c) => c.name),
     spaces: spaces.filter((s) => r.space_ids?.includes(s.id)).map((s) => s.name),
     specs: pairs(r.specs), care: pairs(r.care), variants: variants(r.variants).map((v) => ({ ...v, image: v.image ? img(v.image) : "" })),
-    engraving: { enabled: !!r.engravable, price: Number(r.engraving_price ?? 199), maxChars: Number(r.engraving_max_chars ?? 20), placements: r.engraving_placements?.length ? r.engraving_placements : ["Front", "Base", "Back"] },
+    engraving: { enabled: !!r.engravable, price: Number(r.engraving_price ?? 199), maxChars: Number(r.engraving_max_chars ?? 20), images: (r.engraving_images ?? []).filter(Boolean).map(img) },
   };
 }
 

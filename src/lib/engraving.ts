@@ -1,23 +1,30 @@
 // Engraving rules shared by product pages, cart and the custom builder. Browser-safe.
 import { z } from "zod";
 
-export const ENGRAVING_FONTS = ["Classic serif", "Clean sans", "Script"] as const;
+/** Font styles customers pick from. The studio sends a proof of the engraved text after ordering. */
+export const ENGRAVING_FONTS = ["Serif", "Sans-serif", "Script", "Handwritten", "Slab serif", "Monospace", "Classic capitals"] as const;
 export const ENGRAVING_FONT_CSS: Record<string, string> = {
-  "Classic serif": "Georgia, 'Times New Roman', serif",
-  "Clean sans": "ui-sans-serif, system-ui, sans-serif",
-  Script: "'Brush Script MT', 'Segoe Script', cursive",
+  Serif: "'Playfair Display', Georgia, serif",
+  "Sans-serif": "'DM Sans', ui-sans-serif, system-ui, sans-serif",
+  Script: "'Great Vibes', 'Brush Script MT', cursive",
+  Handwritten: "'Caveat', 'Segoe Print', cursive",
+  "Slab serif": "'Roboto Slab', Rockwell, serif",
+  Monospace: "'Space Mono', ui-monospace, monospace",
+  "Classic capitals": "'Cinzel', 'Trajan Pro', serif",
+  // older saved choices
+  "Classic serif": "'Playfair Display', Georgia, serif",
+  "Clean sans": "'DM Sans', ui-sans-serif, sans-serif",
 };
-export const ENGRAVING_PLACEMENTS = ["Front", "Base", "Back"];
 export const CUSTOM_ENGRAVING_PRICE = 199;
 
-export type Engraving = { text: string; font: string; placement: string };
-export type EngravingRules = { enabled: boolean; price: number; maxChars: number; placements: string[] };
+/** placement is kept optional only so older carts and saved designs still open. */
+export type Engraving = { text: string; font: string; placement?: string };
+export type EngravingRules = { enabled: boolean; price: number; maxChars: number; images: string[] };
 
-export function engravingSchema(rules: Pick<EngravingRules, "maxChars" | "placements">) {
+export function engravingSchema(rules: Pick<EngravingRules, "maxChars">) {
   return z.object({
     text: z.string().trim().min(1, "Type the words to engrave").max(rules.maxChars, `Keep it to ${rules.maxChars} characters`),
     font: z.enum(ENGRAVING_FONTS, { message: "Choose a font" }),
-    placement: z.string().refine((v) => rules.placements.includes(v), "Choose where to engrave"),
   });
 }
 
@@ -26,6 +33,6 @@ export const engravingCost = (rules: Pick<EngravingRules, "enabled" | "price">, 
   rules.enabled && e && e.text.trim() ? Math.max(0, rules.price) : 0;
 
 export const sameEngraving = (a?: Engraving, b?: Engraving) =>
-  (a?.text ?? "") === (b?.text ?? "") && (a?.font ?? "") === (b?.font ?? "") && (a?.placement ?? "") === (b?.placement ?? "");
+  (a?.text ?? "") === (b?.text ?? "") && (a?.font ?? "") === (b?.font ?? "");
 
-export const describeEngraving = (e: Engraving) => `Engraving: “${e.text}” · ${e.font} · ${e.placement}`;
+export const describeEngraving = (e: Engraving) => `Engraving: “${e.text}” · ${e.font}`;

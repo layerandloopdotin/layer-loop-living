@@ -198,7 +198,7 @@ function ProductDetail() {
   const [delivery, setDelivery] = useState<DeliveryResult | null>(null);
 
   const [engrave, setEngrave] = useState(false);
-  const [eng, setEng] = useState<Engraving>({ text: "", font: ENGRAVING_FONTS[0], placement: p.engraving.placements[0] ?? "Front" });
+  const [eng, setEng] = useState<Engraving>({ text: "", font: ENGRAVING_FONTS[0] });
   const [engErr, setEngErr] = useState<string | null>(null);
   const chosen = engrave && p.engraving.enabled ? eng : undefined;
   const addToCart = () => {
@@ -270,14 +270,11 @@ function ProductDetail() {
               <div role="radiogroup" aria-label="Engraving font" className="flex flex-wrap gap-2">
                 {ENGRAVING_FONTS.map((f) => <button key={f} type="button" role="radio" aria-checked={eng.font === f} onClick={() => setEng({ ...eng, font: f })} style={{ fontFamily: ENGRAVING_FONT_CSS[f] }} className={`rounded-full border px-3 py-1.5 text-sm ${eng.font === f ? "border-foreground bg-card" : "border-border"}`}>{f}</button>)}
               </div>
-              <div role="radiogroup" aria-label="Engraving placement" className="flex flex-wrap gap-2">
-                {p.engraving.placements.map((pl) => <button key={pl} type="button" role="radio" aria-checked={eng.placement === pl} onClick={() => setEng({ ...eng, placement: pl })} className={`rounded-full border px-3 py-1.5 text-xs uppercase tracking-widest ${eng.placement === pl ? "border-foreground bg-card" : "border-border"}`}>{pl}</button>)}
-              </div>
-              <div className="relative overflow-hidden rounded-lg">
-                <img src={galleryFor(p, colour)[0] ?? p.image} alt="" className="aspect-[16/9] w-full object-cover brightness-75" />
-                <span className={`absolute inset-x-0 px-4 text-center text-2xl text-primary-foreground drop-shadow ${eng.placement === "Base" ? "bottom-4" : eng.placement === "Back" ? "top-4 opacity-70" : "top-1/2 -translate-y-1/2"}`} style={{ fontFamily: ENGRAVING_FONT_CSS[eng.font] }}>{eng.text || "Your words"}</span>
-                <span className="absolute left-3 top-3 rounded-full bg-background/80 px-2 py-0.5 text-[10px] uppercase tracking-widest">Preview · {eng.placement}</span>
-              </div>
+              {p.engraving.images.length > 0 && <div>
+                <p className="text-xs uppercase tracking-widest text-muted-foreground">How engraving looks</p>
+                <div className="mt-2 flex gap-2 overflow-x-auto pb-1">{p.engraving.images.map((src, n) => <img key={n} src={src} alt={`Engraving example ${n + 1}`} loading="lazy" className="h-24 w-32 shrink-0 rounded-lg object-cover" />)}</div>
+              </div>}
+              <p className="text-xs text-muted-foreground">We'll share a preview of your engraved text before we make it.</p>
               <p className="text-xs text-muted-foreground">Engraved pieces are made for you, so they can't be returned. They're still replaced if they arrive damaged.</p>
               {engErr && <p role="alert" className="text-xs text-destructive">{engErr}</p>}
             </div>}

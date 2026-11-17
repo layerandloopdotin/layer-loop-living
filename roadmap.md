@@ -17,3 +17,7 @@
 - [ ] Mobile OTP sign-in — needs an SMS provider account
 - [ ] Live Shiprocket scans — needs Shiprocket API login
 - [ ] Real online payment — needs a payment provider
+- [x] Engraving on product pages (admin per-product settings) and in the custom builder
+- [x] 2-day returns check; Instagram → @layerandloop.in
+- [x] Removed Sketch to Print section
+- [ ] Live Instagram posts — needs an Instagram access token

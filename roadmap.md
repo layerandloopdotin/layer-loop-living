@@ -1,4 +1,5 @@
 # Roadmap
+- [ ] Clarify custom engraving proof after acceptance/quote and require name, email and phone on design requests
 - [ ] Remove all live engraving demos on product/custom pages and the catalogue preview promise; retain replacement note
 - [x] Close stack/pendant shells and add connected bases, holders and fitting inspection; verify rendering
 - [x] Match uploaded lamp base: tapered black tripod legs and compact socket housing

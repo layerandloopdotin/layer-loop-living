@@ -48,7 +48,7 @@ const settings = {
   mapUrl: "https://www.google.com/maps/search/?api=1&query=12+Linking+Road+Bandra+West+Mumbai",
   studioLocation: "Indiranagar, Bengaluru, India",
   socials: [
-    { label: "Instagram", url: "https://instagram.com/layerandloop" },
+    { label: "Instagram", url: "https://instagram.com/layerandloop.in" },
     { label: "Pinterest", url: "https://pinterest.com/layerandloop" },
     { label: "LinkedIn", url: "https://linkedin.com/company/layerandloop" },
   ],
@@ -181,7 +181,7 @@ const contact = {
 const instagram = {
   eyebrow: "On Instagram",
   handle: "layerandloop",
-  url: "https://instagram.com/layerandloop",
+  url: "https://instagram.com/layerandloop.in",
   text: "Fresh off the print bed — new drops, studio moments and your spaces.",
   buttonLabel: "Follow us",
   posts: ["asset:p-mushroom.jpg", "asset:store-2.jpg", "asset:mat-petg.jpg", "asset:tile-vases.jpg", "asset:about-printer.jpg", "asset:p-orb.jpg", "asset:tile-desk.jpg", "asset:living.jpg", "asset:tile-collectibles.jpg", "asset:p-pendant.jpg"],
@@ -266,9 +266,6 @@ const custom = {
   photoTitle: "Turn a photo into an object.",
   photoText: "Upload a photo and choose what it becomes: a 3D object our AI recognises and models, a raised relief, or a lithophane that reveals the picture when lit.",
   photoNote: "This is an instant preview. Our designers make the final model by hand.",
-  sketchEyebrow: "From sketch to print",
-  sketchTitle: "Sketch it. See it in 3D.",
-  sketchImage: "asset:custom-sketch.jpg",
   printImage: "asset:custom-print.jpg",
   stepsTitle: "The creation loop",
   steps: [

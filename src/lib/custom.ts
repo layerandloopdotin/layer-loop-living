@@ -60,7 +60,7 @@ export type Design = {
   lightFrom: number; // stack only: lowest lit module (0 = bottom)
   lightTo: number; // stack only: highest lit module
   lightKind: LightKind; // stack only, when the light spans more than one module
-  engraving?: { text: string; font: string; placement: string }; // optional; saved designs without it still open
+  engraving?: { text: string; font: string; placement: string } | undefined; // optional; saved designs without it still open
 };
 
 export const MAX_MODULES = 6;

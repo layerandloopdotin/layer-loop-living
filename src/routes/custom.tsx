@@ -1,4 +1,4 @@
-import { CUSTOM_ENGRAVING_PRICE, ENGRAVING_FONTS } from "@/lib/engraving";
+import { CUSTOM_ENGRAVING_PRICE, ENGRAVING_REMARKS_MAX } from "@/lib/engraving";
 import { ClientOnly, Link, createFileRoute } from "@tanstack/react-router";
 import { DesignActions } from "@/components/custom/design-actions";
 import { Suspense, lazy, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
@@ -504,13 +504,15 @@ function Sandbox({ design: d, setDesign, rates, note, actions }: { design: Desig
           )}
           {tab === "colour" && <ColorPanel value={editingBase ? base.color ?? d.color : d.color} onChange={(color) => editingBase ? updateBase({ color }) : set({ color })} label={editingBase ? "Base colour" : "Shade / object colour"} />}
           {tab === "engrave" && (() => {
-            const e = d.engraving ?? { text: "", font: ENGRAVING_FONTS[0] as string };
+            const e = d.engraving ?? { text: "", remarks: "" };
             const setE = (p: Partial<typeof e>) => set({ engraving: { ...e, ...p } });
             return <div className="space-y-4">
               <label className="block text-xs uppercase tracking-widest text-ink-muted">Words to engrave
                 <input value={e.text} maxLength={20} onChange={(ev) => setE({ text: ev.target.value })} placeholder="A name, initials or a date" className="mt-2 w-full rounded-md border border-ink-line bg-transparent px-3 py-2.5 text-sm normal-case tracking-normal text-ink-foreground" />
               </label>
-              <div role="radiogroup" aria-label="Engraving font" className="flex flex-wrap gap-2">{ENGRAVING_FONTS.map((f) => <button key={f} type="button" role="radio" aria-checked={e.font === f} onClick={() => setE({ font: f })} className={`rounded-full border px-3 py-1.5 text-sm ${e.font === f ? "border-primary bg-primary text-primary-foreground" : "border-ink-line"}`}>{f}</button>)}</div>
+              <label className="block text-xs uppercase tracking-widest text-ink-muted">Remarks
+                <input value={e.remarks ?? ""} maxLength={ENGRAVING_REMARKS_MAX} onChange={(ev) => setE({ remarks: ev.target.value })} placeholder="Any font preferences?" className="mt-2 w-full rounded-md border border-ink-line bg-transparent px-3 py-2.5 text-sm normal-case tracking-normal text-ink-foreground" />
+              </label>
               <p className="text-xs text-ink-muted">Adds about {formatPrice(CUSTOM_ENGRAVING_PRICE)} to the estimate. Leave the words empty for no engraving.</p>
               <p className="text-xs text-ink-muted">{c.engravingProofNote}</p>
               {e.text && <button type="button" onClick={() => set({ engraving: undefined })} className="text-xs underline">Remove engraving</button>}
@@ -686,7 +688,7 @@ function designSummary(d: Design, rates: Rates) {
   const shape = d.form === "stack"
     ? ` · modules (bottom→top): ${d.modules.map((m) => `${SHAPES.find((x) => x.id === m.shape)?.label} ${m.height}×${m.width}${m.points?.length ? ` pts ${m.points.map((p) => `${Math.round(p.t * 100)}%@${Math.round(p.s * 100)}%`).join(" ")}` : ""}${m.color ? ` ${m.color}` : ""}`).join(", ")}${d.light ? ` · light modules ${lightFitting(d).from + 1}–${lightFitting(d).to + 1} (${lightFitting(d).fitting})` : ""}`
     : `${d.points.length ? ` · touch points ${d.points.map((p) => `${Math.round(p.t * 100)}%@${Math.round(p.s * 100)}%`).join(" ")}` : ""}${d.form === "table-lamp" ? ` · base ${d.base === "none" ? "none" : SHAPES.find((x) => x.id === d.base)?.label}` : ""}`;
-  return `${FORMS.find((f) => f.id === d.form)!.label} · ${s.totalHeight}×${s.width} cm · fuzzy ${Math.round(d.fuzzy * 100)}% · ${d.layers} vertical / ${d.hRibs} horizontal ribs · twist ${d.twist}° · taper ${d.taper} · ${d.color}${d.light ? ` · light ${d.warm ? "warm" : "soft"}` : ""}${d.waterproof ? " · waterproof" : ""}${shape}${d.engraving?.text.trim() ? ` · engrave “${d.engraving.text.trim()}” (${d.engraving.font})` : ""} · est. ₹${s.low}–${s.high}`;
+  return `${FORMS.find((f) => f.id === d.form)!.label} · ${s.totalHeight}×${s.width} cm · fuzzy ${Math.round(d.fuzzy * 100)}% · ${d.layers} vertical / ${d.hRibs} horizontal ribs · twist ${d.twist}° · taper ${d.taper} · ${d.color}${d.light ? ` · light ${d.warm ? "warm" : "soft"}` : ""}${d.waterproof ? " · waterproof" : ""}${shape}${d.engraving?.text.trim() ? ` · engrave “${d.engraving.text.trim()}”${d.engraving.remarks?.trim() ? ` (${d.engraving.remarks.trim()})` : d.engraving.font ? ` (${d.engraving.font})` : ""}` : ""} · est. ₹${s.low}–${s.high}`;
 }
 
 function Brief({ design, clearDesign, rates, submitLabel, thankYou }: { design: Design | null; clearDesign: () => void; rates: Rates; submitLabel: string; thankYou: string }) {

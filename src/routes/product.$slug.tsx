@@ -1,4 +1,4 @@
-import { ENGRAVING_FONTS, engravingImages, engravingSchema, type Engraving } from "@/lib/engraving";
+import { ENGRAVING_REMARKS_MAX, engravingImages, engravingSchema, type Engraving } from "@/lib/engraving";
 import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
 import { useRef, useState, type PointerEvent } from "react";
 import { Check, CreditCard, Heart, Landmark, Link2, MapPin, Minus, Plus, Share2, ShieldCheck, Smartphone, Truck, Wallet, Banknote } from "lucide-react";
@@ -198,7 +198,7 @@ function ProductDetail() {
   const [delivery, setDelivery] = useState<DeliveryResult | null>(null);
 
   const [engrave, setEngrave] = useState(false);
-  const [eng, setEng] = useState<Engraving>({ text: "", font: ENGRAVING_FONTS[0] });
+  const [eng, setEng] = useState<Engraving>({ text: "", remarks: "" });
   const [engErr, setEngErr] = useState<string | null>(null);
   const chosen = engrave && p.engraving.enabled ? eng : undefined;
   const exampleImages = engravingImages(p.engraving);
@@ -268,9 +268,9 @@ function ProductDetail() {
                 <input value={eng.text} maxLength={p.engraving.maxChars} onChange={(e) => setEng({ ...eng, text: e.target.value })} placeholder="A name, initials or a date" className="mt-2 w-full rounded-md border border-border bg-background px-3 py-2.5 text-sm normal-case tracking-normal text-foreground" />
                 <span className="mt-1 block text-right normal-case tracking-normal">{eng.text.length}/{p.engraving.maxChars}</span>
               </label>
-              <div role="radiogroup" aria-label="Engraving font" className="flex flex-wrap gap-2">
-                {ENGRAVING_FONTS.map((f) => <button key={f} type="button" role="radio" aria-checked={eng.font === f} onClick={() => setEng({ ...eng, font: f })} className={`rounded-full border px-3 py-1.5 text-sm ${eng.font === f ? "border-foreground bg-card" : "border-border"}`}>{f}</button>)}
-              </div>
+              <label className="block text-xs uppercase tracking-widest text-muted-foreground">Remarks
+                <input value={eng.remarks ?? ""} maxLength={ENGRAVING_REMARKS_MAX} onChange={(e) => setEng({ ...eng, remarks: e.target.value })} placeholder="Any font preferences?" className="mt-2 w-full rounded-md border border-border bg-background px-3 py-2.5 text-sm normal-case tracking-normal text-foreground" />
+              </label>
               {exampleImages.length > 0 && <div>
                 <p className="text-xs uppercase tracking-widest text-muted-foreground">How engraving looks</p>
                 <div className="mt-2 flex gap-2 overflow-x-auto pb-1">{exampleImages.map((src, n) => <img key={n} src={src} alt={`Engraving example ${n + 1}`} loading="lazy" className="h-24 w-32 shrink-0 rounded-lg object-cover" />)}</div>

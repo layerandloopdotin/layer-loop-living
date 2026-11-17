@@ -6,7 +6,7 @@ describe("engraving", () => {
   it("allows older products without example photos", () => {
     const legacy = { enabled: true, price: 199, maxChars: 20 };
     expect(engravingImages(legacy)).toEqual([]);
-    expect(engravingSchema(legacy).safeParse({ text: "Asha", font: "Serif" }).success).toBe(true);
+    expect(engravingSchema(legacy).safeParse({ text: "Asha" }).success).toBe(true);
   });
   it("keeps supplied example photos and omits empty ones", () => {
     expect(engravingImages({ images: ["", "  ", "/example.jpg"] })).toEqual(["/example.jpg"]);
@@ -20,9 +20,10 @@ describe("engraving", () => {
   it("rejects text over the character limit", () => {
     expect(engravingSchema(rules).safeParse({ text: "x".repeat(21), font: "Script" }).success).toBe(false);
   });
-  it("needs only words and a font, no placement", () => {
-    expect(engravingSchema(rules).safeParse({ text: "Asha", font: "Handwritten" }).success).toBe(true);
-    expect(engravingSchema(rules).safeParse({ text: "Asha", font: "Comic" }).success).toBe(false);
+  it("needs only words; remarks are optional but capped", () => {
+    expect(engravingSchema(rules).safeParse({ text: "Asha" }).success).toBe(true);
+    expect(engravingSchema(rules).safeParse({ text: "Asha", remarks: "Cursive please" }).success).toBe(true);
+    expect(engravingSchema(rules).safeParse({ text: "Asha", remarks: "x".repeat(121) }).success).toBe(false);
   });
 });
 

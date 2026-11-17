@@ -1,5 +1,5 @@
 import { CUSTOM_ENGRAVING_PRICE, ENGRAVING_FONTS, ENGRAVING_FONT_CSS, ENGRAVING_PLACEMENTS } from "@/lib/engraving";
-import { ClientOnly, createFileRoute } from "@tanstack/react-router";
+import { ClientOnly, Link, createFileRoute } from "@tanstack/react-router";
 import { DesignActions } from "@/components/custom/design-actions";
 import { Suspense, lazy, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { ArrowRight, Check, ChevronDown, ChevronUp, Copy, Droplets, Eraser, GripVertical, Lightbulb, Minus, PencilLine, Plus, Shuffle, Upload, X } from "lucide-react";

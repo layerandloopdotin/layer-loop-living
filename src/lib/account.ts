@@ -10,6 +10,13 @@ export const fieldValue = (fd: FormData, k: string) => String(fd.get(k) ?? "").t
 export const phoneSchema = z.string().regex(/^[6-9]\d{9}$/, "Enter a valid 10-digit mobile number");
 export const toE164 = (digits: string) => `+91${digits}`;
 
+export const designRequestContactSchema = z.object({
+  name: z.string().trim().min(1, "Enter your name").max(100),
+  email: z.string().trim().email("Enter a valid email").max(255),
+  phone: phoneSchema,
+  pin: z.string().regex(/^[1-9]\d{5}$/, "Enter a 6-digit PIN code"),
+});
+
 export const profileSchema = z.object({
   full_name: z.string().max(80, "Name is too long"),
   phone: z.string().refine((v) => v === "" || /^[6-9]\d{9}$/.test(v), "Enter a valid 10-digit mobile number"),

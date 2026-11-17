@@ -511,7 +511,8 @@ function Sandbox({ design: d, setDesign, rates, note, actions }: { design: Desig
                 <input value={e.text} maxLength={20} onChange={(ev) => setE({ text: ev.target.value })} placeholder="A name, initials or a date" className="mt-2 w-full rounded-md border border-ink-line bg-transparent px-3 py-2.5 text-sm normal-case tracking-normal text-ink-foreground" />
               </label>
               <div role="radiogroup" aria-label="Engraving font" className="flex flex-wrap gap-2">{ENGRAVING_FONTS.map((f) => <button key={f} type="button" role="radio" aria-checked={e.font === f} onClick={() => setE({ font: f })} className={`rounded-full border px-3 py-1.5 text-sm ${e.font === f ? "border-primary bg-primary text-primary-foreground" : "border-ink-line"}`}>{f}</button>)}</div>
-              <p className="text-xs text-ink-muted">Adds about {formatPrice(CUSTOM_ENGRAVING_PRICE)} to the estimate. Leave the words empty for no engraving. We'll share a preview of the engraved text once you request it.</p>
+              <p className="text-xs text-ink-muted">Adds about {formatPrice(CUSTOM_ENGRAVING_PRICE)} to the estimate. Leave the words empty for no engraving.</p>
+              <p className="text-xs text-ink-muted">{c.engravingProofNote}</p>
               {e.text && <button type="button" onClick={() => set({ engraving: undefined })} className="text-xs underline">Remove engraving</button>}
             </div>;
           })()}

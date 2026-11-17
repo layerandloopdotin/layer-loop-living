@@ -401,22 +401,3 @@ export function PhotoRelief({ src, depth, color, tinted, mode, model }: { src: s
   );
 }
 
-/* ---------- Sketch to 3D ---------- */
-
-/** A turned object built from a sketch's outline (radii bottom→top, aspect = height / width). */
-export function SketchModel({ radii, aspect, color }: { radii: number[]; aspect: number; color: string }) {
-  const geo = useMemo(() => latheFromProfile(radii), [radii]);
-  const H = 3, sy = H, sx = H / Math.min(3, Math.max(0.35, aspect));
-  return (
-    <div className="h-full w-full" data-scene-ready>
-      <Canvas shadows dpr={[1, 1.75]} camera={{ position: [0, 0.8, 7.5], fov: 38 }} gl={{ alpha: true }}>
-        <Lights />
-        <mesh geometry={geo} scale={[Math.min(sx, 4.2), sy, Math.min(sx, 4.2)]} castShadow>
-          <meshStandardMaterial color={color} roughness={0.7} side={THREE.DoubleSide} />
-        </mesh>
-        <ContactShadows position={[0, -1.51, 0]} opacity={0.5} blur={2.4} scale={8} />
-        <OrbitControls enablePan={false} autoRotate autoRotateSpeed={0.8} minDistance={3} maxDistance={14} />
-      </Canvas>
-    </div>
-  );
-}

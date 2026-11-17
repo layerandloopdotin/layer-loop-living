@@ -42,7 +42,7 @@ function Checkout() {
   const site = useSite();
   const [method, setMethod] = useState("UPI");
   const lines = cart.flatMap((c) => { const p = site.bySlug(c.slug); return p ? [{ ...c, p }] : []; });
-  const sub = lines.reduce((s, l) => s + unitPrice(l.p, l.variant) * l.qty, 0);
+  const sub = lines.reduce((s, l) => s + unitPrice(l.p, l.variant, l.engraving) * l.qty, 0);
   const cq = useQuery({ queryKey: ["coupon", coupon, sub], enabled: !!coupon, queryFn: () => checkCoupon(coupon!, sub) });
   const t = cartTotals(sub, cq.data?.ok ? cq.data.discount : 0);
   const session = useQuery({ queryKey: ["checkout-user"], queryFn: async () => (await supabase.auth.getUser()).data.user });
@@ -54,7 +54,7 @@ function Checkout() {
     const fd = new FormData(e.currentTarget);
     const v = addressSchema.safeParse({ label: "Delivery", ...Object.fromEntries(KEYS.map((k) => [k, fieldValue(fd, k)])) });
     if (!v.success) { toast.error(v.error.issues[0]?.message); return; }
-    sessionStorage.setItem(CHECKOUT_KEY, JSON.stringify({ address: v.data, email: fieldValue(fd, "email"), method, total: t.total, coupon: cq.data?.ok ? cq.data.code : undefined, items: lines.map((l) => ({ name: l.p.name, qty: l.qty, variant: l.variant })) }));
+    sessionStorage.setItem(CHECKOUT_KEY, JSON.stringify({ address: v.data, email: fieldValue(fd, "email"), method, total: t.total, coupon: cq.data?.ok ? cq.data.code : undefined, items: lines.map((l) => ({ name: l.p.name, qty: l.qty, variant: l.variant, engraving: l.engraving })) }));
     navigate({ to: "/payment" });
   };
 
@@ -90,7 +90,7 @@ function Checkout() {
         </form>
         <aside className="h-fit rounded-2xl bg-card p-6 md:sticky md:top-6">
           <p className="font-display text-lg font-semibold">Order summary</p>
-          <ul className="mt-4 space-y-3 text-sm">{lines.map((l) => <li key={l.slug + (l.variant ?? "")} className="flex justify-between gap-3"><span>{l.p.name} × {l.qty}</span><span>{formatPrice(unitPrice(l.p, l.variant) * l.qty)}</span></li>)}</ul>
+          <ul className="mt-4 space-y-3 text-sm">{lines.map((l) => <li key={l.slug + (l.variant ?? "") + (l.engraving?.text ?? "")} className="flex justify-between gap-3"><span>{l.p.name} × {l.qty}</span><span>{formatPrice(unitPrice(l.p, l.variant, l.engraving) * l.qty)}</span></li>)}</ul>
           <div className="mt-5 space-y-1.5 border-t border-border pt-4 text-sm">
             <div className="flex justify-between"><span>Subtotal</span><span>{formatPrice(t.subtotal)}</span></div>
             {t.discount > 0 && <div className="flex justify-between text-primary"><span>Discount</span><span>− {formatPrice(t.discount)}</span></div>}

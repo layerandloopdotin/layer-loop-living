@@ -1,7 +1,8 @@
 import { useSyncExternalStore } from "react";
+import { sameEngraving, type Engraving } from "@/lib/engraving";
 
-export type CartLine = { slug: string; qty: number; variant?: string };
-const same = (c: CartLine, slug: string, variant?: string) => c.slug === slug && (c.variant ?? "") === (variant ?? "");
+export type CartLine = { slug: string; qty: number; variant?: string; engraving?: Engraving };
+const same = (c: CartLine, slug: string, variant?: string, engraving?: Engraving) => c.slug === slug && (c.variant ?? "") === (variant ?? "") && sameEngraving(c.engraving, engraving);
 type State = { cart: CartLine[]; wishlist: string[] };
 
 const KEY = "ll-shop-v1";
@@ -45,21 +46,21 @@ export function useShop() {
 }
 
 export const shop = {
-  add(slug: string, qty = 1, variant?: string) {
+  add(slug: string, qty = 1, variant?: string, engraving?: Engraving) {
     load();
-    const found = state.cart.find((c) => same(c, slug, variant));
+    const found = state.cart.find((c) => same(c, slug, variant, engraving));
     set({
       ...state,
       cart: found
-        ? state.cart.map((c) => (same(c, slug, variant) ? { ...c, qty: Math.min(10, c.qty + qty) } : c))
-        : [...state.cart, variant ? { slug, qty, variant } : { slug, qty }],
+        ? state.cart.map((c) => (same(c, slug, variant, engraving) ? { ...c, qty: Math.min(10, c.qty + qty) } : c))
+        : [...state.cart, { slug, qty, ...(variant ? { variant } : {}), ...(engraving ? { engraving } : {}) }],
     });
   },
-  setQty(slug: string, qty: number, variant?: string) {
+  setQty(slug: string, qty: number, variant?: string, engraving?: Engraving) {
     load();
     set({
       ...state,
-      cart: qty <= 0 ? state.cart.filter((c) => !same(c, slug, variant)) : state.cart.map((c) => (same(c, slug, variant) ? { ...c, qty: Math.min(10, qty) } : c)),
+      cart: qty <= 0 ? state.cart.filter((c) => !same(c, slug, variant, engraving)) : state.cart.map((c) => (same(c, slug, variant, engraving) ? { ...c, qty: Math.min(10, qty) } : c)),
     });
   },
   toggleWish(slug: string) {

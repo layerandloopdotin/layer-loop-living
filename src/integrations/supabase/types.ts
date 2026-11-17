@@ -370,6 +370,10 @@ export type Database = {
           colors: Json
           compare_at_price: number | null
           created_at: string
+          engravable: boolean
+          engraving_max_chars: number
+          engraving_placements: string[]
+          engraving_price: number
           featured: boolean
           id: string
           images: string[]
@@ -392,6 +396,10 @@ export type Database = {
           colors?: Json
           compare_at_price?: number | null
           created_at?: string
+          engravable?: boolean
+          engraving_max_chars?: number
+          engraving_placements?: string[]
+          engraving_price?: number
           featured?: boolean
           id?: string
           images?: string[]
@@ -414,6 +422,10 @@ export type Database = {
           colors?: Json
           compare_at_price?: number | null
           created_at?: string
+          engravable?: boolean
+          engraving_max_chars?: number
+          engraving_placements?: string[]
+          engraving_price?: number
           featured?: boolean
           id?: string
           images?: string[]

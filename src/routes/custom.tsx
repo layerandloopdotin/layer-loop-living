@@ -1,4 +1,5 @@
-import { ClientOnly, createFileRoute } from "@tanstack/react-router";
+import { CUSTOM_ENGRAVING_PRICE, ENGRAVING_FONTS, ENGRAVING_FONT_CSS, ENGRAVING_PLACEMENTS } from "@/lib/engraving";
+import { ClientOnly, Link, createFileRoute } from "@tanstack/react-router";
 import { DesignActions } from "@/components/custom/design-actions";
 import { Suspense, lazy, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { ArrowRight, Check, ChevronDown, ChevronUp, Copy, Droplets, Eraser, GripVertical, Lightbulb, Minus, PencilLine, Plus, Shuffle, Upload, X } from "lucide-react";
@@ -7,7 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { fieldValue } from "@/lib/contact";
 import {
   BRIEF_KINDS, CUSTOM_MODULE, DEFAULT_DESIGN, FORMS, MAX_MODULES, MAX_POINTS, PHOTO_MODES, POINT_PRESETS, SHAPES, STUDIO_PALETTE, TIMELINES, briefSchema, closestSwatches, estimate,
-  hexToRgb, lampBase, lightFitting, rgbToHex, sketchProfile, wallLoops, type Design, type PhotoMode, type PhotoObject, type Rates, type ShapeId, type StackModule, type TouchPoint,
+  hexToRgb, lampBase, lightFitting, rgbToHex, wallLoops, type Design, type PhotoMode, type PhotoObject, type Rates, type ShapeId, type StackModule, type TouchPoint,
 } from "@/lib/custom";
 import { formatPrice } from "@/lib/currency";
 import { img } from "@/lib/media";
@@ -19,7 +20,6 @@ import { HexColorPicker } from "react-colorful";
 import { analyzeObjectPhoto } from "@/lib/photo-object.functions";
 
 const StudioModel = lazy(() => import("@/components/custom/studio-3d").then((m) => ({ default: m.StudioModel })));
-const SketchModel = lazy(() => import("@/components/custom/studio-3d").then((m) => ({ default: m.SketchModel })));
 const PhotoRelief = lazy(() => import("@/components/custom/studio-3d").then((m) => ({ default: m.PhotoRelief })));
 
 export const Route = createFileRoute("/custom")({
@@ -118,6 +118,10 @@ function Custom() {
                   <div className="mb-5 flex h-36 items-center justify-center overflow-hidden rounded-xl bg-muted"><OfferDemo i={i} onPhoto={() => go("photo")} /></div>
                   <h3 className="font-display text-lg font-bold">{o.name}</h3>
                   <p className="mt-2 text-sm text-muted-foreground">{o.text}</p>
+                  {i === 0 && <div className="mt-4 flex flex-wrap gap-2 text-xs font-semibold">
+                    <button type="button" onClick={() => { go("sandbox"); window.dispatchEvent(new Event("custom:engrave")); }} className="rounded-full border border-foreground px-3 py-1.5">Engrave my design</button>
+                    <Link to="/products" className="rounded-full border border-border px-3 py-1.5">Engrave a product</Link>
+                  </div>}
                 </div>
               </Reveal>
             ))}
@@ -149,17 +153,6 @@ function Custom() {
             <p className="mt-4 text-xs text-muted-foreground">{c.photoNote}</p>
           </Reveal>
           <PhotoLab color={design.color} />
-        </div>
-      </section>
-
-      {/* Sketch to print */}
-      <section className="bg-ink text-ink-foreground">
-        <div className="mx-auto max-w-5xl px-6 py-20">
-          <Reveal>
-            <p className={eyebrow}>{c.sketchEyebrow}</p>
-            <h2 className="mt-3 font-display text-3xl font-bold md:text-4xl">{c.sketchTitle}</h2>
-          </Reveal>
-          <Reveal delay={150}><SketchLab before={img(c.sketchImage)} after={img(c.printImage)} color={design.color} /></Reveal>
         </div>
       </section>
 
@@ -432,6 +425,7 @@ const TABS = [
   { id: "surface", label: "Surface" },
   { id: "colour", label: "Colour" },
   { id: "extras", label: "Light & water" },
+  { id: "engrave", label: "Engrave" },
 ] as const;
 
 function Sandbox({ design: d, setDesign, rates, note, actions }: { design: Design; setDesign: (d: Design) => void; rates: Rates; note: string; sendLabel: string; onSend: () => void; actions?: ReactNode }) {
@@ -441,8 +435,10 @@ function Sandbox({ design: d, setDesign, rates, note, actions }: { design: Desig
   const [assemblyView, setAssemblyView] = useState(false);
   useEffect(() => {
     const assemble = () => setAssemblyView(false);
+    const engraveTab = () => setTab("engrave");
     window.addEventListener("custom:assemble-preview", assemble);
-    return () => window.removeEventListener("custom:assemble-preview", assemble);
+    window.addEventListener("custom:engrave", engraveTab);
+    return () => { window.removeEventListener("custom:assemble-preview", assemble); window.removeEventListener("custom:engrave", engraveTab); };
   }, []);
   const base = lampBase(d);
   const updateBase = (p: Partial<StackModule>) => set({ lampBase: { ...base, ...p }, ...(p.shape ? { base: p.shape } : {}) });
@@ -513,6 +509,19 @@ function Sandbox({ design: d, setDesign, rates, note, actions }: { design: Desig
             </>
           )}
           {tab === "colour" && <ColorPanel value={editingBase ? base.color ?? d.color : d.color} onChange={(color) => editingBase ? updateBase({ color }) : set({ color })} label={editingBase ? "Base colour" : "Shade / object colour"} />}
+          {tab === "engrave" && (() => {
+            const e = d.engraving ?? { text: "", font: ENGRAVING_FONTS[0], placement: "Front" };
+            const setE = (p: Partial<typeof e>) => set({ engraving: { ...e, ...p } });
+            return <div className="space-y-4">
+              <label className="block text-xs uppercase tracking-widest text-ink-muted">Words to engrave
+                <input value={e.text} maxLength={20} onChange={(ev) => setE({ text: ev.target.value })} placeholder="A name, initials or a date" className="mt-2 w-full rounded-md border border-ink-line bg-transparent px-3 py-2.5 text-sm normal-case tracking-normal text-ink-foreground" />
+              </label>
+              <div role="radiogroup" aria-label="Engraving font" className="flex flex-wrap gap-2">{ENGRAVING_FONTS.map((f) => <button key={f} type="button" role="radio" aria-checked={e.font === f} onClick={() => setE({ font: f })} style={{ fontFamily: ENGRAVING_FONT_CSS[f] }} className={`rounded-full border px-3 py-1.5 text-sm ${e.font === f ? "border-primary bg-primary text-primary-foreground" : "border-ink-line"}`}>{f}</button>)}</div>
+              <div role="radiogroup" aria-label="Engraving placement" className="flex flex-wrap gap-2">{ENGRAVING_PLACEMENTS.map((pl) => <button key={pl} type="button" role="radio" aria-checked={e.placement === pl} onClick={() => setE({ placement: pl })} className={`rounded-full border px-3 py-1.5 text-xs uppercase tracking-widest ${e.placement === pl ? "border-primary bg-primary text-primary-foreground" : "border-ink-line"}`}>{pl}</button>)}</div>
+              <p className="text-xs text-ink-muted">Adds about {formatPrice(CUSTOM_ENGRAVING_PRICE)} to the estimate. Leave the words empty for no engraving.</p>
+              {e.text && <button type="button" onClick={() => set({ engraving: undefined })} className="text-xs underline">Remove engraving</button>}
+            </div>;
+          })()}
           {tab === "extras" && (
             <div className="space-y-3">
               {d.form === "table-lamp" && <p className="text-xs text-ink-muted">{c.lampFittingNote}</p>}
@@ -558,6 +567,7 @@ function Sandbox({ design: d, setDesign, rates, note, actions }: { design: Desig
           <button type="button" onClick={shuffle} className="absolute right-4 top-4 inline-flex items-center gap-1.5 rounded-full bg-ink/70 px-3 py-1.5 text-xs font-semibold backdrop-blur transition-transform hover:rotate-3 hover:scale-105"><Shuffle className="h-3.5 w-3.5" /> Surprise me</button>
           {form.light && <Button size="sm" variant="outline" aria-pressed={assemblyView} onClick={() => setAssemblyView(!assemblyView)} className="absolute bottom-12 left-4 border-ink-line bg-ink/90 text-ink-foreground">{assemblyView ? c.lampAssembledLabel : c.lampAssemblyLabel}</Button>}
           <span className="absolute left-4 top-4 h-6 w-6 rounded-full border border-ink-line" style={{ background: d.color }} title={d.color} />
+          {d.engraving?.text.trim() && <span className={`pointer-events-none absolute inset-x-0 text-center text-xl text-ink-foreground/80 drop-shadow ${d.engraving.placement === "Base" ? "bottom-20" : d.engraving.placement === "Back" ? "top-14 opacity-50" : "top-1/2"}`} style={{ fontFamily: ENGRAVING_FONT_CSS[d.engraving.font] }}>{d.engraving.text}<span className="block font-sans text-[9px] uppercase tracking-widest text-ink-muted">Engraved · {d.engraving.placement}</span></span>}
           <p className="pointer-events-none absolute bottom-4 left-4 text-[10px] uppercase tracking-widest text-ink-muted">Drag to spin · scroll to zoom{(d.form !== "stack" ? d.points.length : d.modules[selIdx]?.points?.length) ? " · drag dots to shape" : ""}</p>
         </div>
         <div className="rounded-2xl bg-ink-foreground p-4 text-ink">
@@ -672,127 +682,6 @@ function PhotoLab({ color }: { color: string }) {
   );
 }
 
-/* ---------- Sketch to 3D ---------- */
-
-type SketchShape = { radii: number[]; aspect: number };
-
-/** Reads an image or canvas into a luminance grid and traces its outline into a turned profile. */
-function traceSketch(source: CanvasImageSource, w: number, h: number): SketchShape | null {
-  const N = 200, k = Math.min(N / w, N / h);
-  const cw = Math.max(8, Math.round(w * k)), ch = Math.max(8, Math.round(h * k));
-  const c = document.createElement("canvas"); c.width = cw; c.height = ch;
-  const ctx = c.getContext("2d")!;
-  ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, cw, ch);
-  ctx.drawImage(source, 0, 0, cw, ch);
-  const px = ctx.getImageData(0, 0, cw, ch).data;
-  const lum = new Float32Array(cw * ch);
-  for (let i = 0; i < lum.length; i++) lum[i] = (px[i * 4]! * 0.299 + px[i * 4 + 1]! * 0.587 + px[i * 4 + 2]! * 0.114) / 255;
-  return sketchProfile(lum, cw, ch);
-}
-
-function SketchLab({ before, after, color }: { before: string; after: string; color: string }) {
-  const [view, setView] = useState<"example" | "draw" | "result">("example");
-  const [shape, setShape] = useState<SketchShape | null>(null);
-  const [preview, setPreview] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const pad = useRef<HTMLCanvasElement>(null);
-  const last = useRef<{ x: number; y: number } | null>(null);
-  const finish = (sh: SketchShape | null, url: string) => {
-    if (!sh) { setError("We couldn't find a clear outline — try a darker line on a light background."); return; }
-    setError(null); setShape(sh); setPreview(url); setView("result");
-  };
-  const upload = (f?: File) => {
-    if (!f || !f.type.startsWith("image/")) return;
-    const url = URL.createObjectURL(f);
-    const im = new Image();
-    im.onload = () => finish(traceSketch(im, im.width, im.height), url);
-    im.src = url;
-  };
-  const clearPad = () => { const c = pad.current; if (!c) return; const x = c.getContext("2d")!; x.fillStyle = "#fff"; x.fillRect(0, 0, c.width, c.height); };
-  useEffect(() => { if (view === "draw") clearPad(); }, [view]);
-  const point = (e: React.PointerEvent<HTMLCanvasElement>) => { const r = e.currentTarget.getBoundingClientRect(); return { x: ((e.clientX - r.left) / r.width) * e.currentTarget.width, y: ((e.clientY - r.top) / r.height) * e.currentTarget.height }; };
-  const stroke = (e: React.PointerEvent<HTMLCanvasElement>) => {
-    if (!e.buttons || !last.current) return;
-    const p = point(e), x = e.currentTarget.getContext("2d")!;
-    // Mirror each stroke so the outline is symmetric, like a turned piece.
-    const W = e.currentTarget.width;
-    x.strokeStyle = "#1d1b1a"; x.lineWidth = 6; x.lineCap = "round";
-    for (const m of [false, true]) { x.beginPath(); x.moveTo(m ? W - last.current.x : last.current.x, last.current.y); x.lineTo(m ? W - p.x : p.x, p.y); x.stroke(); }
-    last.current = p;
-  };
-  const tools = [
-    { label: "Upload your sketch", icon: <Upload className="h-4 w-4" />, upload: true },
-    { label: "Draw a sketch", icon: <PencilLine className="h-4 w-4" />, onClick: () => { setView("draw"); setError(null); } },
-    { label: "Show example", icon: <Eraser className="h-4 w-4" />, onClick: () => { setView("example"); setError(null); } },
-  ];
-  return (
-    <div className="mt-10 flex gap-3 md:gap-4">
-      <div className="flex flex-col gap-2">
-        {tools.map((t) => t.upload ? (
-          <label key={t.label} title={t.label} aria-label={t.label} className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-full border border-ink-line transition-colors hover:border-primary hover:text-primary">
-            {t.icon}<input type="file" accept="image/png,image/jpeg,image/webp" className="sr-only" onChange={(e) => { upload(e.target.files?.[0]); e.target.value = ""; }} />
-          </label>
-        ) : (
-          <button key={t.label} type="button" title={t.label} aria-label={t.label} onClick={t.onClick}
-            className="flex h-11 w-11 items-center justify-center rounded-full border border-ink-line transition-colors hover:border-primary hover:text-primary">{t.icon}</button>
-        ))}
-      </div>
-      <div className="min-w-0 flex-1">
-        {view === "example" && <BeforeAfter before={before} after={after} />}
-        {view === "draw" && (
-          <div className="grid gap-3 md:grid-cols-2">
-            <canvas ref={pad} width={480} height={480} aria-label="Sketch pad" className="aspect-square w-full cursor-crosshair touch-none rounded-2xl"
-              onPointerDown={(e) => { e.currentTarget.setPointerCapture(e.pointerId); last.current = point(e); }} onPointerMove={stroke} onPointerUp={() => (last.current = null)} />
-            <div className="flex flex-col justify-center gap-4 rounded-2xl border border-ink-line p-6">
-              <p className="text-sm text-ink-muted">Draw one side of your vase or lamp from top to bottom — we mirror it as you go. Then turn it into 3D.</p>
-              <div className="flex flex-wrap gap-2">
-                <button type="button" onClick={() => { const c = pad.current; if (c) finish(traceSketch(c, c.width, c.height), c.toDataURL()); }}
-                  className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-transform hover:scale-[1.03]">Make it 3D <ArrowRight className="h-4 w-4" /></button>
-                <button type="button" onClick={clearPad} className="rounded-full border border-ink-line px-4 py-2.5 text-sm font-semibold">Clear</button>
-              </div>
-            </div>
-          </div>
-        )}
-        {view === "result" && shape && preview && (
-          <div className="grid gap-3 md:grid-cols-2">
-            <div className="relative aspect-square overflow-hidden rounded-2xl bg-ink-foreground">
-              <img src={preview} alt="Your sketch" className="h-full w-full object-contain" />
-              <span className="absolute left-4 top-4 rounded-full bg-ink/70 px-3 py-1 text-xs text-ink-foreground">Your sketch</span>
-            </div>
-            <div className="relative aspect-square overflow-hidden rounded-2xl bg-ink-soft">
-              <Three><SketchModel radii={shape.radii} aspect={shape.aspect} color={color} /></Three>
-              <span className="absolute left-4 top-4 rounded-full bg-ink/70 px-3 py-1 text-xs text-ink-foreground">3D preview · drag to spin</span>
-            </div>
-          </div>
-        )}
-        {error && <p className="mt-3 text-sm text-ink-muted">{error}</p>}
-      </div>
-    </div>
-  );
-}
-
-/* ---------- Before / after ---------- */
-
-function BeforeAfter({ before, after }: { before: string; after: string }) {
-  const [pos, setPos] = useState(50);
-  const ref = useRef<HTMLDivElement>(null);
-  const move = (x: number) => { const r = ref.current!.getBoundingClientRect(); setPos(Math.min(100, Math.max(0, ((x - r.left) / r.width) * 100))); };
-  return (
-    <div ref={ref} className="relative aspect-[4/3] cursor-ew-resize select-none overflow-hidden rounded-2xl touch-none"
-      onPointerDown={(e) => { e.currentTarget.setPointerCapture(e.pointerId); move(e.clientX); }}
-      onPointerMove={(e) => { if (e.buttons) move(e.clientX); }}>
-      <img src={after} alt="Finished 3D printed piece" loading="lazy" width={1200} height={912} className="absolute inset-0 h-full w-full object-cover" draggable={false} />
-      <img src={before} alt="Original design sketch" loading="lazy" width={1200} height={912} className="absolute inset-0 h-full w-full object-cover" style={{ clipPath: `inset(0 ${100 - pos}% 0 0)` }} draggable={false} />
-      <div className="absolute inset-y-0 w-0.5 bg-ink-foreground" style={{ left: `${pos}%` }}>
-        <span className="absolute left-1/2 top-1/2 flex h-11 w-11 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-ink-foreground text-xs font-bold text-ink shadow-lg">⇆</span>
-      </div>
-      <input type="range" min={0} max={100} value={pos} onChange={(e) => setPos(+e.target.value)} aria-label="Compare sketch and finished piece" className="sr-only" />
-      <span className="absolute left-4 top-4 rounded-full bg-ink/70 px-3 py-1 text-xs text-ink-foreground">Sketch</span>
-      <span className="absolute right-4 top-4 rounded-full bg-ink/70 px-3 py-1 text-xs text-ink-foreground">Printed</span>
-    </div>
-  );
-}
-
 /* ---------- Brief ---------- */
 
 const field = "mt-2 w-full rounded-md border border-border bg-background px-3 py-2.5 text-sm normal-case tracking-normal text-foreground";
@@ -804,7 +693,7 @@ function designSummary(d: Design, rates: Rates) {
   const shape = d.form === "stack"
     ? ` · modules (bottom→top): ${d.modules.map((m) => `${SHAPES.find((x) => x.id === m.shape)?.label} ${m.height}×${m.width}${m.points?.length ? ` pts ${m.points.map((p) => `${Math.round(p.t * 100)}%@${Math.round(p.s * 100)}%`).join(" ")}` : ""}${m.color ? ` ${m.color}` : ""}`).join(", ")}${d.light ? ` · light modules ${lightFitting(d).from + 1}–${lightFitting(d).to + 1} (${lightFitting(d).fitting})` : ""}`
     : `${d.points.length ? ` · touch points ${d.points.map((p) => `${Math.round(p.t * 100)}%@${Math.round(p.s * 100)}%`).join(" ")}` : ""}${d.form === "table-lamp" ? ` · base ${d.base === "none" ? "none" : SHAPES.find((x) => x.id === d.base)?.label}` : ""}`;
-  return `${FORMS.find((f) => f.id === d.form)!.label} · ${s.totalHeight}×${s.width} cm · fuzzy ${Math.round(d.fuzzy * 100)}% · ${d.layers} vertical / ${d.hRibs} horizontal ribs · twist ${d.twist}° · taper ${d.taper} · ${d.color}${d.light ? ` · light ${d.warm ? "warm" : "soft"}` : ""}${d.waterproof ? " · waterproof" : ""}${shape} · est. ₹${s.low}–${s.high}`;
+  return `${FORMS.find((f) => f.id === d.form)!.label} · ${s.totalHeight}×${s.width} cm · fuzzy ${Math.round(d.fuzzy * 100)}% · ${d.layers} vertical / ${d.hRibs} horizontal ribs · twist ${d.twist}° · taper ${d.taper} · ${d.color}${d.light ? ` · light ${d.warm ? "warm" : "soft"}` : ""}${d.waterproof ? " · waterproof" : ""}${shape}${d.engraving?.text.trim() ? ` · engrave “${d.engraving.text.trim()}” (${d.engraving.font}, ${d.engraving.placement})` : ""} · est. ₹${s.low}–${s.high}`;
 }
 
 function Brief({ design, clearDesign, rates, submitLabel, thankYou }: { design: Design | null; clearDesign: () => void; rates: Rates; submitLabel: string; thankYou: string }) {

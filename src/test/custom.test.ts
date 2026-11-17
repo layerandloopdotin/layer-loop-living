@@ -62,7 +62,7 @@ describe("practical lamp assembly", () => {
   });
 });
 
-import { lightFitting, sketchProfile } from "@/lib/custom";
+import { lightFitting } from "@/lib/custom";
 describe("stack light fitting", () => {
   const mods = DEFAULT_DESIGN.modules;
   it("one lit module takes an E27 bulb", () => {
@@ -76,19 +76,6 @@ describe("stack light fitting", () => {
     expect(lightFitting({ modules: mods.slice(0, 2), lightFrom: 0, lightTo: 5, lightKind: "strip" })).toMatchObject({ from: 0, to: 1 });
   });
 });
-describe("sketch tracing", () => {
-  it("traces a wider bottom than top", () => {
-    const w = 40, h = 40, lum = new Float32Array(w * h).fill(1);
-    for (let y = 5; y < 35; y++) { const half = 4 + (y - 5) / 2; lum[y * w + Math.round(20 - half)] = 0; lum[y * w + Math.round(20 + half)] = 0; }
-    const r = sketchProfile(lum, w, h)!;
-    expect(r.radii[0]).toBe(1);
-    expect(r.radii[r.radii.length - 1]!).toBeLessThan(0.5);
-  });
-  it("returns null for a blank page", () => {
-    expect(sketchProfile(new Float32Array(100).fill(1), 10, 10)).toBeNull();
-  });
-});
-
 import { depositFor as _depositFor } from "@/lib/custom";
 describe("custom design deposit", () => {
   it("is 20% of the shown estimate midpoint", () => {

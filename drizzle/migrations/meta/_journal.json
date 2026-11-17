@@ -85,6 +85,13 @@
       "when": 1794836506243,
       "tag": "0011_custom_request_deposit",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1794915400909,
+      "tag": "0012_product_engraving_and_instagram_handle",
+      "breakpoints": true
     }
   ]
 }

@@ -1,3 +1,4 @@
+import { CUSTOM_ENGRAVING_PRICE } from "@/lib/engraving";
 import { z } from "zod";
 
 // Browser-safe rules for the Custom Studio page: sandbox options, shapes, touch points, estimates, colour matching and the brief form.
@@ -59,6 +60,7 @@ export type Design = {
   lightFrom: number; // stack only: lowest lit module (0 = bottom)
   lightTo: number; // stack only: highest lit module
   lightKind: LightKind; // stack only, when the light spans more than one module
+  engraving?: { text: string; font: string; placement: string } | undefined; // optional; saved designs without it still open
 };
 
 export const MAX_MODULES = 6;
@@ -153,7 +155,7 @@ export function estimate(d: Design, rates: Rates = DEFAULT_RATES) {
   const grams = Math.round(area * loops * 0.05 * (1 + d.fuzzy * 0.15) * (1 + Math.min(d.hRibs, 40) * 0.004));
   const hours = Math.round((grams / 12) * (1 + d.fuzzy * 0.4) * 10) / 10;
   const lightOn = d.light && FORMS.find((f) => f.id === d.form)!.light;
-  const price = rates.base + grams * rates.gramPrice + (lightOn ? rates.lightKit : 0);
+  const price = rates.base + grams * rates.gramPrice + (lightOn ? rates.lightKit : 0) + (d.engraving?.text.trim() ? CUSTOM_ENGRAVING_PRICE : 0);
   const low = Math.round((price * 0.9) / 50) * 50;
   const high = Math.round((price * 1.2) / 50) * 50;
   return { modules, totalHeight, width, grams, hours, loops, low, high };
@@ -201,35 +203,6 @@ export function closestSwatches(hex: string, palette: Swatch[] = STUDIO_PALETTE,
     .slice(0, n);
 }
 
-/**
- * Turns a sketch (luminance 0..1 per pixel, rows top→bottom) into a lathe profile: the ink's half-width per row,
- * sampled bottom→top and normalised to 0..1, plus the drawing's height-to-width ratio. Null when there is too little ink.
- */
-export function sketchProfile(lum: ArrayLike<number>, w: number, h: number, rows = 32) {
-  let sum = 0;
-  for (let i = 0; i < w * h; i++) sum += lum[i] ?? 1;
-  const thr = Math.min(0.55, sum / (w * h) - 0.18);
-  const half: (number | null)[] = [];
-  for (let y = 0; y < h; y++) {
-    let l = -1, r = -1;
-    for (let x = 0; x < w; x++) if ((lum[y * w + x] ?? 1) < thr) { if (l < 0) l = x; r = x; }
-    half.push(l < 0 || r - l < w * 0.02 ? null : (r - l) / 2);
-  }
-  const first = half.findIndex((v) => v !== null);
-  let last = -1;
-  for (let y = h - 1; y >= 0; y--) if (half[y] !== null) { last = y; break; }
-  if (first < 0 || last - first < h * 0.1) return null;
-  const out: number[] = [];
-  let prev = half[last] ?? 0;
-  for (let i = 0; i < rows; i++) {
-    const y = Math.round(last - (i / (rows - 1)) * (last - first));
-    const v = half[y];
-    if (v !== null && v !== undefined) prev = v;
-    out.push(prev);
-  }
-  const max = Math.max(...out);
-  return { radii: out.map((v) => Math.max(0.05, v / max)), aspect: (last - first) / (max * 2) };
-}
 
 /** Photo lab modes. */
 export const PHOTO_MODES = [

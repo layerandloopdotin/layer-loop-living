@@ -1,3 +1,4 @@
+import { ENGRAVING_FONTS, ENGRAVING_FONT_CSS, engravingSchema, type Engraving } from "@/lib/engraving";
 import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
 import { useRef, useState, type PointerEvent } from "react";
 import { Check, CreditCard, Heart, Landmark, Link2, MapPin, Minus, Plus, Share2, ShieldCheck, Smartphone, Truck, Wallet, Banknote } from "lucide-react";
@@ -196,8 +197,17 @@ function ProductDetail() {
   const [pin, setPin] = useState("");
   const [delivery, setDelivery] = useState<DeliveryResult | null>(null);
 
+  const [engrave, setEngrave] = useState(false);
+  const [eng, setEng] = useState<Engraving>({ text: "", font: ENGRAVING_FONTS[0], placement: p.engraving.placements[0] ?? "Front" });
+  const [engErr, setEngErr] = useState<string | null>(null);
+  const chosen = engrave && p.engraving.enabled ? eng : undefined;
   const addToCart = () => {
-    shop.add(slug, qty, variant);
+    if (chosen) {
+      const r = engravingSchema(p.engraving).safeParse(chosen);
+      if (!r.success) { setEngErr(r.error.issues[0]?.message ?? "Check the engraving"); return; }
+      setEngErr(null);
+    }
+    shop.add(slug, qty, variant, chosen ? { ...chosen, text: chosen.text.trim() } : undefined);
     setAdded(true);
     setTimeout(() => setAdded(false), 1800);
   };
@@ -214,7 +224,7 @@ function ProductDetail() {
           <div className="mt-4"><ShareMenu name={p.name} /></div>
           <p className="mt-5 max-w-md">{p.short}</p>
 
-          <p className="mt-8 font-display text-3xl font-semibold">{formatPrice(unitPrice(p, variant))}{p.compareAt && p.compareAt > p.price && <s className="ml-3 text-lg font-normal text-muted-foreground">{formatPrice(p.compareAt)}</s>}</p>
+          <p className="mt-8 font-display text-3xl font-semibold">{formatPrice(unitPrice(p, variant, chosen))}{p.compareAt && p.compareAt > p.price && <s className="ml-3 text-lg font-normal text-muted-foreground">{formatPrice(p.compareAt)}</s>}</p>
           <p className="mt-1 text-xs text-muted-foreground">{c.taxNote}</p>
 
           {p.spaces.length > 0 && <><p className="mt-8 text-xs uppercase tracking-widest text-muted-foreground">{c.madeForLabel}</p>
@@ -246,6 +256,32 @@ function ProductDetail() {
             ))}
           </div></>}
           {peek && <VariantPeek {...peek} />}
+
+          {p.engraving.enabled && <div className="mt-8 rounded-xl border border-border p-4">
+            <label className="flex cursor-pointer items-center justify-between gap-3 text-sm">
+              <span><span className="font-semibold">Personalise with engraving</span><span className="ml-2 text-xs text-muted-foreground">+ {formatPrice(p.engraving.price)}</span></span>
+              <input type="checkbox" checked={engrave} onChange={(e) => setEngrave(e.target.checked)} className="h-4 w-4 accent-primary" />
+            </label>
+            {engrave && <div className="mt-4 space-y-4">
+              <label className="block text-xs uppercase tracking-widest text-muted-foreground">Words to engrave
+                <input value={eng.text} maxLength={p.engraving.maxChars} onChange={(e) => setEng({ ...eng, text: e.target.value })} placeholder="A name, initials or a date" className="mt-2 w-full rounded-md border border-border bg-background px-3 py-2.5 text-sm normal-case tracking-normal text-foreground" />
+                <span className="mt-1 block text-right normal-case tracking-normal">{eng.text.length}/{p.engraving.maxChars}</span>
+              </label>
+              <div role="radiogroup" aria-label="Engraving font" className="flex flex-wrap gap-2">
+                {ENGRAVING_FONTS.map((f) => <button key={f} type="button" role="radio" aria-checked={eng.font === f} onClick={() => setEng({ ...eng, font: f })} style={{ fontFamily: ENGRAVING_FONT_CSS[f] }} className={`rounded-full border px-3 py-1.5 text-sm ${eng.font === f ? "border-foreground bg-card" : "border-border"}`}>{f}</button>)}
+              </div>
+              <div role="radiogroup" aria-label="Engraving placement" className="flex flex-wrap gap-2">
+                {p.engraving.placements.map((pl) => <button key={pl} type="button" role="radio" aria-checked={eng.placement === pl} onClick={() => setEng({ ...eng, placement: pl })} className={`rounded-full border px-3 py-1.5 text-xs uppercase tracking-widest ${eng.placement === pl ? "border-foreground bg-card" : "border-border"}`}>{pl}</button>)}
+              </div>
+              <div className="relative overflow-hidden rounded-lg">
+                <img src={galleryFor(p, colour)[0] ?? p.image} alt="" className="aspect-[16/9] w-full object-cover brightness-75" />
+                <span className={`absolute inset-x-0 px-4 text-center text-2xl text-primary-foreground drop-shadow ${eng.placement === "Base" ? "bottom-4" : eng.placement === "Back" ? "top-4 opacity-70" : "top-1/2 -translate-y-1/2"}`} style={{ fontFamily: ENGRAVING_FONT_CSS[eng.font] }}>{eng.text || "Your words"}</span>
+                <span className="absolute left-3 top-3 rounded-full bg-background/80 px-2 py-0.5 text-[10px] uppercase tracking-widest">Preview · {eng.placement}</span>
+              </div>
+              <p className="text-xs text-muted-foreground">Engraved pieces are made for you, so they can't be returned. They're still replaced if they arrive damaged.</p>
+              {engErr && <p role="alert" className="text-xs text-destructive">{engErr}</p>}
+            </div>}
+          </div>}
 
 
           {p.specs.length > 0 && <><p className="mt-8 text-xs uppercase tracking-widest text-muted-foreground">{c.specsLabel}</p>

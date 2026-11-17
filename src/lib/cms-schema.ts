@@ -48,7 +48,7 @@ const settings = {
   mapUrl: "https://www.google.com/maps/search/?api=1&query=12+Linking+Road+Bandra+West+Mumbai",
   studioLocation: "Indiranagar, Bengaluru, India",
   socials: [
-    { label: "Instagram", url: "https://instagram.com/layerandloop" },
+    { label: "Instagram", url: "https://instagram.com/layerandloop.in" },
     { label: "Pinterest", url: "https://pinterest.com/layerandloop" },
     { label: "LinkedIn", url: "https://linkedin.com/company/layerandloop" },
   ],
@@ -180,8 +180,8 @@ const contact = {
 
 const instagram = {
   eyebrow: "On Instagram",
-  handle: "layerandloop",
-  url: "https://instagram.com/layerandloop",
+  handle: "layerandloop.in",
+  url: "https://instagram.com/layerandloop.in",
   text: "Fresh off the print bed — new drops, studio moments and your spaces.",
   buttonLabel: "Follow us",
   posts: ["asset:p-mushroom.jpg", "asset:store-2.jpg", "asset:mat-petg.jpg", "asset:tile-vases.jpg", "asset:about-printer.jpg", "asset:p-orb.jpg", "asset:tile-desk.jpg", "asset:living.jpg", "asset:tile-collectibles.jpg", "asset:p-pendant.jpg"],
@@ -266,9 +266,6 @@ const custom = {
   photoTitle: "Turn a photo into an object.",
   photoText: "Upload a photo and choose what it becomes: a 3D object our AI recognises and models, a raised relief, or a lithophane that reveals the picture when lit.",
   photoNote: "This is an instant preview. Our designers make the final model by hand.",
-  sketchEyebrow: "From sketch to print",
-  sketchTitle: "Sketch it. See it in 3D.",
-  sketchImage: "asset:custom-sketch.jpg",
   printImage: "asset:custom-print.jpg",
   stepsTitle: "The creation loop",
   steps: [
@@ -364,7 +361,7 @@ export const sections: Record<ContentKey, { title: string; description: string; 
   },
   custom: {
     title: "Custom page",
-    description: "The Bespoke Lab: customisation options, 3D sandbox, photo to 3D, sketch slider, steps and the custom brief form.",
+    description: "The Bespoke Lab: customisation options, 3D sandbox, photo to 3D, steps and the custom brief form.",
     groups: [
       { title: "Header", fields: [t("heroEyebrow", "Small label"), t("heroTitle", "Title"), im("heroImage", "Cover photo"), ta("heroText", "Intro"), t("tweakLabel", "Button 1"), t("scratchLabel", "Button 2")] },
       { title: "What we customise", fields: [t("offersTitle", "Heading"), { k: "offers", label: "Options", t: "list", item: "option", of: [t("name", "Title"), ta("text", "Text")] }] },
@@ -373,7 +370,6 @@ export const sections: Record<ContentKey, { title: string; description: string; 
       { title: "Estimate settings (₹)", fields: [t("gramPrice", "Price per gram", "Numbers only"), t("basePrice", "Base fee"), t("lightKitPrice", "Light kit price"), t("waterproofLoops", "Extra wall loops for waterproofing")] },
       { title: "Customer request progress", fields: [t("progressReceived", "Advance received status"), ta("progressReceivedNote", "Advance received message"), t("progressReviewing", "Review status"), ta("progressReviewingNote", "Review message"), t("progressQuoted", "Quote ready status"), ta("progressQuotedNote", "Quote ready message"), t("progressAccepted", "Approved status"), ta("progressAcceptedNote", "Approved message"), t("progressDeclined", "Declined status"), ta("progressDeclinedNote", "Declined message"), t("progressAdvanceLabel", "Advance label"), t("progressQuoteLabel", "Final quote label"), t("progressBalanceLabel", "Balance label")] },
       { title: "Photo to 3D", fields: [t("photoEyebrow", "Small label"), t("photoTitle", "Heading"), ta("photoText", "Text"), t("photoNote", "Note")] },
-      { title: "Sketch to print", fields: [t("sketchEyebrow", "Small label"), t("sketchTitle", "Heading"), im("sketchImage", "Sketch photo"), im("printImage", "Finished photo")] },
       { title: "Steps", fields: [t("stepsTitle", "Heading"), { k: "steps", label: "Steps", t: "list", item: "step", of: [t("name", "Title"), ta("text", "Text")] }] },
       { title: "Custom brief form", fields: [t("briefEyebrow", "Small label"), t("briefTitle", "Heading"), ta("briefText", "Text"), t("submitLabel", "Button label"), ta("thankYou", "Thank-you message"), t("whatsappLabel", "WhatsApp link label")] },
     ],

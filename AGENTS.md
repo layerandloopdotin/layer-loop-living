@@ -38,3 +38,5 @@
 - Validate sandbox request contact details with `designRequestContactSchema` before saving so each new request retains reachable customer details.
 - Instagram posts come from the `getInstagramPosts` server function (token in `INSTAGRAM_ACCESS_TOKEN`); the strip falls back to CMS photos when it returns nothing, so the site never breaks without a token.
 - Lighting uses a catalog-only collective switch and the first database lit_images photo as a matched cover; missing pairs retain the normal cover without changing grid identity or layout.
+- Products and categories carry a `world` (`space` | `culture`); filter with `inWorld`/`worldCategories` in `src/lib/catalog.ts`, and keep the visitor's world in `src/lib/world.ts` (localStorage + `html[data-world]` token scope) so cart, wishlist, search and account stay shared across worlds.
+- Homepage/About studio sections (two-worlds cover, world panels, projects, design process, setups) live in `src/components/worlds.tsx` and read the `home`, `space` and `culture` CMS keys.

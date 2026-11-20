@@ -25,3 +25,7 @@
 - [x] 2-day returns check; Instagram → @layerandloop.in
 - [x] Removed Sketch to Print section
 - [ ] Live Instagram posts — needs an Instagram access token
+- [x] Space & Culture worlds: world setting, Culture colours, header switch, two-world Products menu, catalogue tabs, Custom hidden in Culture
+- [x] Studio homepage: two-worlds cover, world panels, studio projects, combined Design process (also on About), living setups; /space and /culture pages
+- [x] Test shopper walkthrough of both worlds on desktop and phone
+- [ ] Replace sample Culture products/photos and studio project photos with real ones (needs your photos)

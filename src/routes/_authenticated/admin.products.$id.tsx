@@ -24,7 +24,7 @@ export const Route = createFileRoute("/_authenticated/admin/products/$id")({
 
 type Form = {
   name: string; slug: string; tagline: string; short_description: string; long_description: string;
-  price: string; compare_at_price: string; featured: boolean; published: boolean;
+  price: string; compare_at_price: string; featured: boolean; published: boolean; world: "space" | "culture";
   inventory_quantity: string;
   category_ids: string[]; space_ids: string[]; images: string[]; colors: Colour[]; specs: Pair[]; care: Pair[]; variants: { name: string; price: string; image: string }[];
   engravable: boolean; engraving_price: string; engraving_max_chars: string; engraving_images: string[]; lit_images: string[];
@@ -32,7 +32,7 @@ type Form = {
 
 const emptyForm = (): Form => ({
   name: "", slug: "", tagline: "", short_description: "", long_description: "", price: "", compare_at_price: "",
-  featured: false, published: true, category_ids: [], space_ids: [], images: [], colors: [], variants: [], engravable: true, engraving_price: "199", engraving_max_chars: "20", engraving_images: [], lit_images: [],
+  featured: false, published: true, world: "space", category_ids: [], space_ids: [], images: [], colors: [], variants: [], engravable: true, engraving_price: "199", engraving_max_chars: "20", engraving_images: [], lit_images: [],
   inventory_quantity: "0",
   specs: ["Dimensions", "Weight", "Material", "Bulb", "Cable"].map((label) => ({ label, value: "" })),
   care: [{ label: "Cleaning", value: "" }, { label: "Wear & tear", value: "" }],
@@ -109,7 +109,7 @@ function ProductEditor() {
       name: p.name, slug: p.slug, tagline: p.tagline, short_description: p.short_description, long_description: p.long_description,
       price: String(p.price), compare_at_price: p.compare_at_price == null ? "" : String(p.compare_at_price),
       inventory_quantity: p.inventory_quantity,
-      featured: p.featured, published: p.published, category_ids: p.category_ids, space_ids: p.space_ids, images: p.images,
+      featured: p.featured, published: p.published, world: p.world === "culture" ? "culture" : "space", category_ids: p.category_ids, space_ids: p.space_ids, images: p.images,
       colors: asColours(p.colors), specs: asPairs(p.specs), care: asPairs(p.care),
       variants: Array.isArray(p.variants) ? p.variants.map((x) => { const v = x as { name?: unknown; price?: unknown; image?: unknown }; return { name: String(v?.name ?? ""), price: String(v?.price ?? "0"), image: String(v?.image ?? "") }; }) : [],
       engravable: p.engravable, engraving_price: String(p.engraving_price), engraving_max_chars: String(p.engraving_max_chars), engraving_images: p.engraving_images ?? [], lit_images: (p as { lit_images?: string[] }).lit_images ?? [],
@@ -131,7 +131,7 @@ function ProductEditor() {
     if (!f.images.length && !f.colors.some((c) => c.images.length)) { toast.error("Add at least one photo"); return; }
     const row = {
       name: f.name.trim(), slug: slugify(f.slug), tagline: f.tagline, short_description: f.short_description, long_description: f.long_description,
-      price, compare_at_price: f.compare_at_price ? Number(f.compare_at_price) : null, featured: f.featured, published: f.published,
+      price, compare_at_price: f.compare_at_price ? Number(f.compare_at_price) : null, featured: f.featured, published: f.published, world: f.world,
       category_ids: f.category_ids, space_ids: f.space_ids, images: f.images,
       colors: f.colors.filter((c) => c.name.trim()) as unknown as Json,
       specs: f.specs.filter((s) => s.label.trim()) as unknown as Json,
@@ -173,8 +173,9 @@ function ProductEditor() {
             <L label="Price (₹)"><input inputMode="decimal" value={f.price} onChange={(e) => set("price", e.target.value)} className={inputCls} /></L>
             <L label="Compare-at price (₹, optional)" help="Shown struck through when higher than the price."><input inputMode="decimal" value={f.compare_at_price} onChange={(e) => set("compare_at_price", e.target.value)} className={inputCls} /></L>
           </div>
+          <L label="World" help="Space is the calm lifestyle range; Culture is the pop collectibles range."><select value={f.world} onChange={(e) => set("world", e.target.value === "culture" ? "culture" : "space")} className={inputCls}><option value="space">Space</option><option value="culture">Culture</option></select></L>
           <div className="flex flex-wrap gap-6 text-sm">
-            <label className="flex items-center gap-2"><input type="checkbox" checked={f.featured} onChange={(e) => set("featured", e.target.checked)} className="accent-primary" /> Featured — show in The Edit on the homepage</label>
+            <label className="flex items-center gap-2"><input type="checkbox" checked={f.featured} onChange={(e) => set("featured", e.target.checked)} className="accent-primary" /> Featured — show in its world's featured edit</label>
             <label className="flex items-center gap-2"><input type="checkbox" checked={f.published} onChange={(e) => set("published", e.target.checked)} className="accent-primary" /> Visible on the website</label>
           </div>
         </Card>

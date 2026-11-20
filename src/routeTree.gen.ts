@@ -16,12 +16,14 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as CartRouteImport } from './routes/cart'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as ContactusRouteImport } from './routes/contactus'
+import { Route as CultureRouteImport } from './routes/culture'
 import { Route as CustomRouteImport } from './routes/custom'
 import { Route as PaymentRouteImport } from './routes/payment'
 import { Route as ProductsRouteImport } from './routes/products'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as ReturnsRouteImport } from './routes/returns'
 import { Route as SigninRouteImport } from './routes/signin'
+import { Route as SpaceRouteImport } from './routes/space'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as TradeRouteImport } from './routes/trade'
 import { Route as WishlistRouteImport } from './routes/wishlist'
@@ -85,6 +87,11 @@ const ContactusRoute = ContactusRouteImport.update({
   path: '/contactus',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CultureRoute = CultureRouteImport.update({
+  id: '/culture',
+  path: '/culture',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CustomRoute = CustomRouteImport.update({
   id: '/custom',
   path: '/custom',
@@ -113,6 +120,11 @@ const ReturnsRoute = ReturnsRouteImport.update({
 const SigninRoute = SigninRouteImport.update({
   id: '/signin',
   path: '/signin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SpaceRoute = SpaceRouteImport.update({
+  id: '/space',
+  path: '/space',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TermsRoute = TermsRouteImport.update({
@@ -281,12 +293,14 @@ export interface FileRoutesByFullPath {
   '/cart': typeof CartRoute
   '/checkout': typeof CheckoutRoute
   '/contactus': typeof ContactusRoute
+  '/culture': typeof CultureRoute
   '/custom': typeof CustomRoute
   '/payment': typeof PaymentRoute
   '/products': typeof ProductsRoute
   '/reset-password': typeof ResetPasswordRoute
   '/returns': typeof ReturnsRoute
   '/signin': typeof SigninRoute
+  '/space': typeof SpaceRoute
   '/terms': typeof TermsRoute
   '/trade': typeof TradeRoute
   '/wishlist': typeof WishlistRoute
@@ -323,12 +337,14 @@ export interface FileRoutesByTo {
   '/cart': typeof CartRoute
   '/checkout': typeof CheckoutRoute
   '/contactus': typeof ContactusRoute
+  '/culture': typeof CultureRoute
   '/custom': typeof CustomRoute
   '/payment': typeof PaymentRoute
   '/products': typeof ProductsRoute
   '/reset-password': typeof ResetPasswordRoute
   '/returns': typeof ReturnsRoute
   '/signin': typeof SigninRoute
+  '/space': typeof SpaceRoute
   '/terms': typeof TermsRoute
   '/trade': typeof TradeRoute
   '/wishlist': typeof WishlistRoute
@@ -365,12 +381,14 @@ export interface FileRoutesById {
   '/cart': typeof CartRoute
   '/checkout': typeof CheckoutRoute
   '/contactus': typeof ContactusRoute
+  '/culture': typeof CultureRoute
   '/custom': typeof CustomRoute
   '/payment': typeof PaymentRoute
   '/products': typeof ProductsRoute
   '/reset-password': typeof ResetPasswordRoute
   '/returns': typeof ReturnsRoute
   '/signin': typeof SigninRoute
+  '/space': typeof SpaceRoute
   '/terms': typeof TermsRoute
   '/trade': typeof TradeRoute
   '/wishlist': typeof WishlistRoute
@@ -409,12 +427,14 @@ export interface FileRouteTypes {
     | '/cart'
     | '/checkout'
     | '/contactus'
+    | '/culture'
     | '/custom'
     | '/payment'
     | '/products'
     | '/reset-password'
     | '/returns'
     | '/signin'
+    | '/space'
     | '/terms'
     | '/trade'
     | '/wishlist'
@@ -451,12 +471,14 @@ export interface FileRouteTypes {
     | '/cart'
     | '/checkout'
     | '/contactus'
+    | '/culture'
     | '/custom'
     | '/payment'
     | '/products'
     | '/reset-password'
     | '/returns'
     | '/signin'
+    | '/space'
     | '/terms'
     | '/trade'
     | '/wishlist'
@@ -492,12 +514,14 @@ export interface FileRouteTypes {
     | '/cart'
     | '/checkout'
     | '/contactus'
+    | '/culture'
     | '/custom'
     | '/payment'
     | '/products'
     | '/reset-password'
     | '/returns'
     | '/signin'
+    | '/space'
     | '/terms'
     | '/trade'
     | '/wishlist'
@@ -536,12 +560,14 @@ export interface RootRouteChildren {
   CartRoute: typeof CartRoute
   CheckoutRoute: typeof CheckoutRoute
   ContactusRoute: typeof ContactusRoute
+  CultureRoute: typeof CultureRoute
   CustomRoute: typeof CustomRoute
   PaymentRoute: typeof PaymentRoute
   ProductsRoute: typeof ProductsRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   ReturnsRoute: typeof ReturnsRoute
   SigninRoute: typeof SigninRoute
+  SpaceRoute: typeof SpaceRoute
   TermsRoute: typeof TermsRoute
   TradeRoute: typeof TradeRoute
   WishlistRoute: typeof WishlistRoute
@@ -601,6 +627,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ContactusRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/culture': {
+      id: '/culture'
+      path: '/culture'
+      fullPath: '/culture'
+      preLoaderRoute: typeof CultureRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/custom': {
       id: '/custom'
       path: '/custom'
@@ -641,6 +674,13 @@ declare module '@tanstack/react-router' {
       path: '/signin'
       fullPath: '/signin'
       preLoaderRoute: typeof SigninRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/space': {
+      id: '/space'
+      path: '/space'
+      fullPath: '/space'
+      preLoaderRoute: typeof SpaceRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/terms': {
@@ -921,12 +961,14 @@ const rootRouteChildren: RootRouteChildren = {
   CartRoute: CartRoute,
   CheckoutRoute: CheckoutRoute,
   ContactusRoute: ContactusRoute,
+  CultureRoute: CultureRoute,
   CustomRoute: CustomRoute,
   PaymentRoute: PaymentRoute,
   ProductsRoute: ProductsRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   ReturnsRoute: ReturnsRoute,
   SigninRoute: SigninRoute,
+  SpaceRoute: SpaceRoute,
   TermsRoute: TermsRoute,
   TradeRoute: TradeRoute,
   WishlistRoute: WishlistRoute,

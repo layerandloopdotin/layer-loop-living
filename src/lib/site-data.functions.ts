@@ -18,7 +18,7 @@ export const getSiteData = createServerFn({ method: "GET" }).handler(async () =>
   });
   const [content, categories, spaces, products] = await Promise.all([
     db.from("site_content").select("key, data"),
-    db.from("categories").select("id, name, image, sort").order("sort"),
+    db.from("categories").select("id, name, image, sort, world").order("sort"),
     db.from("spaces").select("id, name, sort").order("sort"),
     db.from("products").select("*").eq("published", true).order("sort").order("created_at"),
   ]);

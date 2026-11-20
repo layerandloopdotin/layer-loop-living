@@ -3,6 +3,7 @@ import { StoreWheel } from "@/components/store-wheel";
 import { DarkHero, Page } from "@/components/site";
 import { InstagramStrip } from "@/components/instagram-strip";
 import { CenterRail } from "@/components/center-rail";
+import { DesignProcess } from "@/components/worlds";
 import { useContent } from "@/lib/site";
 import { img } from "@/lib/media";
 
@@ -49,6 +50,7 @@ function About() {
           </CenterRail>
         </div>
       </section>
+      <DesignProcess />
       <section className="mx-auto max-w-7xl px-6 pt-20">
         <h2 className="text-center text-3xl font-bold">{c.beliefsTitle}</h2>
         <div className="mt-12 grid gap-10 md:grid-cols-3">

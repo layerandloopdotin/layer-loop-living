@@ -1,4 +1,5 @@
-import { lightingCover, lightingFilterActive, searchProducts } from "@/lib/catalog";
+import { asWorld, inWorld, lightingCover, lightingFilterActive, searchProducts, worldCategories, type World } from "@/lib/catalog";
+import { setWorld, useWorld } from "@/lib/world";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { Grid3x3, LayoutGrid, Lightbulb, LightbulbOff, SlidersHorizontal } from "lucide-react";
@@ -11,15 +12,16 @@ import { Button } from "@/components/ui/button";
 export const Route = createFileRoute("/products")({
   head: () => ({
     meta: [
-      { title: "All Objects — Layer & Loop" },
-      { name: "description", content: "Browse table, floor, pendant and sculptural lamps crafted for the modern home." },
+      { title: "All Objects — Space & Culture | Layer & Loop" },
+      { name: "description", content: "Shop Space lighting and living objects, or Culture collectibles and quirky desk pieces." },
       { property: "og:title", content: "All Objects — Layer & Loop" },
-      { property: "og:description", content: "The full Layer & Loop lighting catalog." },
+      { property: "og:description", content: "The full Layer & Loop catalogue across Space and Culture." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  validateSearch: (s: Record<string, unknown>): { category?: string; featured?: boolean; q?: string } => ({
+  validateSearch: (s: Record<string, unknown>): { category?: string; featured?: boolean; q?: string; world?: World } => ({
+    ...(s["world"] === "space" || s["world"] === "culture" ? { world: asWorld(s["world"]) } : {}),
     ...(typeof s["category"] === "string" ? { category: s["category"] } : {}),
     ...(typeof s["q"] === "string" && s["q"].trim() ? { q: s["q"].trim() } : {}),
     ...(s["featured"] === true || s["featured"] === "true" ? { featured: true } : {}),
@@ -30,17 +32,21 @@ export const Route = createFileRoute("/products")({
 function Products() {
   const site = useSite();
   const c = site.content("catalog");
-  const { category, featured: featuredParam, q } = Route.useSearch();
+  const { category, featured: featuredParam, q, world: worldParam } = Route.useSearch();
+  const stored = useWorld();
+  useEffect(() => { if (worldParam) setWorld(worldParam); }, [worldParam]);
+  const world = worldParam ?? stored;
+  const worldCats = q ? site.categories : worldCategories(site.categories, site.products, world);
   const [featured, setFeatured] = useState(!!featuredParam);
   useEffect(() => setFeatured(!!featuredParam), [featuredParam]);
   const [cats, setCats] = useState<string[]>(category ? [category] : []);
-  useEffect(() => setCats(category ? [category] : []), [category]);
+  useEffect(() => setCats(category ? [category] : []), [category, world]);
   const [spaces, setSpaces] = useState<string[]>([]);
   const [lightsOn, setLightsOn] = useState(false);
-  const lightingOnly = lightingFilterActive(cats);
+  const lightingOnly = world === "space" && lightingFilterActive(cats);
   useEffect(() => { if (!lightingOnly) setLightsOn(false); }, [lightingOnly]);
   const toggle = (list: string[], set: (v: string[]) => void, v: string) => set(list.includes(v) ? list.filter((x) => x !== v) : [...list, v]);
-  const pool = q ? searchProducts(site.products, q) : site.products;
+  const pool = q ? searchProducts(site.products, q) : inWorld(site.products, world);
   const shown = pool.filter((p) => (!featured || p.featured) && (!cats.length || p.categories.some((x) => cats.includes(x))) && (!spaces.length || p.spaces.some((x) => spaces.includes(x))));
 
   const [cols, setCols] = useState<2 | 3>(2);
@@ -76,6 +82,12 @@ function Products() {
     <Page>
       <DarkHero title={c.heroTitle}>
         <p className="mt-4 max-w-md text-ink-muted">{c.heroText}</p>
+        {!q && <div role="tablist" aria-label="World" className="mt-6 inline-flex rounded-full border border-ink-line p-1">
+          {(["space", "culture"] as const).map((w) => (
+            <Link key={w} role="tab" aria-selected={world === w} to="/products" search={{ world: w }}
+              className={`rounded-full px-5 py-2 font-display text-sm font-semibold uppercase tracking-widest transition-colors ${world === w ? (w === "culture" ? "bg-pop-blue text-pop-blue-foreground" : "bg-ink-foreground text-ink") : "text-ink-muted"}`}>{w}</Link>
+          ))}
+        </div>}
         {q && <p className="mt-4 text-sm">Showing results for “{q}” · <Link to="/products" className="underline">Clear</Link></p>}
       </DarkHero>
       <div className="sticky top-0 z-30 flex items-center justify-between gap-3 border-b bg-background/95 px-4 py-3 backdrop-blur md:static md:mx-auto md:max-w-7xl md:justify-end md:border-b-0 md:px-6 md:pt-8">
@@ -91,9 +103,9 @@ function Products() {
             <div className="mt-3 grid grid-cols-2 gap-3">
               <Box label={c.allLabel} checked={!cats.length && !featured} onChange={() => { setCats([]); setFeatured(false); }} />
               <Box label="Featured Collection" checked={featured} onChange={() => setFeatured(!featured)} />
-              {site.categories.map((x) => <Box key={x.id} label={x.name} checked={cats.includes(x.name)} onChange={() => toggle(cats, setCats, x.name)} />)}
+              {worldCats.map((x) => <Box key={x.id} label={x.name} checked={cats.includes(x.name)} onChange={() => toggle(cats, setCats, x.name)} />)}
             </div>
-            {site.spaces.length > 0 && <>
+            {world === "space" && site.spaces.length > 0 && <>
               <p className="mt-6 text-xs uppercase tracking-widest text-muted-foreground">{c.spaceLabel}</p>
               <div className="mt-3 grid grid-cols-2 gap-3">
                 {site.spaces.map((m) => <Box key={m.id} label={m.name} checked={spaces.includes(m.name)} onChange={() => toggle(spaces, setSpaces, m.name)} />)}
@@ -121,16 +133,16 @@ function Products() {
           <div className="mt-3 space-y-2">
             <Box label={c.allLabel} checked={!cats.length && !featured} onChange={() => { setCats([]); setFeatured(false); }} />
             <Box label="Featured Collection" checked={featured} onChange={() => setFeatured(!featured)} />
-            {site.categories.map((x) => <Box key={x.id} label={x.name} checked={cats.includes(x.name)} onChange={() => toggle(cats, setCats, x.name)} />)}
+            {worldCats.map((x) => <Box key={x.id} label={x.name} checked={cats.includes(x.name)} onChange={() => toggle(cats, setCats, x.name)} />)}
           </div>
-          {site.spaces.length > 0 && <>
+          {world === "space" && site.spaces.length > 0 && <>
             <p className="mt-8 text-xs uppercase tracking-widest text-muted-foreground">{c.spaceLabel}</p>
             <div className="mt-3 space-y-2">
               {site.spaces.map((m) => <Box key={m.id} label={m.name} checked={spaces.includes(m.name)} onChange={() => toggle(spaces, setSpaces, m.name)} />)}
             </div>
           </>}
         </aside>
-        <div key={cats.join() + spaces.join() + featured + cols} ref={grid} data-density={cols} className={`product-grid grid min-w-0 content-start animate-in fade-in duration-500 ${cols === 3 ? "grid-cols-3 gap-x-2 gap-y-4 md:gap-5" : "grid-cols-2 gap-x-3 gap-y-6 md:gap-x-6 md:gap-y-10"}`}>
+        <div key={world + cats.join() + spaces.join() + featured + cols} ref={grid} data-density={cols} className={`product-grid grid min-w-0 content-start animate-in fade-in duration-500 ${cols === 3 ? "grid-cols-3 gap-x-2 gap-y-4 md:gap-5" : "grid-cols-2 gap-x-3 gap-y-6 md:gap-x-6 md:gap-y-10"}`}>
           {shown.map((p) => (
             <div key={p.id} className="product-card group relative">
               <Link to="/product/$slug" params={{ slug: p.slug }} aria-label={p.name} className="block">
@@ -139,7 +151,7 @@ function Products() {
                 </div>
                 <div className={`flex items-start justify-between gap-3 ${cols === 3 ? "max-md:hidden md:flex-col md:gap-1 lg:flex-row lg:flex-wrap" : ""} ${cols === 2 ? "mt-5 max-lg:flex-col max-lg:gap-1" : "mt-4"}`}>
                   <div className="min-w-0">
-                    <p className="font-display font-semibold max-md:text-sm">{p.name}</p>
+                    <p className="font-display font-semibold max-md:text-sm">{p.name}{q && <span className={`ml-2 rounded-full px-2 py-0.5 align-middle text-[10px] font-bold uppercase ${p.world === "culture" ? "bg-pop-orange text-foreground" : "bg-muted text-muted-foreground"}`}>{p.world}</span>}</p>
                     <p className="text-xs text-muted-foreground">{p.note}</p>
                   </div>
                   <span className="shrink-0 font-display font-semibold">{formatPrice(p.price)}</span>

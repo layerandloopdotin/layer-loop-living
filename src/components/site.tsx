@@ -6,6 +6,8 @@ import { formatPrice } from "@/lib/currency";
 import { shop, useShop } from "@/lib/shop";
 import { useSite, waHref } from "@/lib/site";
 import { img } from "@/lib/media";
+import { WorldSwitch } from "@/components/worlds";
+import { useWorld } from "@/lib/world";
 import { CartPanel, HeaderSearch, HoverMenu, ProductsPanel, ProfilePanel, WishlistPanel } from "@/components/header-menus";
 
 /** Wishlist toggle — an outline heart that fills in once saved. */
@@ -44,6 +46,7 @@ function HeaderIcon({ to, label, count, children }: { to: "/cart" | "/wishlist" 
 
 function MobileMenu() {
   const s = useSite().content("settings");
+  const world = useWorld();
   const [open, setOpen] = useState(false);
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -54,8 +57,9 @@ function MobileMenu() {
       </SheetTrigger>
       <SheetContent side="right" className="flex w-[85vw] max-w-sm flex-col border-ink-line bg-ink text-ink-foreground">
         <SheetTitle className="sr-only">Menu</SheetTitle>
-        <nav className="mt-10 flex flex-col">
-          {s.nav.filter((n) => n.path !== "/contactus").map((n) => (
+        <div className="mt-10"><WorldSwitch /></div>
+        <nav className="mt-4 flex flex-col">
+          {s.nav.filter((n) => n.path !== "/contactus" && !(world === "culture" && n.path === "/custom")).map((n) => (
             <Link key={n.label + n.path} to={n.path as "/"} onClick={() => setOpen(false)} activeOptions={{ exact: true }}
               className="border-b border-ink-line py-4 font-display text-2xl font-bold uppercase text-ink-muted"
               activeProps={{ className: "!text-ink-foreground" }}>{n.label}</Link>
@@ -82,9 +86,16 @@ export function SiteHeader() {
   const { cart, wishlist } = useShop();
   const s = useSite().content("settings");
   const [searching, setSearching] = useState(false);
-  const nav = s.nav.filter((n) => !hiddenNav(n.path));
+  const world = useWorld();
+  const nav = s.nav.filter((n) => !hiddenNav(n.path) && !(world === "culture" && n.path === "/custom"));
   return (
     <header className="relative z-40 border-b border-ink-line bg-ink text-ink-foreground">
+      <div className="border-b border-ink-line/60">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-1.5 md:px-6">
+          <WorldSwitch compact />
+          <span className="hidden text-[11px] text-ink-muted sm:block">{world === "culture" ? "Pop collectibles & desk culture" : "Calm lighting & living objects"}</span>
+        </div>
+      </div>
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 md:gap-6 md:px-6 md:py-4">
         <div className={`flex min-w-0 items-center gap-10 ${searching ? "max-md:hidden" : ""}`}>
           <Logo />
@@ -98,7 +109,7 @@ export function SiteHeader() {
                 </Link>
               );
               return n.path === "/products"
-                ? <HoverMenu key={n.label + n.path} trigger={link} align="left" width="w-[34rem]"><ProductsPanel /></HoverMenu>
+                ? <HoverMenu key={n.label + n.path} trigger={link} align="left" width="w-[42rem]"><ProductsPanel /></HoverMenu>
                 : link;
             })}
           </nav>}

@@ -19,7 +19,7 @@ export const Route = createFileRoute("/_authenticated/admin/taxonomy")({
   component: Taxonomy,
 });
 
-type Row = { id: string; name: string; sort: number; image?: string };
+type Row = { id: string; name: string; sort: number; image?: string; world?: string };
 
 function Taxonomy() {
   return (
@@ -71,6 +71,7 @@ function Editor({ table, title, withImage }: { table: "categories" | "spaces"; t
         {q.data?.map((r, i) => (
           <div key={r.id} className="flex items-center gap-3 rounded-xl border border-border bg-background p-3">
             {withImage && <ImageInput value={r.image ?? ""} onChange={(v) => patch(r.id, { image: v })} />}
+            {withImage && <select aria-label="World" value={r.world ?? "space"} onChange={(e) => patch(r.id, { world: e.target.value })} className="rounded-md border border-border bg-background px-2 py-2 text-sm"><option value="space">Space</option><option value="culture">Culture</option></select>}
             <input defaultValue={r.name} onBlur={(e) => e.target.value.trim() && e.target.value !== r.name && patch(r.id, { name: e.target.value.trim() })} className={inputCls} aria-label="Name" />
             <RowTools onUp={() => move(i, -1)} onDown={() => move(i, 1)} onRemove={() => remove(r)} />
           </div>

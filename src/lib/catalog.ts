@@ -5,14 +5,16 @@ import { engravingCost, type Engraving, type EngravingRules } from "@/lib/engrav
 export type Pair = { label: string; value: string };
 export type Variant = { name: string; price: number; image: string };
 export type Colour = { name: string; hex: string; images: string[] };
-export type Category = { id: string; name: string; image: string; sort: number };
+export type World = "space" | "culture";
+export const asWorld = (v: unknown): World => (v === "culture" ? "culture" : "space");
+export type Category = { id: string; name: string; image: string; sort: number; world?: string };
 export type Space = { id: string; name: string; sort: number };
 
 export type ProductRow = {
   id: string; slug: string; name: string; tagline: string; short_description: string; long_description: string;
   price: number; compare_at_price: number | null; featured: boolean; published: boolean; sort: number;
   category_ids: string[]; space_ids: string[]; images: string[]; colors: unknown; specs: unknown; care: unknown; variants?: unknown;
-  engravable?: boolean; engraving_price?: number; engraving_max_chars?: number; engraving_placements?: string[]; engraving_images?: string[]; lit_images?: string[];
+  engravable?: boolean; engraving_price?: number; engraving_max_chars?: number; engraving_placements?: string[]; engraving_images?: string[]; lit_images?: string[]; world?: string;
 };
 
 export type Product = {
@@ -22,6 +24,7 @@ export type Product = {
   categories: string[]; spaces: string[]; specs: Pair[]; care: Pair[]; variants: Variant[];
   engraving: EngravingRules;
   litImages: string[];
+  world: World;
 };
 
 const pairs = (v: unknown): Pair[] =>
@@ -63,6 +66,7 @@ export function toProduct(r: ProductRow, cats: Category[], spaces: Space[]): Pro
     specs: pairs(r.specs), care: pairs(r.care), variants: variants(r.variants).map((v) => ({ ...v, image: v.image ? img(v.image) : "" })),
     engraving: { enabled: !!r.engravable, price: Number(r.engraving_price ?? 199), maxChars: Number(r.engraving_max_chars ?? 20), images: (r.engraving_images ?? []).filter(Boolean).map(img) },
     litImages: (r.lit_images ?? []).filter(Boolean).map(img),
+    world: asWorld(r.world),
   };
 }
 
@@ -96,3 +100,13 @@ export function searchProducts<T extends { name: string; note: string; categorie
 }
 
 export const featuredProducts = <T extends { featured: boolean }>(list: T[]) => list.filter((p) => p.featured);
+
+/** Products belonging to one world. */
+export const inWorld = <T extends { world: World }>(list: T[], w: World): T[] => list.filter((p) => p.world === w);
+/** Categories shown for a world: its own categories that hold at least one of its products. */
+export function worldCategories<C extends { name: string; world?: string }>(cats: C[], products: { world: World; categories: string[] }[], w: World): C[] {
+  const used = new Set(inWorld(products, w).flatMap((p) => p.categories));
+  return cats.filter((c) => asWorld(c.world) === w || used.has(c.name));
+}
+/** Custom design only exists in the Space world. */
+export const showsCustom = (w: World) => w === "space";

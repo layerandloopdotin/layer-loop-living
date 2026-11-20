@@ -3,7 +3,8 @@ import { Boxes, CreditCard, Heart, LogOut, MapPin, Mail, Package, Search, Star, 
 import { type ReactNode, useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { formatPrice } from "@/lib/currency";
-import { searchProducts, unitPrice } from "@/lib/catalog";
+import { inWorld, searchProducts, unitPrice, worldCategories, type World } from "@/lib/catalog";
+import { setWorld } from "@/lib/world";
 import { shop, useShop } from "@/lib/shop";
 import { useSite } from "@/lib/site";
 
@@ -28,23 +29,34 @@ export function HoverMenu({ trigger, children, align = "right", width = "w-80" }
 
 export function ProductsPanel() {
   const site = useSite();
+  const tile = (w: World, label: string, line: string) => {
+    const items = inWorld(site.products, w).slice(0, 6);
+    const cats = worldCategories(site.categories, site.products, w);
+    return (
+      <div className={`min-w-0 rounded-xl p-3 ${w === "culture" ? "bg-pop-blue/10" : "bg-muted"}`}>
+        <Link to="/products" search={{ world: w }} onClick={() => setWorld(w)} className="flex items-baseline justify-between">
+          <span className="font-display text-lg font-extrabold uppercase">{label}</span>
+          <span className="text-xs underline">Shop all</span>
+        </Link>
+        <p className="text-xs text-muted-foreground">{line}</p>
+        <div className="mt-3 flex snap-x gap-2 overflow-x-auto pb-2">
+          {items.map((p) => (
+            <Link key={p.slug} to="/product/$slug" params={{ slug: p.slug }} className="w-24 shrink-0 snap-start">
+              <img src={p.image} alt={p.name} loading="lazy" className="aspect-square w-full rounded-lg object-cover" />
+              <p className="mt-1 truncate text-[11px] font-semibold">{p.name}</p>
+            </Link>
+          ))}
+        </div>
+        <div className="mt-1 flex flex-wrap gap-1.5">
+          {cats.map((c) => <Link key={c.id} to="/products" search={{ world: w, category: c.name }} onClick={() => setWorld(w)} className="rounded-full border bg-background px-2.5 py-0.5 text-[11px] hover:border-foreground">{c.name}</Link>)}
+        </div>
+      </div>
+    );
+  };
   return (
-    <div>
-      <div className="flex flex-wrap gap-2">
-        {site.categories.map((c) => (
-          <Link key={c.id} to="/products" search={{ category: c.name }} className="rounded-full border px-3 py-1 text-xs hover:border-foreground">{c.name}</Link>
-        ))}
-      </div>
-      <div className="mt-4 flex snap-x gap-3 overflow-x-auto pb-2">
-        {site.products.slice(0, 12).map((p) => (
-          <Link key={p.slug} to="/product/$slug" params={{ slug: p.slug }} className="w-32 shrink-0 snap-start">
-            <img src={p.image} alt={p.name} loading="lazy" className="aspect-square w-full rounded-lg object-cover" />
-            <p className="mt-2 truncate text-xs font-semibold">{p.name}</p>
-            <p className="text-xs text-muted-foreground">{formatPrice(p.price)}</p>
-          </Link>
-        ))}
-      </div>
-      <Link to="/products" className="mt-2 inline-block text-sm font-medium underline">View all products</Link>
+    <div className="grid grid-cols-2 gap-3">
+      {tile("space", "Space", "Lighting, vases & living objects")}
+      {tile("culture", "Culture", "Collectibles & quirky desk pieces")}
     </div>
   );
 }

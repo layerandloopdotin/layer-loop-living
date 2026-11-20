@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { featuredProducts, galleryFor, lightingCover, lightingFilterActive, slugify, toProduct, type ProductRow } from "@/lib/catalog";
+import { inWorld, showsCustom, worldCategories, featuredProducts, galleryFor, lightingCover, lightingFilterActive, slugify, toProduct, type ProductRow } from "@/lib/catalog";
 import { mergeContent } from "@/lib/cms-schema";
 
 const row = (over: Partial<ProductRow> = {}): ProductRow => ({
@@ -52,5 +52,25 @@ describe("catalog", () => {
     const s = mergeContent("settings", { nav: [{ label: "Collection", path: "/products" }] });
     expect(s.nav).toEqual([{ label: "Collection", path: "/products" }]);
     expect(s.email).toBe("hello@layerandloop.in");
+  });
+});
+
+describe("space and culture worlds", () => {
+  const products = [
+    { world: "space" as const, categories: ["Lighting"] },
+    { world: "culture" as const, categories: ["Collectibles"] },
+  ];
+  it("keeps each world's products apart", () => {
+    expect(inWorld(products, "culture")).toHaveLength(1);
+    expect(inWorld(products, "space")[0]?.categories).toEqual(["Lighting"]);
+  });
+  it("lists only categories belonging to or used in a world", () => {
+    const cats = [{ name: "Lighting", world: "space" }, { name: "Collectibles", world: "culture" }, { name: "Quirky Desk", world: "culture" }];
+    expect(worldCategories(cats, products, "space").map((c) => c.name)).toEqual(["Lighting"]);
+    expect(worldCategories(cats, products, "culture").map((c) => c.name)).toEqual(["Collectibles", "Quirky Desk"]);
+  });
+  it("offers custom design only in Space", () => {
+    expect(showsCustom("space")).toBe(true);
+    expect(showsCustom("culture")).toBe(false);
   });
 });

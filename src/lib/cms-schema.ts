@@ -13,6 +13,8 @@ export type Group = { title: string; fields: Field[] };
 export const LINK_TARGETS = [
   { value: "/", label: "Home" },
   { value: "/products", label: "Products" },
+  { value: "/space", label: "Space" },
+  { value: "/culture", label: "Culture" },
   { value: "/about", label: "About" },
   { value: "/trade", label: "Trade" },
   { value: "/custom", label: "Custom" },
@@ -72,6 +74,68 @@ const home = {
   categoryButton: "Browse All Collections",
   livingTitle: "Objects That Shape Everyday Living",
   livingImage: "asset:living.jpg",
+  coverSlides: [
+    { eyebrow: "Space", title: "Light that settles a room.", text: "Sculptural lamps, vases and objects for calm, everyday living.", image: "asset:world-space.jpg", button: "Enter Space", link: "/space" },
+  ],
+  studioEyebrow: "Studio",
+  studioTitle: "From a pen stack to a 1:2 F1 car.",
+  studioText: "We design and print projects of every size for brands, stores and people with an idea.",
+  studioImage: "asset:studio-f1.jpg",
+  studioButton: "See studio projects",
+  worldsTitle: "Two worlds.\nOne studio.",
+  worldsHint: "Move across to explore",
+  spaceLabel: "Space",
+  spaceLine: "Calm lighting & living objects",
+  spaceImage: "asset:world-space.jpg",
+  cultureLabel: "Culture",
+  cultureLine: "Pop collectibles & desk culture",
+  cultureImage: "asset:world-culture.jpg",
+  chooseTitle: "Choose your world",
+  chooseSubtitle: "Same studio, two moods. Your cart, wishlist and account work across both.",
+  projectsTitle: "Studio projects",
+  projectsSubtitle: "Things we have designed and printed for people, stores and brands.",
+  projects: [
+    { name: "1:2 scale F1 car", text: "A half-size race car printed panel by panel for a brand showroom.", image: "asset:studio-f1.jpg", video: "" },
+    { name: "In-store pendant lighting", text: "A cluster of custom pendants designed for a walk-in client's store.", image: "asset:studio-lighting.jpg", video: "" },
+    { name: "Brand mascot", text: "A 60 cm mascot character, modelled from a sketch and hand-finished.", image: "asset:studio-mascot.jpg", video: "" },
+  ],
+  processTitle: "Design process",
+  processSubtitle: "From a fidget to a sculpture, every piece goes through the same six steps.",
+  process: [
+    { name: "Listen", text: "We start with a conversation: the space, the person, the feeling.", scale: "Any idea", image: "asset:store-1.jpg", video: "" },
+    { name: "Brief", text: "We turn it into a clear brief with size, colour and budget.", scale: "Fidget to sculpture", image: "asset:custom-sketch.jpg", video: "" },
+    { name: "3D model", text: "Our designers model the form and share a render.", scale: "Millimetres to metres", image: "asset:craft.jpg", video: "" },
+    { name: "Slice", text: "We tune layers, walls and supports for strength and finish.", scale: "Hours to days of print", image: "asset:custom-print.jpg", video: "" },
+    { name: "Print", text: "Printed layer by layer, made to order in our studio.", scale: "One piece or a hundred", image: "asset:about-printer.jpg", video: "" },
+    { name: "Post-process", text: "Sanded, wired, painted and checked by hand before it ships.", scale: "Ready to live with", image: "asset:stack-2.jpg", video: "" },
+  ],
+  livingSubtitle: "Rooms for Space, setups for Culture.",
+  spaceSetups: ["asset:living.jpg", "asset:study.jpg", "asset:world-space.jpg"],
+  cultureSetups: ["asset:world-culture.jpg", "asset:c-puffer.jpg", "asset:c-figurine.jpg"],
+};
+
+const space = {
+  eyebrow: "Space",
+  title: "Objects that shape everyday living.",
+  text: "Lamps, vases, planters and desk pieces with quiet forms and warm light.",
+  image: "asset:world-space.jpg",
+  editTitle: "The Space edit",
+  categoriesTitle: "Shop Space",
+  setupsTitle: "Rooms with Space",
+  setups: ["asset:living.jpg", "asset:study.jpg", "asset:world-space.jpg"],
+};
+
+const culture = {
+  eyebrow: "Culture",
+  title: "Loud little objects for your desk and shelf.",
+  text: "Collectibles, quirky desk pieces and statement objects in pop colour.",
+  image: "asset:world-culture.jpg",
+  ticker: "New drops ✦ Collect them all ✦ Printed in our studio ✦",
+  dropsTitle: "Drops",
+  dropsTag: "Limited",
+  categoriesTitle: "Shop Culture",
+  setupsTitle: "Setups with Culture",
+  setups: ["asset:world-culture.jpg", "asset:c-tirestack.jpg", "asset:c-puffer.jpg"],
 };
 
 const catalog = {
@@ -282,7 +346,7 @@ const custom = {
   whatsappLabel: "Rather talk it through? WhatsApp us",
 };
 
-export const defaults = { settings, home, catalog, about, trade, contact, custom, instagram, terms, returns };
+export const defaults = { settings, home, space, culture, catalog, about, trade, contact, custom, instagram, terms, returns };
 export type ContentKey = keyof typeof defaults;
 export type Content<K extends ContentKey> = (typeof defaults)[K];
 
@@ -310,14 +374,31 @@ export const sections: Record<ContentKey, { title: string; description: string; 
   },
   home: {
     title: "Homepage",
-    description: "Cover, The Edit, Shop by Category and the closing image. The Edit shows every product marked Featured; category tiles come from Categories.",
+    description: "The studio homepage: cover carousel with the two-worlds slide, world panels, studio projects, design process and living photos. The Design process also appears on About.",
     groups: [
-      { title: "Cover", fields: [ta("heroTitle", "Headline", "Each new line starts a new line on the page."), { k: "heroSlides", label: "Cover slides", t: "list", item: "slide", of: [{ k: "product", label: "Product", t: "product" }] }, t("badge1", "Photo badge 1"), t("badge2", "Photo badge 2"), t("slideCaption", "Slide caption"), ta("heroText", "Text under the cover")] },
-      { title: "The Edit", fields: [t("editTitle", "Title"), t("editSubtitle", "Subtitle"), t("philosophyTitle", "Side heading"), ta("philosophyText", "Side text"), t("editButton", "Button label")] },
       { title: "Scrolling banner", fields: [t("marquee", "Banner text")] },
-      { title: "Shop by Category", fields: [t("categoryTitle", "Title"), t("categorySubtitle", "Subtitle"), t("categoryButton", "Button label")] },
-      { title: "Closing image", fields: [t("livingTitle", "Title"), im("livingImage", "Photo")] },
+      { title: "Cover carousel", fields: [
+        { k: "coverSlides", label: "Slides before the two-worlds slide", t: "list", item: "slide", of: [t("eyebrow", "Small label"), t("title", "Headline"), ta("text", "Text"), im("image", "Photo"), t("button", "Button label"), { k: "link", label: "Opens page", t: "link" }] },
+        t("studioEyebrow", "Studio slide label"), t("studioTitle", "Studio slide headline"), ta("studioText", "Studio slide text"), im("studioImage", "Studio slide photo"), t("studioButton", "Studio slide button"),
+        t("worldsTitle", "Two worlds headline"), t("worldsHint", "Two worlds hint"),
+        t("spaceLabel", "Space label"), t("spaceLine", "Space line"), im("spaceImage", "Space photo"),
+        t("cultureLabel", "Culture label"), t("cultureLine", "Culture line"), im("cultureImage", "Culture photo"),
+      ] },
+      { title: "Choose your world", fields: [t("chooseTitle", "Title"), ta("chooseSubtitle", "Subtitle")] },
+      { title: "Studio projects", fields: [t("projectsTitle", "Title"), ta("projectsSubtitle", "Subtitle"), { k: "projects", label: "Projects", t: "list", item: "project", of: [t("name", "Title"), ta("text", "Text"), im("image", "Photo"), { k: "video", label: "Video link (optional, .mp4)", t: "url" }] }] },
+      { title: "Design process", fields: [t("processTitle", "Title"), ta("processSubtitle", "Subtitle"), { k: "process", label: "Steps", t: "list", item: "step", of: [t("name", "Step"), ta("text", "Text"), t("scale", "Scale note"), im("image", "Photo"), { k: "video", label: "Video link (optional, .mp4)", t: "url" }] }] },
+      { title: "Living with our objects", fields: [ta("livingSubtitle", "Subtitle"), { k: "spaceSetups", label: "Space room photos", t: "images" }, { k: "cultureSetups", label: "Culture setup photos", t: "images" }] },
     ],
+  },
+  space: {
+    title: "Space landing page",
+    description: "The calm lifestyle world at /space.",
+    groups: [{ title: "Space", fields: [t("eyebrow", "Small label"), t("title", "Headline"), ta("text", "Text"), im("image", "Cover photo"), t("editTitle", "Featured heading"), t("categoriesTitle", "Categories heading"), t("setupsTitle", "Rooms heading"), { k: "setups", label: "Room photos", t: "images" }] }],
+  },
+  culture: {
+    title: "Culture landing page",
+    description: "The pop collectibles world at /culture.",
+    groups: [{ title: "Culture", fields: [t("eyebrow", "Small label"), t("title", "Headline"), ta("text", "Text"), im("image", "Cover photo"), t("ticker", "Running strip text"), t("dropsTitle", "Drops heading"), t("dropsTag", "Drop tag"), t("categoriesTitle", "Categories heading"), t("setupsTitle", "Setups heading"), { k: "setups", label: "Setup photos", t: "images" }] }],
   },
   catalog: {
     title: "Products page & product details",

@@ -123,6 +123,7 @@ export type Database = {
           image: string
           name: string
           sort: number
+          world: string
         }
         Insert: {
           created_at?: string
@@ -130,6 +131,7 @@ export type Database = {
           image?: string
           name: string
           sort?: number
+          world?: string
         }
         Update: {
           created_at?: string
@@ -137,6 +139,7 @@ export type Database = {
           image?: string
           name?: string
           sort?: number
+          world?: string
         }
         Relationships: []
       }
@@ -391,6 +394,7 @@ export type Database = {
           tagline: string
           updated_at: string
           variants: Json
+          world: string
         }
         Insert: {
           care?: Json
@@ -419,6 +423,7 @@ export type Database = {
           tagline?: string
           updated_at?: string
           variants?: Json
+          world?: string
         }
         Update: {
           care?: Json
@@ -447,6 +452,7 @@ export type Database = {
           tagline?: string
           updated_at?: string
           variants?: Json
+          world?: string
         }
         Relationships: []
       }

@@ -37,3 +37,4 @@
 - Read optional engraving example photos through `engravingImages` so products cached before that field existed can still render and be personalised.
 - Validate sandbox request contact details with `designRequestContactSchema` before saving so each new request retains reachable customer details.
 - Instagram posts come from the `getInstagramPosts` server function (token in `INSTAGRAM_ACCESS_TOKEN`); the strip falls back to CMS photos when it returns nothing, so the site never breaks without a token.
+- Lighting uses a catalog-only collective switch and the first database lit_images photo as a matched cover; missing pairs retain the normal cover without changing grid identity or layout.

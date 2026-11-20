@@ -73,10 +73,16 @@ export function galleryFor(p: Pick<Product, "images" | "colours">, colourName?: 
   return all.length ? all : p.colours.flatMap((c) => c.images).slice(0, 1);
 }
 
-/** Gallery for the lights switch: lit photos when on (if any), normal photos otherwise. */
-export function lightingGallery(normal: string[], lit: string[] | undefined, on: boolean): string[] {
-  const l = (lit ?? []).filter(Boolean);
-  return on && l.length ? l : normal;
+/** Only the exclusive Lighting filter exposes the collective light switch. */
+export function lightingFilterActive(categories: string[]): boolean {
+  return categories.length === 1 && categories[0]?.toLowerCase() === "lighting";
+}
+
+/** A matched lit cover replaces only Lighting items; missing pairs keep their cover. */
+export function lightingCover(p: Pick<Product, "image" | "categories"> & { litImages?: string[] }, on: boolean): string {
+  return on && p.categories.some((c) => c.toLowerCase() === "lighting")
+    ? p.litImages?.[0] || p.image
+    : p.image;
 }
 
 /** Simple catalogue search over names, categories, spaces and taglines. */

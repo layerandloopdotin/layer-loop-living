@@ -11,7 +11,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import type { Product } from "@/lib/catalog";
 import { Page } from "@/components/site";
 import { ProductGallery } from "@/components/product-gallery";
-import { galleryFor, lightingGallery, unitPrice, type Variant } from "@/lib/catalog";
+import { galleryFor, unitPrice, type Variant } from "@/lib/catalog";
 import { formatPrice } from "@/lib/currency";
 import { shop, useShop } from "@/lib/shop";
 import { checkPincode, type DeliveryResult } from "@/lib/delivery";
@@ -184,7 +184,6 @@ function ProductDetail() {
   const navigate = useNavigate();
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
-  const [lit, setLit] = useState(false);
   const [colour, setColour] = useState(p.colours[0]?.name ?? "");
   const [variant, setVariant] = useState(p.variants[0]?.name);
   const variantGrid = useRef<HTMLDivElement>(null);
@@ -218,17 +217,7 @@ function ProductDetail() {
     <Page>
       <section className="mx-auto grid max-w-7xl items-start gap-8 px-4 pb-12 pt-8 md:gap-12 md:px-6 md:py-16 md:grid-cols-2">
         <div className="min-w-0">
-          {(p.litImages?.length ?? 0) > 0 && (
-            <div className="mb-3 flex items-center justify-end gap-3 text-sm">
-              <span className="text-muted-foreground">Lights</span>
-              <button type="button" role="switch" aria-checked={lit} aria-label="Lights on" onClick={() => setLit((v) => !v)}
-                className={`relative inline-flex h-7 w-14 items-center rounded-full border transition-colors ${lit ? "border-primary bg-primary" : "border-border bg-muted"}`}>
-                <span className={`absolute h-5 w-5 rounded-full bg-background shadow transition-transform ${lit ? "translate-x-8" : "translate-x-1"}`} />
-              </button>
-              <span className="w-7 font-medium">{lit ? "On" : "Off"}</span>
-            </div>
-          )}
-          <ProductGallery key={slug + colour + (lit ? "-on" : "-off")} name={p.name} images={lightingGallery(galleryFor(p, colour), p.litImages, lit)} />
+          <ProductGallery key={slug + colour} name={p.name} images={galleryFor(p, colour)} />
         </div>
         <div>
           <p className="text-xs font-bold uppercase tracking-widest text-primary">{p.categories.join(" · ")}</p>

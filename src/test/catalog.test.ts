@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { featuredProducts, galleryFor, slugify, toProduct, type ProductRow } from "@/lib/catalog";
+import { featuredProducts, galleryFor, lightingCover, lightingFilterActive, slugify, toProduct, type ProductRow } from "@/lib/catalog";
 import { mergeContent } from "@/lib/cms-schema";
 
 const row = (over: Partial<ProductRow> = {}): ProductRow => ({
@@ -11,6 +11,23 @@ const row = (over: Partial<ProductRow> = {}): ProductRow => ({
 });
 
 describe("catalog", () => {
+  it("offers collective lighting only for the Lighting filter", () => {
+    expect(lightingFilterActive(["Lighting"])).toBe(true);
+    expect(lightingFilterActive([])).toBe(false);
+    expect(lightingFilterActive(["Lighting", "Collectibles"])).toBe(false);
+    expect(lightingFilterActive(["Vases and Planters"])).toBe(false);
+  });
+
+  it("switches the matched lighting cover on and restores the same off cover", () => {
+    const p = { image: "lamp-off.jpg", categories: ["Lighting"], litImages: ["lamp-on.jpg"] };
+    expect(lightingCover(p, true)).toBe("lamp-on.jpg");
+    expect(lightingCover(p, false)).toBe("lamp-off.jpg");
+  });
+
+  it("keeps unpaired and non-lighting products unchanged", () => {
+    expect(lightingCover({ image: "off.jpg", categories: ["Lighting"] }, true)).toBe("off.jpg");
+    expect(lightingCover({ image: "vase.jpg", categories: ["Vases"], litImages: ["on.jpg"] }, true)).toBe("vase.jpg");
+  });
   it("shows the chosen colour's photos before the shared photos", () => {
     const p = toProduct(row(), [], []);
     expect(galleryFor(p, "Sage")).toEqual(["https://x/sage.jpg", "https://x/shared.jpg"]);

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { lightingGallery, searchProducts } from "@/lib/catalog";
+import { searchProducts } from "@/lib/catalog";
 
 const items = [
   { name: "Stack Lamp", note: "", categories: ["Lighting"], spaces: ["Bedroom"] },
@@ -9,9 +9,4 @@ describe("search", () => {
   it("matches by category", () => expect(searchProducts(items, "lighting").map((p) => p.name)).toEqual(["Stack Lamp"]));
   it("matches by name", () => expect(searchProducts(items, "vase").map((p) => p.name)).toEqual(["Ripple Vase"]));
   it("empty query returns nothing", () => expect(searchProducts(items, " ")).toEqual([]));
-});
-describe("lights switch", () => {
-  it("on shows lit photos", () => expect(lightingGallery(["a"], ["b"], true)).toEqual(["b"]));
-  it("off shows normal photos", () => expect(lightingGallery(["a"], ["b"], false)).toEqual(["a"]));
-  it("on without lit photos falls back", () => expect(lightingGallery(["a"], [], true)).toEqual(["a"]));
 });

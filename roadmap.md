@@ -1,4 +1,6 @@
 # Roadmap
+- [x] Move lights switch to Lighting catalog only; preserve grid positions and remove product-page switch
+- [x] Create matched on/off cover photos for Stack Lamp, Terra, Noir, Haze, Orb and Dune; verify catalog
 - [x] Clarify custom engraving proof after acceptance/quote and require name, email and phone on design requests
 - [x] Remove all live engraving demos on product/custom pages and the catalogue preview promise; retain replacement note
 - [x] Close stack/pendant shells and add connected bases, holders and fitting inspection; verify rendering

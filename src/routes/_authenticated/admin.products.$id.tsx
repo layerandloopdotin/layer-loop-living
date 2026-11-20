@@ -226,7 +226,7 @@ function ProductEditor() {
           <button type="button" onClick={() => set("variants", [...f.variants, { name: "", price: "0", image: "" }])} className="inline-flex w-fit items-center gap-1.5 rounded-full border border-border px-4 py-1.5 text-xs font-semibold hover:border-foreground"><Plus className="h-3.5 w-3.5" /> Add variant</button>
         </Card>
 
-        <Card title="Lights on photos" help="Optional. Add photos of this piece switched on. When set, the product page shows a Lights on / off switch; main photos are used for off.">
+        <Card title="Lights on photos" help="Optional matching photos for the Lighting catalog switch. The first photo must match the main cover's position, framing and background, with only the lamp switched on. The main cover is used for lights off; products without a matching photo keep their cover.">
           <ImagesInput value={f.lit_images} onChange={(v) => set("lit_images", v)} />
         </Card>
         <Card title="Engraving" help="Lets customers add a name, initials or a date on the product page. The extra price is added per item.">

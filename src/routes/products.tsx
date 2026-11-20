@@ -1,7 +1,7 @@
-import { searchProducts } from "@/lib/catalog";
+import { lightingCover, lightingFilterActive, searchProducts } from "@/lib/catalog";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { Grid3x3, LayoutGrid, SlidersHorizontal } from "lucide-react";
+import { Grid3x3, LayoutGrid, Lightbulb, LightbulbOff, SlidersHorizontal } from "lucide-react";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { DarkHero, Page, WishButton } from "@/components/site";
 import { formatPrice } from "@/lib/currency";
@@ -36,6 +36,9 @@ function Products() {
   const [cats, setCats] = useState<string[]>(category ? [category] : []);
   useEffect(() => setCats(category ? [category] : []), [category]);
   const [spaces, setSpaces] = useState<string[]>([]);
+  const [lightsOn, setLightsOn] = useState(false);
+  const lightingOnly = lightingFilterActive(cats);
+  useEffect(() => { if (!lightingOnly) setLightsOn(false); }, [lightingOnly]);
   const toggle = (list: string[], set: (v: string[]) => void, v: string) => set(list.includes(v) ? list.filter((x) => x !== v) : [...list, v]);
   const pool = q ? searchProducts(site.products, q) : site.products;
   const shown = pool.filter((p) => (!featured || p.featured) && (!cats.length || p.categories.some((x) => cats.includes(x))) && (!spaces.length || p.spaces.some((x) => spaces.includes(x))));
@@ -99,9 +102,14 @@ function Products() {
             <button type="button" onClick={() => { setCats([]); setSpaces([]); setFeatured(false); }} className="mt-8 w-full rounded-full border border-foreground py-3 text-sm">Clear all</button>
           </SheetContent>
         </Sheet></div>
+        <div className="flex items-center gap-3">
+        {lightingOnly && <Button variant="ghost" size="icon" type="button" role="switch" aria-checked={lightsOn} aria-label="Lights on" title={lightsOn ? "Switch lights off" : "Switch lights on"} onClick={() => setLightsOn((v) => !v)} className={`h-8 w-8 rounded-full ${lightsOn ? "bg-primary/10 text-primary" : "text-muted-foreground"}`}>
+          {lightsOn ? <Lightbulb className="h-4 w-4" /> : <LightbulbOff className="h-4 w-4" />}
+        </Button>}
         <div className="flex items-center gap-1 rounded-full border p-1">
           <Button variant="ghost" size="icon" type="button" aria-label="Three per row" title="Three per row" aria-pressed={cols === 3} onClick={() => setDensity(3)} className={`rounded-full ${cols === 3 ? "bg-foreground text-background" : ""}`}><Grid3x3 className="h-4 w-4" /></Button>
           <Button variant="ghost" size="icon" type="button" aria-label="Two per row" title="Two per row" aria-pressed={cols === 2} onClick={() => setDensity(2)} className={`rounded-full ${cols === 2 ? "bg-foreground text-background" : ""}`}><LayoutGrid className="h-4 w-4" /></Button>
+        </div>
         </div>
       </div>
       <section className="mx-auto grid max-w-7xl gap-8 px-4 py-8 md:grid-cols-[180px_minmax(0,1fr)] md:gap-8 md:px-6 md:pb-16">
@@ -125,7 +133,7 @@ function Products() {
             <div key={p.id} className="product-card group relative">
               <Link to="/product/$slug" params={{ slug: p.slug }} aria-label={p.name} className="block">
                 <div className="product-frame aspect-[4/5] overflow-hidden rounded-xl">
-                  <img src={p.image} alt={p.name} loading="lazy" className="h-full w-full object-cover" />
+                  <img src={lightingCover(p, lightingOnly && lightsOn)} alt={p.name} loading="lazy" className="h-full w-full object-cover" />
                 </div>
                 <div className={`flex items-start justify-between gap-3 ${cols === 3 ? "max-md:hidden md:flex-col md:gap-1 lg:flex-row lg:flex-wrap" : ""} ${cols === 2 ? "mt-5 max-lg:flex-col max-lg:gap-1" : "mt-4"}`}>
                   <div className="min-w-0">

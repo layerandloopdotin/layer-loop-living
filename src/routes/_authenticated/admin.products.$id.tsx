@@ -27,12 +27,12 @@ type Form = {
   price: string; compare_at_price: string; featured: boolean; published: boolean;
   inventory_quantity: string;
   category_ids: string[]; space_ids: string[]; images: string[]; colors: Colour[]; specs: Pair[]; care: Pair[]; variants: { name: string; price: string; image: string }[];
-  engravable: boolean; engraving_price: string; engraving_max_chars: string; engraving_images: string[];
+  engravable: boolean; engraving_price: string; engraving_max_chars: string; engraving_images: string[]; lit_images: string[];
 };
 
 const emptyForm = (): Form => ({
   name: "", slug: "", tagline: "", short_description: "", long_description: "", price: "", compare_at_price: "",
-  featured: false, published: true, category_ids: [], space_ids: [], images: [], colors: [], variants: [], engravable: true, engraving_price: "199", engraving_max_chars: "20", engraving_images: [],
+  featured: false, published: true, category_ids: [], space_ids: [], images: [], colors: [], variants: [], engravable: true, engraving_price: "199", engraving_max_chars: "20", engraving_images: [], lit_images: [],
   inventory_quantity: "0",
   specs: ["Dimensions", "Weight", "Material", "Bulb", "Cable"].map((label) => ({ label, value: "" })),
   care: [{ label: "Cleaning", value: "" }, { label: "Wear & tear", value: "" }],
@@ -112,7 +112,7 @@ function ProductEditor() {
       featured: p.featured, published: p.published, category_ids: p.category_ids, space_ids: p.space_ids, images: p.images,
       colors: asColours(p.colors), specs: asPairs(p.specs), care: asPairs(p.care),
       variants: Array.isArray(p.variants) ? p.variants.map((x) => { const v = x as { name?: unknown; price?: unknown; image?: unknown }; return { name: String(v?.name ?? ""), price: String(v?.price ?? "0"), image: String(v?.image ?? "") }; }) : [],
-      engravable: p.engravable, engraving_price: String(p.engraving_price), engraving_max_chars: String(p.engraving_max_chars), engraving_images: p.engraving_images ?? [],
+      engravable: p.engravable, engraving_price: String(p.engraving_price), engraving_max_chars: String(p.engraving_max_chars), engraving_images: p.engraving_images ?? [], lit_images: (p as { lit_images?: string[] }).lit_images ?? [],
     });
   }, [existing.data]);
 
@@ -140,6 +140,7 @@ function ProductEditor() {
       engravable: f.engravable, engraving_price: Math.max(0, Number(f.engraving_price) || 0),
       engraving_max_chars: Math.min(60, Math.max(1, Math.round(Number(f.engraving_max_chars) || 20))),
       engraving_images: f.engraving_images,
+      lit_images: f.lit_images,
     };
     if (f.variants.some((v) => v.name.trim() && !(Number(v.price || 0) >= 0))) { toast.error("Enter a valid extra price for each variant"); return; }
     setBusy(true);
@@ -225,6 +226,9 @@ function ProductEditor() {
           <button type="button" onClick={() => set("variants", [...f.variants, { name: "", price: "0", image: "" }])} className="inline-flex w-fit items-center gap-1.5 rounded-full border border-border px-4 py-1.5 text-xs font-semibold hover:border-foreground"><Plus className="h-3.5 w-3.5" /> Add variant</button>
         </Card>
 
+        <Card title="Lights on photos" help="Optional. Add photos of this piece switched on. When set, the product page shows a Lights on / off switch; main photos are used for off.">
+          <ImagesInput value={f.lit_images} onChange={(v) => set("lit_images", v)} />
+        </Card>
         <Card title="Engraving" help="Lets customers add a name, initials or a date on the product page. The extra price is added per item.">
           <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={f.engravable} onChange={(e) => set("engravable", e.target.checked)} className="h-4 w-4 accent-primary" /> Offer engraving on this product</label>
           {f.engravable && <div className="flex flex-wrap gap-4">

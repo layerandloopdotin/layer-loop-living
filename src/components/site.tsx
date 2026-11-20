@@ -6,6 +6,7 @@ import { formatPrice } from "@/lib/currency";
 import { shop, useShop } from "@/lib/shop";
 import { useSite, waHref } from "@/lib/site";
 import { img } from "@/lib/media";
+import { CartPanel, HeaderSearch, HoverMenu, ProductsPanel, ProfilePanel, WishlistPanel } from "@/components/header-menus";
 
 /** Wishlist toggle — an outline heart that fills in once saved. */
 export function WishButton({ slug, name, className = "" }: { slug: string; name: string; className?: string }) {
@@ -54,7 +55,7 @@ function MobileMenu() {
       <SheetContent side="right" className="flex w-[85vw] max-w-sm flex-col border-ink-line bg-ink text-ink-foreground">
         <SheetTitle className="sr-only">Menu</SheetTitle>
         <nav className="mt-10 flex flex-col">
-          {s.nav.map((n) => (
+          {s.nav.filter((n) => n.path !== "/contactus").map((n) => (
             <Link key={n.label + n.path} to={n.path as "/"} onClick={() => setOpen(false)} activeOptions={{ exact: true }}
               className="border-b border-ink-line py-4 font-display text-2xl font-bold uppercase text-ink-muted"
               activeProps={{ className: "!text-ink-foreground" }}>{n.label}</Link>
@@ -75,32 +76,39 @@ function MobileMenu() {
   );
 }
 
+const hiddenNav = (path: string) => path === "/" || path === "/contactus";
+
 export function SiteHeader() {
   const { cart, wishlist } = useShop();
   const s = useSite().content("settings");
+  const [searching, setSearching] = useState(false);
+  const nav = s.nav.filter((n) => !hiddenNav(n.path));
   return (
-    <header className="border-b border-ink-line bg-ink text-ink-foreground">
+    <header className="relative z-40 border-b border-ink-line bg-ink text-ink-foreground">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 md:gap-6 md:px-6 md:py-4">
-        <div className="flex min-w-0 items-center gap-10">
+        <div className={`flex min-w-0 items-center gap-10 ${searching ? "max-md:hidden" : ""}`}>
           <Logo />
-          <nav className="hidden gap-7 text-sm md:flex">
-            {s.nav.map((n) => (
-              <Link key={n.label + n.path} to={n.path as "/"} activeOptions={{ exact: true }}
-                className="pb-1 text-ink-muted transition-colors hover:text-ink-foreground"
-                activeProps={{ className: "border-b-2 border-ink-foreground !text-ink-foreground" }}>
-                {n.label}
-              </Link>
-            ))}
-          </nav>
+          {!searching && <nav className="hidden items-center gap-7 text-sm md:flex">
+            {nav.map((n) => {
+              const link = (
+                <Link key={n.label + n.path} to={n.path as "/"} activeOptions={{ exact: true }}
+                  className="pb-1 text-ink-muted transition-colors hover:text-ink-foreground"
+                  activeProps={{ className: "border-b-2 border-ink-foreground !text-ink-foreground" }}>
+                  {n.label}
+                </Link>
+              );
+              return n.path === "/products"
+                ? <HoverMenu key={n.label + n.path} trigger={link} align="left" width="w-[34rem]"><ProductsPanel /></HoverMenu>
+                : link;
+            })}
+          </nav>}
         </div>
-        <div className="flex shrink-0 items-center gap-2">
-          <Link to="/contactus" className="hidden md:inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2 text-sm font-medium text-primary-foreground">
-            {s.contactButton} <ArrowRight className="h-4 w-4" />
-          </Link>
-          <HeaderIcon to="/wishlist" label="Favourites" count={wishlist.length}><Heart className="h-4 w-4" fill={wishlist.length ? "currentColor" : "none"} /></HeaderIcon>
-          <HeaderIcon to="/cart" label="Cart" count={cart.reduce((sum, c) => sum + c.qty, 0)}><ShoppingBag className="h-4 w-4" /></HeaderIcon>
-          <HeaderIcon to="/account" label="My account" count={0}><User className="h-4 w-4" /></HeaderIcon>
-          <MobileMenu />
+        <div className={`flex items-center justify-end gap-2 ${searching ? "min-w-0 flex-1" : "shrink-0"}`}>
+          <HeaderSearch open={searching} setOpen={setSearching} />
+          <HoverMenu trigger={<HeaderIcon to="/wishlist" label="Favourites" count={wishlist.length}><Heart className="h-4 w-4" fill={wishlist.length ? "currentColor" : "none"} /></HeaderIcon>}><WishlistPanel /></HoverMenu>
+          <HoverMenu trigger={<HeaderIcon to="/cart" label="Cart" count={cart.reduce((sum, c) => sum + c.qty, 0)}><ShoppingBag className="h-4 w-4" /></HeaderIcon>}><CartPanel /></HoverMenu>
+          <HoverMenu width="w-60" trigger={<HeaderIcon to="/account" label="My account" count={0}><User className="h-4 w-4" /></HeaderIcon>}><ProfilePanel /></HoverMenu>
+          {!searching && <MobileMenu />}
         </div>
       </div>
     </header>

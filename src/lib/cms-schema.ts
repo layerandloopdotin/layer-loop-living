@@ -24,7 +24,6 @@ const settings = {
   logoMode: "text",
   logoImage: "",
   nav: [
-    { label: "Home", path: "/" },
     { label: "Products", path: "/products" },
     { label: "About", path: "/about" },
     { label: "Trade", path: "/trade" },

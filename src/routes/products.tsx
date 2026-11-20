@@ -1,3 +1,4 @@
+import { searchProducts } from "@/lib/catalog";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { Grid3x3, LayoutGrid, SlidersHorizontal } from "lucide-react";
@@ -18,8 +19,9 @@ export const Route = createFileRoute("/products")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  validateSearch: (s: Record<string, unknown>): { category?: string; featured?: boolean } => ({
+  validateSearch: (s: Record<string, unknown>): { category?: string; featured?: boolean; q?: string } => ({
     ...(typeof s["category"] === "string" ? { category: s["category"] } : {}),
+    ...(typeof s["q"] === "string" && s["q"].trim() ? { q: s["q"].trim() } : {}),
     ...(s["featured"] === true || s["featured"] === "true" ? { featured: true } : {}),
   }),
   component: Products,
@@ -28,14 +30,15 @@ export const Route = createFileRoute("/products")({
 function Products() {
   const site = useSite();
   const c = site.content("catalog");
-  const { category, featured: featuredParam } = Route.useSearch();
+  const { category, featured: featuredParam, q } = Route.useSearch();
   const [featured, setFeatured] = useState(!!featuredParam);
   useEffect(() => setFeatured(!!featuredParam), [featuredParam]);
   const [cats, setCats] = useState<string[]>(category ? [category] : []);
   useEffect(() => setCats(category ? [category] : []), [category]);
   const [spaces, setSpaces] = useState<string[]>([]);
   const toggle = (list: string[], set: (v: string[]) => void, v: string) => set(list.includes(v) ? list.filter((x) => x !== v) : [...list, v]);
-  const shown = site.products.filter((p) => (!featured || p.featured) && (!cats.length || p.categories.some((x) => cats.includes(x))) && (!spaces.length || p.spaces.some((x) => spaces.includes(x))));
+  const pool = q ? searchProducts(site.products, q) : site.products;
+  const shown = pool.filter((p) => (!featured || p.featured) && (!cats.length || p.categories.some((x) => cats.includes(x))) && (!spaces.length || p.spaces.some((x) => spaces.includes(x))));
 
   const [cols, setCols] = useState<2 | 3>(2);
   useEffect(() => { const g = localStorage.getItem("ll-grid"); if (g === "3") setCols(3); else if (g === "1") setCols(2); }, []);
@@ -70,6 +73,7 @@ function Products() {
     <Page>
       <DarkHero title={c.heroTitle}>
         <p className="mt-4 max-w-md text-ink-muted">{c.heroText}</p>
+        {q && <p className="mt-4 text-sm">Showing results for “{q}” · <Link to="/products" className="underline">Clear</Link></p>}
       </DarkHero>
       <div className="sticky top-0 z-30 flex items-center justify-between gap-3 border-b bg-background/95 px-4 py-3 backdrop-blur md:static md:mx-auto md:max-w-7xl md:justify-end md:border-b-0 md:px-6 md:pt-8">
         <div className="md:hidden"><Sheet>

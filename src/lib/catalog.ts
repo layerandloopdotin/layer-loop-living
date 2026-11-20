@@ -12,7 +12,7 @@ export type ProductRow = {
   id: string; slug: string; name: string; tagline: string; short_description: string; long_description: string;
   price: number; compare_at_price: number | null; featured: boolean; published: boolean; sort: number;
   category_ids: string[]; space_ids: string[]; images: string[]; colors: unknown; specs: unknown; care: unknown; variants?: unknown;
-  engravable?: boolean; engraving_price?: number; engraving_max_chars?: number; engraving_placements?: string[]; engraving_images?: string[];
+  engravable?: boolean; engraving_price?: number; engraving_max_chars?: number; engraving_placements?: string[]; engraving_images?: string[]; lit_images?: string[];
 };
 
 export type Product = {
@@ -21,6 +21,7 @@ export type Product = {
   image: string; images: string[]; colours: Colour[];
   categories: string[]; spaces: string[]; specs: Pair[]; care: Pair[]; variants: Variant[];
   engraving: EngravingRules;
+  litImages: string[];
 };
 
 const pairs = (v: unknown): Pair[] =>
@@ -61,6 +62,7 @@ export function toProduct(r: ProductRow, cats: Category[], spaces: Space[]): Pro
     spaces: spaces.filter((s) => r.space_ids?.includes(s.id)).map((s) => s.name),
     specs: pairs(r.specs), care: pairs(r.care), variants: variants(r.variants).map((v) => ({ ...v, image: v.image ? img(v.image) : "" })),
     engraving: { enabled: !!r.engravable, price: Number(r.engraving_price ?? 199), maxChars: Number(r.engraving_max_chars ?? 20), images: (r.engraving_images ?? []).filter(Boolean).map(img) },
+    litImages: (r.lit_images ?? []).filter(Boolean).map(img),
   };
 }
 
@@ -69,6 +71,22 @@ export function galleryFor(p: Pick<Product, "images" | "colours">, colourName?: 
   const own = p.colours.find((c) => c.name === colourName)?.images ?? [];
   const all = [...own, ...p.images];
   return all.length ? all : p.colours.flatMap((c) => c.images).slice(0, 1);
+}
+
+/** Gallery for the lights switch: lit photos when on (if any), normal photos otherwise. */
+export function lightingGallery(normal: string[], lit: string[] | undefined, on: boolean): string[] {
+  const l = (lit ?? []).filter(Boolean);
+  return on && l.length ? l : normal;
+}
+
+/** Simple catalogue search over names, categories, spaces and taglines. */
+export function searchProducts<T extends { name: string; note: string; categories: string[]; spaces: string[] }>(list: T[], q: string): T[] {
+  const terms = q.toLowerCase().trim().split(/\s+/).filter(Boolean);
+  if (!terms.length) return [];
+  return list.filter((p) => {
+    const hay = [p.name, p.note, ...p.categories, ...p.spaces].join(" ").toLowerCase();
+    return terms.every((t) => hay.includes(t));
+  });
 }
 
 export const featuredProducts = <T extends { featured: boolean }>(list: T[]) => list.filter((p) => p.featured);

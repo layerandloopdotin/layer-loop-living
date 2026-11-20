@@ -103,9 +103,11 @@ function Products() {
           </SheetContent>
         </Sheet></div>
         <div className="flex items-center gap-3">
-        {lightingOnly && <Button variant="ghost" size="icon" type="button" role="switch" aria-checked={lightsOn} aria-label="Lights on" title={lightsOn ? "Switch lights off" : "Switch lights on"} onClick={() => setLightsOn((v) => !v)} className={`h-8 w-8 rounded-full ${lightsOn ? "bg-primary/10 text-primary" : "text-muted-foreground"}`}>
-          {lightsOn ? <Lightbulb className="h-4 w-4" /> : <LightbulbOff className="h-4 w-4" />}
-        </Button>}
+        {lightingOnly && <button type="button" role="switch" aria-checked={lightsOn} aria-label="Lights" title={lightsOn ? "Switch lights off" : "Switch lights on"} onClick={() => { const next = !lightsOn; setLightsOn(next); navigator.vibrate?.(next ? 14 : 8); }} className={`relative h-6 w-11 shrink-0 rounded-full border transition-colors duration-300 ${lightsOn ? "border-primary/60 bg-primary/20" : "border-foreground/25 bg-muted"}`}>
+          <span className={`absolute left-[2px] top-1/2 flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded-full shadow-sm transition-[translate,background-color,color] duration-300 ease-[cubic-bezier(.34,1.56,.64,1)] ${lightsOn ? "translate-x-[20px] bg-primary text-primary-foreground" : "translate-x-0 bg-background text-muted-foreground"}`}>
+            {lightsOn ? <Lightbulb className="h-3 w-3" /> : <LightbulbOff className="h-3 w-3" />}
+          </span>
+        </button>}
         <div className="flex items-center gap-1 rounded-full border p-1">
           <Button variant="ghost" size="icon" type="button" aria-label="Three per row" title="Three per row" aria-pressed={cols === 3} onClick={() => setDensity(3)} className={`rounded-full ${cols === 3 ? "bg-foreground text-background" : ""}`}><Grid3x3 className="h-4 w-4" /></Button>
           <Button variant="ghost" size="icon" type="button" aria-label="Two per row" title="Two per row" aria-pressed={cols === 2} onClick={() => setDensity(2)} className={`rounded-full ${cols === 2 ? "bg-foreground text-background" : ""}`}><LayoutGrid className="h-4 w-4" /></Button>

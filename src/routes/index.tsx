@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Page } from "@/components/site";
 import { InstagramStrip } from "@/components/instagram-strip";
-import { CoverCarousel, DesignProcess, SetupsGallery, StudioProjects, WorldPanels } from "@/components/worlds";
+import { CoverCarousel, DesignProcess, WorldShowcase, StudioProjects, WorldPanels } from "@/components/worlds";
 import { useContent } from "@/lib/site";
 
 export const Route = createFileRoute("/")({
@@ -31,7 +31,7 @@ function Index() {
           {Array.from({ length: 12 }).map((_, n) => <span key={n} className="px-4">{c.marquee}</span>)}
         </div>
       </div>
-      <SetupsGallery title={c.livingTitle} subtitle={c.livingSubtitle} space={c.spaceSetups} culture={c.cultureSetups} />
+      <WorldShowcase title={c.livingTitle} subtitle={c.livingSubtitle} space={c.spaceShowcase} culture={c.cultureShowcase} />
       <InstagramStrip />
     </Page>
   );

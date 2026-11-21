@@ -93,7 +93,7 @@ export function SiteHeader() {
       <div className="border-b border-ink-line/60">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-1.5 md:px-6">
           <WorldSwitch compact />
-          <span className="hidden text-[11px] text-ink-muted sm:block">{world === "culture" ? "Pop collectibles & desk culture" : "Calm lighting & living objects"}</span>
+          <span className="hidden text-[11px] text-ink-muted sm:block">{s.tagline}</span>
         </div>
       </div>
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 md:gap-6 md:px-6 md:py-4">

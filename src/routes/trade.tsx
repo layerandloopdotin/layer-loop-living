@@ -60,6 +60,7 @@ function Trade() {
 
   return (
     <Page>
+      <div data-world-neutral hidden />
       <DarkHero eyebrow={c.heroEyebrow} title={c.heroTitle}>
         <p className="mt-4 max-w-md text-ink-muted">{c.heroText}</p>
       </DarkHero>

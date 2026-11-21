@@ -230,18 +230,26 @@
 .studio-picker .react-colorful__saturation { border-radius: 0.75rem 0.75rem 0 0; }
 .studio-picker .react-colorful__last-control { border-radius: 0 0 0.75rem 0.75rem; }
 
-/* Culture world: same cream/ink base, pop blue and orange accents. */
-html[data-world="culture"] {
-  --primary: var(--pop-blue);
-  --primary-foreground: var(--pop-blue-foreground);
-  --accent: var(--pop-orange);
-  --accent-foreground: oklch(0.17 0.008 50);
-  --ring: var(--pop-blue);
-  --ink: oklch(0.2 0.05 264);
-  --ink-soft: oklch(0.26 0.06 264);
-  --ink-line: oklch(0.36 0.07 264);
+/* Culture world: neutral ink base; orange pops, blue accents. About/Trade opt out with [data-world-neutral]. */
+html[data-world="culture"] body:not(:has([data-world-neutral])) {
+  --primary: var(--pop-orange);
+  --primary-foreground: oklch(0.17 0.008 50);
+  --accent: var(--pop-blue);
+  --accent-foreground: var(--pop-blue-foreground);
+  --ring: var(--pop-orange);
 }
 html body, html header, html footer { transition: background-color .4s ease, color .4s ease; }
+html[data-world="culture"] body:not(:has([data-world-neutral])) main h1,
+html[data-world="culture"] body:not(:has([data-world-neutral])) main h2 {
+  text-decoration: underline wavy var(--pop-orange);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.28em;
+}
 html[data-world="culture"] .product-card .product-frame { transition: transform .35s cubic-bezier(.34,1.56,.64,1); }
-@media (hover: hover) { html[data-world="culture"] .product-card:hover .product-frame { transform: rotate(-1.2deg) scale(1.01); } }
+@media (hover: hover) { html[data-world="culture"] .product-card:hover .product-frame { transform: rotate(-0.5deg); } }
 @media (prefers-reduced-motion: reduce) { html[data-world="culture"] .product-card:hover .product-frame { transform: none; } }
+
+/* Design process doodles draw themselves when their card is active. */
+.doodle path, .doodle line, .doodle circle, .doodle rect { stroke-dasharray: 600; stroke-dashoffset: 600; transition: stroke-dashoffset 1.4s ease; }
+.doodle[data-on="true"] path, .doodle[data-on="true"] line, .doodle[data-on="true"] circle, .doodle[data-on="true"] rect { stroke-dashoffset: 0; }
+@media (prefers-reduced-motion: reduce) { .doodle path, .doodle line, .doodle circle, .doodle rect { stroke-dashoffset: 0; transition: none; } }

@@ -353,7 +353,7 @@ function ProductDetail() {
         </div>
       </section>
       <ReviewsSection slug={slug} />
-      <BoughtTogether key={slug} p={p} title={c.fbtLabel} others={[...site.products.filter((x) => x.slug !== p.slug && x.categories.some((k) => p.categories.includes(k))), ...site.products.filter((x) => x.slug !== p.slug && !x.categories.some((k) => p.categories.includes(k)))].slice(0, 2)} />
+      <BoughtTogether key={slug} p={p} title={c.fbtLabel} others={[...site.products.filter((x) => x.world === p.world).filter((x) => x.slug !== p.slug && x.categories.some((k) => p.categories.includes(k))), ...site.products.filter((x) => x.world === p.world).filter((x) => x.slug !== p.slug && !x.categories.some((k) => p.categories.includes(k)))].slice(0, 2)} />
     </Page>
   );
 }

@@ -14,7 +14,7 @@ export type ProductRow = {
   id: string; slug: string; name: string; tagline: string; short_description: string; long_description: string;
   price: number; compare_at_price: number | null; featured: boolean; published: boolean; sort: number;
   category_ids: string[]; space_ids: string[]; images: string[]; colors: unknown; specs: unknown; care: unknown; variants?: unknown;
-  engravable?: boolean; engraving_price?: number; engraving_max_chars?: number; engraving_placements?: string[]; engraving_images?: string[]; lit_images?: string[]; world?: string;
+  engravable?: boolean; engraving_price?: number; engraving_max_chars?: number; engraving_placements?: string[]; engraving_images?: string[]; lit_images?: string[]; world?: string; is_drop?: boolean;
 };
 
 export type Product = {
@@ -25,6 +25,7 @@ export type Product = {
   engraving: EngravingRules;
   litImages: string[];
   world: World;
+  drop: boolean;
 };
 
 const pairs = (v: unknown): Pair[] =>
@@ -67,6 +68,7 @@ export function toProduct(r: ProductRow, cats: Category[], spaces: Space[]): Pro
     engraving: { enabled: !!r.engravable, price: Number(r.engraving_price ?? 199), maxChars: Number(r.engraving_max_chars ?? 20), images: (r.engraving_images ?? []).filter(Boolean).map(img) },
     litImages: (r.lit_images ?? []).filter(Boolean).map(img),
     world: asWorld(r.world),
+    drop: !!r.is_drop,
   };
 }
 

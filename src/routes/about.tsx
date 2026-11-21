@@ -25,6 +25,7 @@ function About() {
   const c = useContent("about");
   return (
     <Page>
+      <div data-world-neutral hidden />
       <DarkHero eyebrow={c.heroEyebrow} title={c.heroTitle} />
       <section className="mx-auto grid max-w-7xl items-center gap-12 px-6 py-20 md:grid-cols-2">
         <div>

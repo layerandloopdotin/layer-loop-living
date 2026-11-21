@@ -32,6 +32,7 @@ const settings = {
     { label: "Custom", path: "/custom" },
   ],
   contactButton: "Contact us",
+  tagline: "Two worlds, one identity",
   footerText: "3D printed objects for considered living — lighting, vessels and desk pieces, made layer by layer in Mumbai from non-toxic, recyclable materials.",
   footerExplore: "Explore",
   footerCompany: "Company",
@@ -110,6 +111,8 @@ const home = {
     { name: "Post-process", text: "Sanded, wired, painted and checked by hand before it ships.", scale: "Ready to live with", image: "asset:stack-2.jpg", video: "" },
   ],
   livingSubtitle: "Rooms for Space, setups for Culture.",
+  spaceShowcase: "asset:living.jpg",
+  cultureShowcase: "asset:world-culture.jpg",
   spaceSetups: ["asset:living.jpg", "asset:study.jpg", "asset:world-space.jpg"],
   cultureSetups: ["asset:world-culture.jpg", "asset:c-puffer.jpg", "asset:c-figurine.jpg"],
 };
@@ -136,6 +139,7 @@ const culture = {
   categoriesTitle: "Shop Culture",
   setupsTitle: "Setups with Culture",
   setups: ["asset:world-culture.jpg", "asset:c-tirestack.jpg", "asset:c-puffer.jpg"],
+  showcase: "asset:world-culture.jpg",
 };
 
 const catalog = {
@@ -369,7 +373,7 @@ export const sections: Record<ContentKey, { title: string; description: string; 
       { title: "Contact details", fields: [t("email", "Main email"), t("tradeEmail", "Trade email"), t("phone", "Phone number"), t("whatsapp", "WhatsApp number", "Country code + number, digits only, e.g. 919800000000"), t("whatsappMessage", "WhatsApp greeting"), t("showWhatsappButton", "Show floating WhatsApp button", "Type yes or no")] },
       { title: "Store & studio", fields: [t("storeName", "Store name"), ta("storeAddress", "Store address"), t("storeHours", "Opening hours"), { k: "mapUrl", label: "Google Maps link", t: "url" }, t("studioLocation", "Studio location")] },
       { title: "Social profiles", fields: [{ k: "socials", label: "Profiles", t: "list", item: "profile", of: [t("label", "Name (e.g. Instagram)"), { k: "url", label: "Profile link", t: "url" }] }] },
-      { title: "Footer", fields: [ta("footerText", "Footer description"), t("footerExplore", "Explore heading"), t("footerCompany", "Company heading"), t("footerSocial", "Social heading"), t("copyright", "Copyright line")] },
+      { title: "Footer", fields: [t("tagline", "Header line beside the world switch"), ta("footerText", "Footer description"), t("footerExplore", "Explore heading"), t("footerCompany", "Company heading"), t("footerSocial", "Social heading"), t("copyright", "Copyright line")] },
     ],
   },
   home: {
@@ -387,7 +391,7 @@ export const sections: Record<ContentKey, { title: string; description: string; 
       { title: "Choose your world", fields: [t("chooseTitle", "Title"), ta("chooseSubtitle", "Subtitle")] },
       { title: "Studio projects", fields: [t("projectsTitle", "Title"), ta("projectsSubtitle", "Subtitle"), { k: "projects", label: "Projects", t: "list", item: "project", of: [t("name", "Title"), ta("text", "Text"), im("image", "Photo"), { k: "video", label: "Video link (optional, .mp4)", t: "url" }] }] },
       { title: "Design process", fields: [t("processTitle", "Title"), ta("processSubtitle", "Subtitle"), { k: "process", label: "Steps", t: "list", item: "step", of: [t("name", "Step"), ta("text", "Text"), t("scale", "Scale note"), im("image", "Photo"), { k: "video", label: "Video link (optional, .mp4)", t: "url" }] }] },
-      { title: "Living with our objects", fields: [ta("livingSubtitle", "Subtitle"), { k: "spaceSetups", label: "Space room photos", t: "images" }, { k: "cultureSetups", label: "Culture setup photos", t: "images" }] },
+      { title: "Living with our objects", fields: [ta("livingSubtitle", "Subtitle"), im("spaceShowcase", "All Space products photo"), im("cultureShowcase", "All Culture products photo")] },
     ],
   },
   space: {
@@ -398,7 +402,7 @@ export const sections: Record<ContentKey, { title: string; description: string; 
   culture: {
     title: "Culture landing page",
     description: "The pop collectibles world at /culture.",
-    groups: [{ title: "Culture", fields: [t("eyebrow", "Small label"), t("title", "Headline"), ta("text", "Text"), im("image", "Cover photo"), t("ticker", "Running strip text"), t("dropsTitle", "Drops heading"), t("dropsTag", "Drop tag"), t("categoriesTitle", "Categories heading"), t("setupsTitle", "Setups heading"), { k: "setups", label: "Setup photos", t: "images" }] }],
+    groups: [{ title: "Culture", fields: [t("eyebrow", "Small label"), t("title", "Headline"), ta("text", "Text"), im("image", "Cover photo"), t("ticker", "Running strip text"), t("dropsTitle", "Drops heading"), t("dropsTag", "Drop tag"), t("categoriesTitle", "Categories heading"), t("setupsTitle", "Setups heading"), { k: "setups", label: "Setup photos", t: "images" }, im("showcase", "All Culture products photo")] }],
   },
   catalog: {
     title: "Products page & product details",

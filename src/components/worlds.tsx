@@ -78,51 +78,30 @@ export function TwoWorlds() {
   );
 }
 
-type Slide = { eyebrow: string; title: string; text: string; image: string; button: string; link: string };
-
-function SideSlide({ s, onClick }: { s: Slide; onClick?: () => void }) {
+/** Full-width swipeable rail with arrows; reports the active slide. */
+export function FullRail({ items, label, dark = false, inset = false }: { items: ((on: boolean) => ReactNode)[]; label: string; dark?: boolean; inset?: boolean }) {
+  const track = useRef<HTMLDivElement>(null);
+  const [i, setI] = useState(0);
+  const go = (n: number) => { const t = track.current; if (t) t.scrollTo({ left: Math.max(0, Math.min(items.length - 1, n)) * t.clientWidth, behavior: "smooth" }); };
+  const arrow = dark ? "bg-ink-foreground/15 text-ink-foreground" : "bg-foreground/10 text-foreground";
   return (
-    <div className="relative h-full w-full overflow-hidden bg-ink text-ink-foreground">
-      <img src={img(s.image)} alt={s.title} className="absolute inset-0 h-full w-full object-cover" />
-      <div className="absolute inset-0 bg-gradient-to-t from-ink/85 via-ink/20 to-transparent" />
-      <div className="absolute inset-x-0 bottom-0 mx-auto max-w-7xl px-6 pb-16 md:px-12 md:pb-20">
-        <p className="text-xs font-bold uppercase tracking-widest text-primary">{s.eyebrow}</p>
-        <h2 className="mt-2 max-w-2xl font-display text-3xl font-extrabold uppercase leading-tight md:text-5xl">{s.title}</h2>
-        <p className="mt-3 max-w-lg text-sm text-ink-foreground/80 md:text-base">{s.text}</p>
-        {s.button && <Link to={(s.link || "/") as "/"} onClick={onClick} className="mt-5 inline-flex items-center gap-2 rounded-full bg-ink-foreground px-5 py-2.5 text-sm font-semibold text-ink">{s.button} <ArrowRight className="h-4 w-4" /></Link>}
+    <div className={`relative ${inset ? "mx-auto max-w-7xl px-4 md:px-6" : ""}`} aria-label={label}>
+      <div ref={track} onScroll={() => { const t = track.current; if (t) setI(Math.round(t.scrollLeft / t.clientWidth)); }}
+        className="flex snap-x snap-mandatory overflow-x-auto [scrollbar-width:none]">
+        {items.map((r, n) => <div key={n} className="w-full shrink-0 snap-center">{r(n === i)}</div>)}
       </div>
+      {items.length > 1 && <div className="mt-4 flex items-center justify-center gap-3">
+        <Button variant="ghost" size="icon" aria-label="Previous" onClick={() => go(i - 1)} className={`h-8 w-8 rounded-full ${arrow}`}><ChevronLeft className="h-4 w-4" /></Button>
+        {items.map((_, n) => <button key={n} type="button" aria-label={`Slide ${n + 1}`} onClick={() => go(n)} className={`h-1.5 rounded-full transition-all ${n === i ? "w-6 bg-primary" : `w-1.5 ${dark ? "bg-ink-foreground/40" : "bg-foreground/30"}`}`} />)}
+        <Button variant="ghost" size="icon" aria-label="Next" onClick={() => go(i + 1)} className={`h-8 w-8 rounded-full ${arrow}`}><ChevronRight className="h-4 w-4" /></Button>
+      </div>}
     </div>
   );
 }
 
-/** Full-screen cover: side slide, the two-worlds hook in the middle, studio slide. Opens on the middle. */
+/** Full-screen cover: the interactive two-worlds slide. */
 export function CoverCarousel() {
-  const c = useContent("home");
-  const lead = c.coverSlides as Slide[];
-  const studio: Slide = { eyebrow: c.studioEyebrow, title: c.studioTitle, text: c.studioText, image: c.studioImage, button: c.studioButton, link: "/" };
-  const slides: ReactNode[] = [
-    ...lead.map((s, n) => <SideSlide key={`a${n}`} s={s} onClick={() => { if (s.link === "/culture") setWorld("culture"); else if (s.link === "/space") setWorld("space"); }} />),
-    <TwoWorlds key="w" />,
-    <SideSlide key="b" s={studio} onClick={() => document.getElementById("studio-projects")?.scrollIntoView({ behavior: "smooth" })} />,
-  ];
-  const track = useRef<HTMLDivElement>(null);
-  const start = lead.length;
-  const [i, setI] = useState(start);
-  useEffect(() => { const t = track.current; if (t) t.scrollLeft = start * t.clientWidth; }, [start]);
-  const go = (n: number) => { const t = track.current; if (t) t.scrollTo({ left: n * t.clientWidth, behavior: "smooth" }); };
-  return (
-    <section className="relative">
-      <div ref={track} onScroll={() => { const t = track.current; if (t) setI(Math.round(t.scrollLeft / t.clientWidth)); }}
-        className="flex h-[78svh] min-h-[480px] snap-x snap-mandatory overflow-x-auto [scrollbar-width:none] md:h-[calc(100svh-72px)]">
-        {slides.map((s, n) => <div key={n} className="h-full w-full shrink-0 snap-center">{s}</div>)}
-      </div>
-      <div className="pointer-events-none absolute inset-x-0 bottom-3 flex items-center justify-center gap-3">
-        <Button variant="ghost" size="icon" aria-label="Previous slide" onClick={() => go(Math.max(0, i - 1))} className="pointer-events-auto hidden h-8 w-8 rounded-full bg-ink/60 text-ink-foreground md:inline-flex"><ChevronLeft className="h-4 w-4" /></Button>
-        {slides.map((_, n) => <button key={n} type="button" aria-label={`Slide ${n + 1}`} onClick={() => go(n)} className={`pointer-events-auto h-1.5 rounded-full transition-all ${n === i ? "w-6 bg-ink-foreground" : "w-1.5 bg-ink-foreground/50"}`} />)}
-        <Button variant="ghost" size="icon" aria-label="Next slide" onClick={() => go(Math.min(slides.length - 1, i + 1))} className="pointer-events-auto hidden h-8 w-8 rounded-full bg-ink/60 text-ink-foreground md:inline-flex"><ChevronRight className="h-4 w-4" /></Button>
-      </div>
-    </section>
-  );
+  return <section className="h-[78svh] min-h-[480px] md:h-[calc(100svh-72px)]"><TwoWorlds /></section>;
 }
 
 /** Two big panels: Space on the left, Culture on the right. */
@@ -157,59 +136,63 @@ export function StudioProjects() {
       <div className="mx-auto max-w-7xl px-4 md:px-6">
         <h2 className="text-3xl font-extrabold uppercase md:text-4xl">{c.projectsTitle}</h2>
         <p className="mt-2 max-w-xl text-sm text-ink-muted">{c.projectsSubtitle}</p>
-        <CenterRail dark className="-mx-4 mt-8 md:-mx-6" itemClass="w-[78%] md:w-[44%] lg:w-[34%]" edgeClass="w-[11%] md:w-[28%] lg:w-[33%]" start={0}>
-          {c.projects.map((p) => (
-            <div key={p.name}>
-              <Media image={p.image} video={p.video} alt={p.name} className="aspect-[4/5] w-full rounded-2xl object-cover" />
-              <p className="mt-4 font-display text-lg font-semibold">{p.name}</p>
-              <p className="mt-1 text-sm text-ink-muted">{p.text}</p>
+      </div>
+      <div className="mt-8">
+        <FullRail dark label={c.projectsTitle} items={c.projects.map((p) => () => (
+          <div className="relative">
+            <Media image={p.image} video={p.video} alt={p.name} className="h-[60svh] min-h-[360px] w-full object-cover" />
+            <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-ink/85 to-transparent px-6 pb-8 pt-20 md:px-12">
+              <p className="font-display text-2xl font-semibold md:text-3xl">{p.name}</p>
+              <p className="mt-1 max-w-lg text-sm text-ink-foreground/80">{p.text}</p>
             </div>
-          ))}
-        </CenterRail>
+          </div>
+        ))} />
       </div>
     </section>
   );
 }
 
-/** One combined section: the six making steps, each with its scale note. Used on home and About. */
+const DOODLES: ReactNode[] = [<><path d="M20 90 q30 -50 60 0 t60 0" /><circle cx="160" cy="40" r="14" /><path d="M150 70 l20 -6" /></>,<><rect x="30" y="30" width="120" height="80" rx="6" /><line x1="45" y1="55" x2="130" y2="55" /><line x1="45" y1="75" x2="110" y2="75" /><line x1="45" y1="95" x2="90" y2="95" /></>,<><path d="M60 110 l40 -80 l40 80 z" /><path d="M60 110 q40 20 80 0" /><path d="M100 30 v80" /></>,<><path d="M40 40 h120 M40 60 h120 M40 80 h120 M40 100 h120" /><path d="M170 30 l-20 90" /></>,<><rect x="50" y="20" width="100" height="100" rx="8" /><path d="M70 100 q30 -60 60 0" /><circle cx="100" cy="60" r="6" /></>,<><path d="M40 100 q20 -70 60 -70 t60 70" /><path d="M30 105 h140" /><path d="M150 30 l10 10 l15 -20" /></>];
+
+/** Six making steps as hand-drawn cards; the sketch draws itself as each card comes into view. Used on home and About. */
 export function DesignProcess() {
   const c = useContent("home");
   return (
-    <section className="mx-auto max-w-7xl px-4 py-14 md:px-6 md:py-20">
-      <h2 className="text-3xl font-extrabold uppercase md:text-4xl">{c.processTitle}</h2>
-      <p className="mt-2 max-w-xl text-sm text-muted-foreground">{c.processSubtitle}</p>
-      <div className="-mx-4 mt-8 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-4 [scrollbar-width:thin] md:-mx-6 md:px-6">
-        {c.process.map((s, n) => (
-          <article key={s.name} className="w-[72%] shrink-0 snap-start sm:w-[44%] lg:w-[30%]">
-            <div className="relative overflow-hidden rounded-2xl">
-              <Media image={s.image} video={s.video} alt={s.name} className="aspect-[4/3] w-full object-cover" />
-              <span className="absolute left-3 top-3 rounded-full bg-background px-3 py-1 font-display text-xs font-bold">{String(n + 1).padStart(2, "0")}</span>
-              {s.scale && <span className="absolute bottom-3 right-3 rounded-full bg-ink/80 px-3 py-1 text-[11px] text-ink-foreground backdrop-blur">{s.scale}</span>}
+    <section className="py-14 md:py-20">
+      <div className="mx-auto max-w-7xl px-4 md:px-6">
+        <h2 className="text-3xl font-extrabold uppercase md:text-4xl">{c.processTitle}</h2>
+        <p className="mt-2 max-w-xl text-sm text-muted-foreground">{c.processSubtitle}</p>
+      </div>
+      <div className="mt-8">
+        <FullRail inset label={c.processTitle} items={c.process.map((s, n) => (on: boolean) => (
+          <article className="mx-1 grid items-center gap-6 rounded-2xl border-2 border-dashed border-foreground/30 bg-card p-6 md:grid-cols-[1fr_1.2fr] md:p-10">
+            <svg viewBox="0 0 200 140" data-on={on} className="doodle h-44 w-full fill-none stroke-foreground md:h-60" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{DOODLES[n % DOODLES.length]}</svg>
+            <div>
+              <span className="font-display text-sm font-bold text-primary">{String(n + 1).padStart(2, "0")}</span>
+              <p className="mt-1 font-display text-2xl font-semibold md:text-3xl" style={{ fontStyle: "italic" }}>{s.name}</p>
+              <p className="mt-2 text-muted-foreground">{s.text}</p>
+              {s.scale && <p className="mt-4 inline-block -rotate-1 border-b-2 border-primary pb-0.5 text-sm">{s.scale}</p>}
             </div>
-            <p className="mt-4 font-display text-lg font-semibold">{s.name}</p>
-            <p className="mt-1 text-sm text-muted-foreground">{s.text}</p>
           </article>
-        ))}
+        ))} />
       </div>
     </section>
   );
 }
 
-export function SetupsGallery({ title, subtitle, space, culture }: { title: string; subtitle?: string; space: string[]; culture: string[] }) {
-  const tile = (src: string, w: World, n: number) => (
-    <div key={w + n} className="relative overflow-hidden rounded-2xl">
-      <img src={img(src)} alt={`${w === "space" ? "Space room" : "Culture setup"} ${n + 1}`} loading="lazy" className="aspect-[4/3] w-full object-cover" />
-      <span className={`absolute left-3 top-3 rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-widest ${w === "culture" ? "bg-pop-orange text-foreground" : "bg-background text-foreground"}`}>{w}</span>
+/** One full-width photo per world: all Space products, then all Culture products. */
+export function WorldShowcase({ title, subtitle, space, culture }: { title: string; subtitle?: string; space: string; culture: string }) {
+  const slide = (src: string, w: World) => () => (
+    <div className="relative">
+      <img src={img(src)} alt={`All ${w} products`} loading="lazy" className="h-[60svh] min-h-[340px] w-full object-cover" />
+      <span className={`absolute left-6 top-6 rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-widest md:left-12 ${w === "culture" ? "bg-pop-orange text-foreground" : "bg-background text-foreground"}`}>{w}</span>
     </div>
   );
   return (
-    <section className="mx-auto max-w-7xl px-4 py-14 md:px-6 md:py-20">
-      <h2 className="mx-auto max-w-xl text-center text-3xl font-bold md:text-4xl">{title}</h2>
+    <section className="py-14 md:py-20">
+      <h2 className="mx-auto max-w-xl px-4 text-center text-3xl font-bold md:text-4xl">{title}</h2>
       {subtitle && <p className="mt-2 text-center text-sm text-muted-foreground">{subtitle}</p>}
-      <div className="mt-8 grid gap-4 md:grid-cols-2">
-        <div className="grid gap-4">{space.slice(0, 2).map((s, n) => tile(s, "space", n))}</div>
-        <div className="grid gap-4">{culture.slice(0, 2).map((s, n) => tile(s, "culture", n))}</div>
-      </div>
+      <div className="mt-8"><FullRail label={title} items={[slide(space, "space"), slide(culture, "culture")]} /></div>
     </section>
   );
 }

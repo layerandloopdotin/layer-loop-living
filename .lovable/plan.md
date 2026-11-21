@@ -20,7 +20,9 @@
 - "Objects that shape everyday living": one full-width image of all Space products together; swipe right to one full-width image of all Culture products. No four-photo grid.
 
 ## 5. Space page
-- Restore exactly the previous homepage layout and behaviour on the Space page: same sections, rails, swiping, haptics and scrolling as before.
+- Space stays exactly as the original Layer & Loop site: homepage, shop, product pages, cart and wishlist look and behave as before.
+- Restore the previous homepage layout on the Space page: calm cover, 3-product Edit, category row, retail photo carousel and Instagram strip, with the same swiping and scrolling.
+- No orange tags, scribbles or blue tints anywhere in Space; light switch, grid toggles and filters unchanged.
 
 ## 6. Culture page
 - Drops: a featured rail swipeable both ways. Admin gets a "Drop" mark on any product (separate from Space "Featured"), so you choose exactly which pieces appear.

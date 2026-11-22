@@ -12,4 +12,28 @@ export default defineConfig({
     // nitro/vite builds from this
     server: { entry: "server" },
   },
+  nitro: {
+    preset: "node-server",
+    output: {
+      dir: "dist",
+      serverDir: "dist/server",
+      publicDir: "dist/public",
+    },
+  },
+  vite: {
+    server: {
+      host: "0.0.0.0",
+      port: 3000,
+      allowedHosts: true,
+      warmup: {
+        ssrFiles: [
+          "./src/server.ts",
+          "./src/router.tsx",
+          "./src/routes/__root.tsx",
+          "./src/routes/index.tsx",
+        ],
+        clientFiles: ["./src/routes/__root.tsx", "./src/routes/index.tsx"],
+      },
+    },
+  },
 });

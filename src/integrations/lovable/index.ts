@@ -13,6 +13,9 @@ type SignInOptions = {
 export const lovable = {
   auth: {
     signInWithOAuth: async (provider: OAuthProvider, opts?: SignInOptions) => {
+      if (!import.meta.env["VITE_SUPABASE_URL"] && !process.env?.["SUPABASE_URL"]) {
+        return { error: new Error("OAuth sign-in requires Supabase configuration.") };
+      }
       const result = await lovableAuth.signInWithOAuth(provider, {
         ...opts,
         extraParams: {

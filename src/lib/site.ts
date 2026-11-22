@@ -1,7 +1,7 @@
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { getSiteData } from "@/lib/site-data.functions";
 import { mergeContent, type ContentKey } from "@/lib/cms-schema";
-import { toProduct, type Category, type ProductRow } from "@/lib/catalog";
+import { normalizeCultureFilters, toProduct, type Category, type ProductRow } from "@/lib/catalog";
 import { img } from "@/lib/media";
 
 export const siteQuery = queryOptions({
@@ -13,11 +13,14 @@ export const siteQuery = queryOptions({
 export function useSite() {
   const { data } = useSuspenseQuery(siteQuery);
   const categories = data.categories as Category[];
-  const products = (data.products as ProductRow[]).map((r) => toProduct(r, categories, data.spaces));
+  const products = (data.products as ProductRow[]).map((r) =>
+    toProduct(r, categories, data.spaces),
+  );
   return {
     products,
     categories: categories.map((c) => ({ ...c, image: img(c.image) })),
     spaces: data.spaces,
+    cultureFilters: normalizeCultureFilters(data.content["cultureFilters"]),
     bySlug: (slug: string) => products.find((p) => p.slug === slug),
     content: <K extends ContentKey>(key: K) => mergeContent(key, data.content[key]),
   };

@@ -3,8 +3,19 @@
 // Browser-safe: no server or database imports.
 
 export type Field =
-  | { k: string; label: string; t: "select"; options: { value: string; label: string }[]; help?: string }
-  | { k: string; label: string; t: "text" | "textarea" | "image" | "url" | "product" | "link" | "color"; help?: string }
+  | {
+      k: string;
+      label: string;
+      t: "select";
+      options: { value: string; label: string }[];
+      help?: string;
+    }
+  | {
+      k: string;
+      label: string;
+      t: "text" | "textarea" | "image" | "url" | "product" | "link" | "color";
+      help?: string;
+    }
   | { k: string; label: string; t: "images" | "strings"; help?: string }
   | { k: string; label: string; t: "list"; of: Field[]; item: string; help?: string };
 
@@ -32,8 +43,9 @@ const settings = {
     { label: "Custom", path: "/custom" },
   ],
   contactButton: "Contact us",
-  tagline: "Two worlds, one identity",
-  footerText: "3D printed objects for considered living — lighting, vessels and desk pieces, made layer by layer in Mumbai from non-toxic, recyclable materials.",
+  tagline: "Switch between two worlds of lifestyle & collectibles",
+  footerText:
+    "3D printed objects for considered living — lighting, vessels and desk pieces, made layer by layer in Mumbai from non-toxic, recyclable materials.",
   footerExplore: "Explore",
   footerCompany: "Company",
   footerSocial: "Social",
@@ -62,12 +74,14 @@ const home = {
   badge1: "Premium selection",
   badge2: "Non - Toxic Material",
   slideCaption: "Now available for order",
-  heroText: "Designed with enduring materials, quiet forms, and thoughtful craftsmanship for interiors that feel timeless rather than trendy.",
+  heroText:
+    "Designed with enduring materials, quiet forms, and thoughtful craftsmanship for interiors that feel timeless rather than trendy.",
   keywords: ["Nature", "Sculptural", "Minimalism"],
   editTitle: "The Edit",
   editSubtitle: "Feature collection",
   philosophyTitle: "Our Philosophy",
-  philosophyText: "Every piece is thoughtfully crafted to balance atmosphere, material, and form — bringing quiet elegance into everyday living.",
+  philosophyText:
+    "Every piece is thoughtfully crafted to balance atmosphere, material, and form — bringing quiet elegance into everyday living.",
   editButton: "Enter Collection",
   marquee: "Designed to be lived with ✦",
   categoryTitle: "Shop by Category",
@@ -76,39 +90,101 @@ const home = {
   livingTitle: "Objects That Shape Everyday Living",
   livingImage: "asset:living.jpg",
   coverSlides: [
-    { eyebrow: "Space", title: "Light that settles a room.", text: "Sculptural lamps, vases and objects for calm, everyday living.", image: "asset:world-space.jpg", button: "Enter Space", link: "/space" },
+    {
+      eyebrow: "Space",
+      title: "Light that settles a room.",
+      text: "Sculptural lamps, vases and objects for calm, everyday living.",
+      image: "asset:world-space.jpg",
+      button: "Enter Space",
+      link: "/space",
+    },
   ],
   studioEyebrow: "Studio",
   studioTitle: "From a pen stack to a 1:2 F1 car.",
-  studioText: "We design and print projects of every size for brands, stores and people with an idea.",
+  studioText:
+    "We design and print projects of every size for brands, stores and people with an idea.",
   studioImage: "asset:studio-f1.jpg",
   studioButton: "See studio projects",
   worldsTitle: "Two worlds.\nOne studio.",
   worldsHint: "Move across to explore",
+  dragHint: "Drag or tap",
   spaceLabel: "Space",
   spaceLine: "Calm lighting & living objects",
   spaceImage: "asset:world-space.jpg",
+  spaceButton: "Enter Space",
   cultureLabel: "Culture",
   cultureLine: "Pop collectibles & desk culture",
   cultureImage: "asset:world-culture.jpg",
+  cultureButton: "Enter Culture",
   chooseTitle: "Choose your world",
   chooseSubtitle: "Same studio, two moods. Your cart, wishlist and account work across both.",
   projectsTitle: "Studio projects",
   projectsSubtitle: "Things we have designed and printed for people, stores and brands.",
   projects: [
-    { name: "1:2 scale F1 car", text: "A half-size race car printed panel by panel for a brand showroom.", image: "asset:studio-f1.jpg", video: "" },
-    { name: "In-store pendant lighting", text: "A cluster of custom pendants designed for a walk-in client's store.", image: "asset:studio-lighting.jpg", video: "" },
-    { name: "Brand mascot", text: "A 60 cm mascot character, modelled from a sketch and hand-finished.", image: "asset:studio-mascot.jpg", video: "" },
+    {
+      name: "1:2 scale F1 car",
+      text: "A half-size race car printed panel by panel for a brand showroom.",
+      image: "asset:studio-f1.jpg",
+      video: "",
+    },
+    {
+      name: "In-store pendant lighting",
+      text: "A cluster of custom pendants designed for a walk-in client's store.",
+      image: "asset:studio-lighting.jpg",
+      video: "",
+    },
+    {
+      name: "Brand mascot",
+      text: "A 60 cm mascot character, modelled from a sketch and hand-finished.",
+      image: "asset:studio-mascot.jpg",
+      video: "",
+    },
   ],
   processTitle: "Design process",
   processSubtitle: "From a fidget to a sculpture, every piece goes through the same six steps.",
   process: [
-    { name: "Listen", text: "We start with a conversation: the space, the person, the feeling.", scale: "Any idea", image: "asset:store-1.jpg", video: "" },
-    { name: "Brief", text: "We turn it into a clear brief with size, colour and budget.", scale: "Fidget to sculpture", image: "asset:custom-sketch.jpg", video: "" },
-    { name: "3D model", text: "Our designers model the form and share a render.", scale: "Millimetres to metres", image: "asset:craft.jpg", video: "" },
-    { name: "Slice", text: "We tune layers, walls and supports for strength and finish.", scale: "Hours to days of print", image: "asset:custom-print.jpg", video: "" },
-    { name: "Print", text: "Printed layer by layer, made to order in our studio.", scale: "One piece or a hundred", image: "asset:about-printer.jpg", video: "" },
-    { name: "Post-process", text: "Sanded, wired, painted and checked by hand before it ships.", scale: "Ready to live with", image: "asset:stack-2.jpg", video: "" },
+    {
+      name: "Listen",
+      text: "We start with a conversation: the space, the person, the feeling.",
+      scale: "Any idea",
+      image: "asset:store-1.jpg",
+      video: "",
+    },
+    {
+      name: "Brief",
+      text: "We turn it into a clear brief with size, colour and budget.",
+      scale: "Fidget to sculpture",
+      image: "asset:custom-sketch.jpg",
+      video: "",
+    },
+    {
+      name: "3D model",
+      text: "Our designers model the form and share a render.",
+      scale: "Millimetres to metres",
+      image: "asset:craft.jpg",
+      video: "",
+    },
+    {
+      name: "Slice",
+      text: "We tune layers, walls and supports for strength and finish.",
+      scale: "Hours to days of print",
+      image: "asset:custom-print.jpg",
+      video: "",
+    },
+    {
+      name: "Print",
+      text: "Printed layer by layer, made to order in our studio.",
+      scale: "One piece or a hundred",
+      image: "asset:about-printer.jpg",
+      video: "",
+    },
+    {
+      name: "Post-process",
+      text: "Sanded, wired, painted and checked by hand before it ships.",
+      scale: "Ready to live with",
+      image: "asset:stack-2.jpg",
+      video: "",
+    },
   ],
   livingSubtitle: "Rooms for Space, setups for Culture.",
   spaceShowcase: "asset:living.jpg",
@@ -122,10 +198,21 @@ const space = {
   title: "Objects that shape everyday living.",
   text: "Lamps, vases, planters and desk pieces with quiet forms and warm light.",
   image: "asset:world-space.jpg",
+  ctaLabel: "Shop Space",
   editTitle: "The Space edit",
+  editSubtitle: "Feature collection",
+  editButton: "Enter Collection",
+  philosophyTitle: "Our Philosophy",
+  philosophyText:
+    "Every piece is thoughtfully crafted to balance atmosphere, material, and form — bringing quiet elegance into everyday living.",
+  marquee: "Designed to be lived with ✦",
   categoriesTitle: "Shop Space",
+  categoriesSubtitle: "Find the piece that fits your space",
+  categoriesButton: "Browse All Collections",
   setupsTitle: "Rooms with Space",
   setups: ["asset:living.jpg", "asset:study.jpg", "asset:world-space.jpg"],
+  livingTitle: "Objects That Shape Everyday Living",
+  livingImage: "asset:living.jpg",
 };
 
 const culture = {
@@ -133,21 +220,53 @@ const culture = {
   title: "Loud little objects for your desk and shelf.",
   text: "Collectibles, quirky desk pieces and statement objects in pop colour.",
   image: "asset:world-culture.jpg",
+  ctaLabel: "Shop all Culture",
   ticker: "New drops ✦ Collect them all ✦ Printed in our studio ✦",
   dropsTitle: "Drops",
   dropsTag: "Limited",
+  dropsButton: "See everything",
   categoriesTitle: "Shop Culture",
+  categoriesButton: "Shop all",
   setupsTitle: "Setups with Culture",
   setups: ["asset:world-culture.jpg", "asset:c-tirestack.jpg", "asset:c-puffer.jpg"],
+  livingTitle: "Objects That Shape Everyday Culture",
   showcase: "asset:world-culture.jpg",
+};
+
+const catalogSpace = {
+  heroTitle: "SPACE OBJECTS",
+  heroText:
+    "Sculptural lighting, vases, planters and calm living objects — crafted for homes, cafés, restaurants and studios.",
+  filtersTitle: "Filters",
+  categoryLabel: "Category",
+  allLabel: "All Space Products",
+  featuredLabel: "Featured Collection",
+  spaceLabel: "Filter by Space",
+  emptyText: "No Space objects match these filters.",
+};
+
+const catalogCulture = {
+  heroTitle: "CULTURE OBJECTS",
+  heroText:
+    "Pop collectibles, quirky desk organisers and limited drops — 3D printed in bold studio colour.",
+  filtersTitle: "Filters",
+  categoryLabel: "Category",
+  allLabel: "All Culture Products",
+  featuredLabel: "Featured Drops",
+  collectionLabel: "Filter by Setup",
+  dropsOnlyLabel: "Limited Drops only",
+  madeForLabel: "Fits right into",
+  emptyText: "No Culture objects match these filters.",
 };
 
 const catalog = {
   heroTitle: "ALL OBJECTS",
-  heroText: "Browse our full catalog of lighting, vases, collectibles and desk objects — crafted for homes, cafés, restaurants and studios.",
+  heroText:
+    "Browse our full catalog of lighting, vases, collectibles and desk objects — crafted for homes, cafés, restaurants and studios.",
   filtersTitle: "Filters",
   categoryLabel: "Category",
   allLabel: "All Products",
+  featuredLabel: "Featured Collection",
   spaceLabel: "Filter by Space",
   emptyText: "No objects match these filters.",
   taxNote: "Inclusive of all taxes",
@@ -159,10 +278,18 @@ const catalog = {
   shipsNote: "Ships across India",
   returnsNote: "2-day easy returns",
   returnPolicyLabel: "Return & replacement policy",
-  returnPolicy: "Returns: eligible items can be returned within 2 days of delivery, unused and in original packaging.\n\nReplacements: items damaged in transit or with a manufacturing defect are replaced free. Record an unboxing video and report within 48 hours of delivery.\n\nMade-to-order, personalised and custom-colour pieces are not returnable.",
+  returnPolicy:
+    "Returns: eligible items can be returned within 2 days of delivery, unused and in original packaging.\n\nReplacements: items damaged in transit or with a manufacturing defect are replaced free. Record an unboxing video and report within 48 hours of delivery.\n\nMade-to-order, personalised and custom-colour pieces are not returnable.",
   fbtLabel: "Frequently bought together",
   paymentsLabel: "Payment options",
-  payments: ["Credit card", "Debit card", "UPI", "Net banking", "Wallets", "Cash on delivery (COD)"],
+  payments: [
+    "Credit card",
+    "Debit card",
+    "UPI",
+    "Net banking",
+    "Wallets",
+    "Cash on delivery (COD)",
+  ],
   backLabel: "← Back to All Objects",
 };
 
@@ -170,53 +297,117 @@ const about = {
   heroEyebrow: "Our Story",
   heroTitle: "Layer. Loop. Form.",
   storyTitle: "We believe objects should be designed, not just manufactured.",
-  storyText1: "LAYER & LOOP started in 2022 as a small print studio with a handful of machines and a simple idea: that 3D printing could make calm, sculptural objects for everyday living.",
-  storyText2: "Every lamp, vase and desk piece is designed in-house and printed to order, layer by layer. The fine lines you see are not hidden — they are the signature of how each object was made.",
+  storyText1:
+    "LAYER & LOOP started in 2022 as a small print studio with a handful of machines and a simple idea: that 3D printing could make calm, sculptural objects for everyday living.",
+  storyText2:
+    "Every lamp, vase and desk piece is designed in-house and printed to order, layer by layer. The fine lines you see are not hidden — they are the signature of how each object was made.",
   storyImage: "asset:about-printer.jpg",
   materialsTitle: "Materials We Print With",
   materials: [
-    { name: "PLA", text: "Plant-based, matte and non-toxic. Our go-to for lamps, vases and collectibles.", image: "asset:mat-pla.jpg" },
-    { name: "PETG", text: "Tough and water-safe, so planters and everyday objects last.", image: "asset:mat-petg.jpg" },
-    { name: "TPU", text: "Soft and flexible, used for grips, feet and desk essentials.", image: "asset:mat-tpu.jpg" },
-    { name: "ABS", text: "Strong and heat-resistant, for lamp parts and structural pieces.", image: "asset:mat-abs.jpg" },
-    { name: "ASA", text: "UV- and weather-resistant, for outdoor planters and café terraces.", image: "asset:mat-asa.jpg" },
+    {
+      name: "PLA",
+      text: "Plant-based, matte and non-toxic. Our go-to for lamps, vases and collectibles.",
+      image: "asset:mat-pla.jpg",
+    },
+    {
+      name: "PETG",
+      text: "Tough and water-safe, so planters and everyday objects last.",
+      image: "asset:mat-petg.jpg",
+    },
+    {
+      name: "TPU",
+      text: "Soft and flexible, used for grips, feet and desk essentials.",
+      image: "asset:mat-tpu.jpg",
+    },
+    {
+      name: "ABS",
+      text: "Strong and heat-resistant, for lamp parts and structural pieces.",
+      image: "asset:mat-abs.jpg",
+    },
+    {
+      name: "ASA",
+      text: "UV- and weather-resistant, for outdoor planters and café terraces.",
+      image: "asset:mat-asa.jpg",
+    },
   ],
   beliefsTitle: "What We Believe",
   beliefs: [
-    { name: "Made to Order", text: "Every piece is printed when you order it — no overstock, little waste." },
-    { name: "Designed In-House", text: "Each form is modelled by our own team, then refined print by print." },
-    { name: "Kind Materials", text: "Non-toxic filaments, chosen to be safe at home and recyclable where possible." },
+    {
+      name: "Made to Order",
+      text: "Every piece is printed when you order it — no overstock, little waste.",
+    },
+    {
+      name: "Designed In-House",
+      text: "Each form is modelled by our own team, then refined print by print.",
+    },
+    {
+      name: "Kind Materials",
+      text: "Non-toxic filaments, chosen to be safe at home and recyclable where possible.",
+    },
   ],
   atmosphereTitle: "Designed for Atmosphere",
   atmosphereImage: "asset:study.jpg",
   storeEyebrow: "Visit Us",
   storeTitle: "Our Retail Store",
-  storeText: "Printed objects are best understood in person. We opened our store so you can run a hand over the layer lines, see the lamps glowing as they would at home, and watch a printer at work in the window.",
+  storeText:
+    "Printed objects are best understood in person. We opened our store so you can run a hand over the layer lines, see the lamps glowing as they would at home, and watch a printer at work in the window.",
   storeAddress: "12 Linking Road, Bandra West, Mumbai",
   storeHours: "Tue – Sun, 11am – 8pm",
-  storeImages: ["asset:store-1.jpg", "asset:store-4.jpg", "asset:store-2.jpg", "asset:store-5.jpg", "asset:store-3.jpg"],
+  storeImages: [
+    "asset:store-1.jpg",
+    "asset:store-4.jpg",
+    "asset:store-2.jpg",
+    "asset:store-5.jpg",
+    "asset:store-3.jpg",
+  ],
 };
 
 const trade = {
   heroEyebrow: "Trade & Partnerships",
   heroTitle: "Built for Businesses That Build Spaces",
-  heroText: "We 3D print in PLA, PETG, TPU, ABS and ASA for studios, retailers, brands and makers — from one-off pieces to bulk runs.",
+  heroText:
+    "We 3D print in PLA, PETG, TPU, ABS and ASA for studios, retailers, brands and makers — from one-off pieces to bulk runs.",
   partnersEyebrow: "Who we work with",
   partnersTitle: "Whoever you are, we have something for you.",
   partners: [
-    { name: "Interiors & Architects", text: "Custom lighting, fixtures and decor for your projects.", image: "asset:trade-studio.jpg" },
-    { name: "Retailers & Concept Stores", text: "Ready-to-shelf collections at wholesale pricing.", image: "asset:trade-retail.jpg" },
-    { name: "Vendors & Resellers", text: "Add our objects to your catalogue with ease.", image: "asset:trade-vendors.jpg" },
-    { name: "Startups & Businesses", text: "Branded objects and prototypes to grow your range.", image: "asset:trade-startups.jpg" },
-    { name: "Corporate Gifting", text: "Thoughtful gifts for employees, clients and partners.", image: "asset:trade-gifting.jpg" },
-    { name: "Makers & Enthusiasts", text: "Collaborate with us on something new.", image: "asset:trade-makers.jpg" },
+    {
+      name: "Interiors & Architects",
+      text: "Custom lighting, fixtures and decor for your projects.",
+      image: "asset:trade-studio.jpg",
+    },
+    {
+      name: "Retailers & Concept Stores",
+      text: "Ready-to-shelf collections at wholesale pricing.",
+      image: "asset:trade-retail.jpg",
+    },
+    {
+      name: "Vendors & Resellers",
+      text: "Add our objects to your catalogue with ease.",
+      image: "asset:trade-vendors.jpg",
+    },
+    {
+      name: "Startups & Businesses",
+      text: "Branded objects and prototypes to grow your range.",
+      image: "asset:trade-startups.jpg",
+    },
+    {
+      name: "Corporate Gifting",
+      text: "Thoughtful gifts for employees, clients and partners.",
+      image: "asset:trade-gifting.jpg",
+    },
+    {
+      name: "Makers & Enthusiasts",
+      text: "Collaborate with us on something new.",
+      image: "asset:trade-makers.jpg",
+    },
   ],
   contactTitle: "Let's Make Something Together",
   contactText: "Reach out directly — we usually reply within a day.",
   catalogueEyebrow: "Catalogue request",
   catalogueTitle: "Get Our Catalogues",
   catalogueSubtitle: "Request a catalogue",
-  catalogueText: "Festive, B2B, retail or corporate gifting — tell us what you need and we'll send the right catalogue within 2 business days.",
+  catalogueText:
+    "Festive, B2B, retail or corporate gifting — tell us what you need and we'll send the right catalogue within 2 business days.",
   catalogues: ["Festive", "B2B / Wholesale", "Retail", "Corporate Gifting", "Custom Projects"],
   quantities: ["Under 50", "50–200", "200–1000", "1000+"],
   submitLabel: "Request a Catalogue",
@@ -226,10 +417,12 @@ const trade = {
 const contact = {
   heroEyebrow: "Contact",
   heroTitle: "Say hello, or come by.",
-  heroText: "Questions about an object, an order or a whole space — every message lands with a person, not a queue.",
+  heroText:
+    "Questions about an object, an order or a whole space — every message lands with a person, not a queue.",
   storeEyebrow: "The Store",
   storeTitle: "Come and see them in person.",
-  storeText: "Our shop and print studio sit on Linking Road in Bandra West. Run a hand over the layer lines, watch a lamp being printed in the window, or collect an order the same day.",
+  storeText:
+    "Our shop and print studio sit on Linking Road in Bandra West. Run a hand over the layer lines, watch a lamp being printed in the window, or collect an order the same day.",
   storeImage: "asset:store-1.jpg",
   directionsLabel: "Get directions",
   reachTitle: "Reach us directly",
@@ -239,7 +432,8 @@ const contact = {
   postNote: "Returns, couriers and material samples.",
   careersEyebrow: "Work with us",
   careersTitle: "Want to build with us?",
-  careersText: "We keep the studio small and hire rarely. Printer, designer, shop floor or film — tell us who you are and what you would bring to the bench.",
+  careersText:
+    "We keep the studio small and hire rarely. Printer, designer, shop floor or film — tell us who you are and what you would bring to the bench.",
   careersNote: "Every note is read by a person. Expect a reply within a week.",
   submitLabel: "Send your application",
   thankYou: "Thank you — your note is with us. We'll come back to you within a week.",
@@ -251,21 +445,52 @@ const instagram = {
   url: "https://instagram.com/layerandloop.in",
   text: "Fresh off the print bed — new drops, studio moments and your spaces.",
   buttonLabel: "Follow us",
-  posts: ["asset:p-mushroom.jpg", "asset:store-2.jpg", "asset:mat-petg.jpg", "asset:tile-vases.jpg", "asset:about-printer.jpg", "asset:p-orb.jpg", "asset:tile-desk.jpg", "asset:living.jpg", "asset:tile-collectibles.jpg", "asset:p-pendant.jpg"],
+  posts: [
+    "asset:p-mushroom.jpg",
+    "asset:store-2.jpg",
+    "asset:mat-petg.jpg",
+    "asset:tile-vases.jpg",
+    "asset:about-printer.jpg",
+    "asset:p-orb.jpg",
+    "asset:tile-desk.jpg",
+    "asset:living.jpg",
+    "asset:tile-collectibles.jpg",
+    "asset:p-pendant.jpg",
+  ],
 };
 
 const terms = {
   eyebrow: "Legal",
   title: "Terms & Conditions",
-  intro: "The terms that apply when you browse this website or place an order with Layer & Loop Objects.",
-  notice: "This is a summary for reference while the full legal document is being finalised. Final terms will be published on this page.",
+  intro:
+    "The terms that apply when you browse this website or place an order with Layer & Loop Objects.",
+  notice:
+    "This is a summary for reference while the full legal document is being finalised. Final terms will be published on this page.",
   sections: [
-    { heading: "Our products", body: "Every object is 3D printed and finished by hand. Fine layer lines, slight variations in texture and minor differences in colour between screen and product are characteristic of the process and are not considered defects." },
-    { heading: "Orders & pricing", body: "All prices are listed in Indian Rupees and include applicable taxes. An order is confirmed only once payment is received. We reserve the right to cancel and fully refund any order affected by a pricing error or stock limitation." },
-    { heading: "Delivery", body: "Delivery timelines shown at checkout are estimates and may vary by PIN code, courier availability and made-to-order lead times." },
-    { heading: "Returns & refunds", body: "Returns, replacements and refunds are governed by our Returns, Replacements & Refunds Policy, which forms part of these terms." },
-    { heading: "Intellectual property", body: "All designs, photographs and content on this website belong to Layer & Loop Objects and may not be reproduced, printed or resold without written permission." },
-    { heading: "Governing law", body: "These terms are governed by the laws of India, with jurisdiction in the courts of Mumbai." },
+    {
+      heading: "Our products",
+      body: "Every object is 3D printed and finished by hand. Fine layer lines, slight variations in texture and minor differences in colour between screen and product are characteristic of the process and are not considered defects.",
+    },
+    {
+      heading: "Orders & pricing",
+      body: "All prices are listed in Indian Rupees and include applicable taxes. An order is confirmed only once payment is received. We reserve the right to cancel and fully refund any order affected by a pricing error or stock limitation.",
+    },
+    {
+      heading: "Delivery",
+      body: "Delivery timelines shown at checkout are estimates and may vary by PIN code, courier availability and made-to-order lead times.",
+    },
+    {
+      heading: "Returns & refunds",
+      body: "Returns, replacements and refunds are governed by our Returns, Replacements & Refunds Policy, which forms part of these terms.",
+    },
+    {
+      heading: "Intellectual property",
+      body: "All designs, photographs and content on this website belong to Layer & Loop Objects and may not be reproduced, printed or resold without written permission.",
+    },
+    {
+      heading: "Governing law",
+      body: "These terms are governed by the laws of India, with jurisdiction in the courts of Mumbai.",
+    },
   ],
   footer: "Last updated: October 2026. Questions? Write to hello@layerandloop.in.",
 };
@@ -274,14 +499,33 @@ const returns = {
   eyebrow: "Customer care",
   title: "Returns, Replacements & Refunds",
   intro: "How we handle damaged parcels, returns, replacements and refunds.",
-  notice: "This is a summary for reference while the full policy is being finalised. The final policy will be published on this page.",
+  notice:
+    "This is a summary for reference while the full policy is being finalised. The final policy will be published on this page.",
   sections: [
-    { heading: "Record your unboxing", body: "Please record a continuous, unedited video while opening your parcel, starting with the sealed package and its shipping label in view.\n\nClaims for damaged, missing or incorrect items can only be considered with this video. Report any issue within 48 hours of delivery." },
-    { heading: "Eligibility", body: "Not every product is eligible for return at this time. Made-to-order, personalised, custom-colour and trade or bulk orders are non-returnable. Eligibility for each object will be stated on its product page." },
-    { heading: "Replacements", body: "Items verified as damaged in transit or carrying a manufacturing defect will be replaced at no cost. If a replacement is unavailable, we will offer a full refund or store credit." },
-    { heading: "Returns", body: "Eligible items may be returned within 2 days of delivery, unused and in their original packaging. Return shipping may be charged unless the item was damaged or incorrect." },
-    { heading: "Refunds", body: "Approved refunds are issued to the original payment method within 7–10 working days of the returned item passing inspection." },
-    { heading: "Special cases", body: "All returns, replacements and refunds are assessed case by case and remain at the discretion of Layer & Loop. Terms and conditions apply." },
+    {
+      heading: "Record your unboxing",
+      body: "Please record a continuous, unedited video while opening your parcel, starting with the sealed package and its shipping label in view.\n\nClaims for damaged, missing or incorrect items can only be considered with this video. Report any issue within 48 hours of delivery.",
+    },
+    {
+      heading: "Eligibility",
+      body: "Not every product is eligible for return at this time. Made-to-order, personalised, custom-colour and trade or bulk orders are non-returnable. Eligibility for each object will be stated on its product page.",
+    },
+    {
+      heading: "Replacements",
+      body: "Items verified as damaged in transit or carrying a manufacturing defect will be replaced at no cost. If a replacement is unavailable, we will offer a full refund or store credit.",
+    },
+    {
+      heading: "Returns",
+      body: "Eligible items may be returned within 2 days of delivery, unused and in their original packaging. Return shipping may be charged unless the item was damaged or incorrect.",
+    },
+    {
+      heading: "Refunds",
+      body: "Approved refunds are issued to the original payment method within 7–10 working days of the returned item passing inspection.",
+    },
+    {
+      heading: "Special cases",
+      body: "All returns, replacements and refunds are assessed case by case and remain at the discretion of Layer & Loop. Terms and conditions apply.",
+    },
   ],
   footer: "Last updated: October 2026. Questions? Write to hello@layerandloop.in.",
 };
@@ -290,22 +534,41 @@ const custom = {
   heroEyebrow: "The Bespoke Lab",
   heroTitle: "Make it yours.",
   heroImage: "asset:custom-hero.jpg",
-  heroText: "Engrave a name, ask for your colour, change the scale, print from your photo or stack a floor lamp. Play with it here — we'll make it real.",
+  heroText:
+    "Engrave a name, ask for your colour, change the scale, print from your photo or stack a floor lamp. Play with it here — we'll make it real.",
   tweakLabel: "Shape your own",
   scratchLabel: "Bring us an idea",
   offersTitle: "What we can customise",
   offers: [
-    { name: "Name & letter engraving", text: "Initials, names, dates or a short line — engraved into any piece." },
-    { name: "Your colour", text: "Ask for your preferred colour — we'll match it to the closest shade we print." },
-    { name: "Size & scale", text: "Shrink it for a shelf or grow it for a lobby — every piece can be rescaled." },
-    { name: "From your photo", text: "Upload a photo and we'll turn it into a relief, lithophane or a printed lookalike." },
-    { name: "Stackable builds", text: "Stack modules into floor lamps and tall vases, as high as your room allows." },
+    {
+      name: "Name & letter engraving",
+      text: "Initials, names, dates or a short line — engraved into any piece.",
+    },
+    {
+      name: "Your colour",
+      text: "Ask for your preferred colour — we'll match it to the closest shade we print.",
+    },
+    {
+      name: "Size & scale",
+      text: "Shrink it for a shelf or grow it for a lobby — every piece can be rescaled.",
+    },
+    {
+      name: "From your photo",
+      text: "Upload a photo and we'll turn it into a relief, lithophane or a printed lookalike.",
+    },
+    {
+      name: "Stackable builds",
+      text: "Stack modules into floor lamps and tall vases, as high as your room allows.",
+    },
   ],
   sandboxEyebrow: "The Slicing Sandbox",
   sandboxTitle: "Shape it. Texture it. Light it.",
-  sandboxText: "Drag the sliders and spin the model. Fuzzy skin is the soft, matte texture our printers give the surface.",
-  sandboxNote: "Estimates are a guide only — we confirm the final price after reviewing your design.",
-  engravingProofNote: "Once the studio accepts your request and shares the final quote, we'll show your engraved words on your exact custom design for approval before making it.",
+  sandboxText:
+    "Drag the sliders and spin the model. Fuzzy skin is the soft, matte texture our printers give the surface.",
+  sandboxNote:
+    "Estimates are a guide only — we confirm the final price after reviewing your design.",
+  engravingProofNote:
+    "Once the studio accepts your request and shares the final quote, we'll show your engraved words on your exact custom design for approval before making it.",
   lampBaseLabel: "Build base",
   lampShadeLabel: "Build shade",
   lampLegsLabel: "Base legs",
@@ -319,9 +582,11 @@ const custom = {
   progressDeclined: "Unable to proceed",
   progressReceivedNote: "Your advance is confirmed. Your design is waiting for studio review.",
   progressReviewingNote: "Layer & Loop is reviewing your design and preparing the final price.",
-  progressQuotedNote: "The studio has reviewed your design. Your final quote is ready for approval.",
+  progressQuotedNote:
+    "The studio has reviewed your design. Your final quote is ready for approval.",
   progressAcceptedNote: "You approved the quote. Follow production and delivery in My orders.",
-  progressDeclinedNote: "The studio cannot proceed with this design. Contact us about your advance and next steps.",
+  progressDeclinedNote:
+    "The studio cannot proceed with this design. Contact us about your advance and next steps.",
   progressAdvanceLabel: "Advance paid",
   progressQuoteLabel: "Final quoted price",
   progressBalanceLabel: "Remaining balance",
@@ -332,13 +597,17 @@ const custom = {
   waterproofLoops: "3",
   photoEyebrow: "Photo to 3D",
   photoTitle: "Turn a photo into an object.",
-  photoText: "Upload a photo and choose what it becomes: a 3D object our AI recognises and models, a raised relief, or a lithophane that reveals the picture when lit.",
+  photoText:
+    "Upload a photo and choose what it becomes: a 3D object our AI recognises and models, a raised relief, or a lithophane that reveals the picture when lit.",
   photoNote: "This is an instant preview. Our designers make the final model by hand.",
   printImage: "asset:custom-print.jpg",
   stepsTitle: "The creation loop",
   steps: [
     { name: "Render preview", text: "We model your idea and send you a 3D render to approve." },
-    { name: "Sample & colour", text: "We match your colour and test the layers on a small sample." },
+    {
+      name: "Sample & colour",
+      text: "We match your colour and test the layers on a small sample.",
+    },
     { name: "Print", text: "Your piece is printed layer by layer, made to order." },
     { name: "Hand finishing", text: "Wired, checked and finished by hand before it ships." },
   ],
@@ -346,127 +615,731 @@ const custom = {
   briefTitle: "Tell us what you'd like made.",
   briefText: "A few quick steps. Attach sketches, photos or 3D files if you have them.",
   submitLabel: "Send to the studio",
-  thankYou: "It's on our workbench. We'll reply within 2 business days with ideas, a render and a quote.",
+  thankYou:
+    "It's on our workbench. We'll reply within 2 business days with ideas, a render and a quote.",
   whatsappLabel: "Rather talk it through? WhatsApp us",
 };
 
-export const defaults = { settings, home, space, culture, catalog, about, trade, contact, custom, instagram, terms, returns };
+export const defaults = {
+  settings,
+  home,
+  space,
+  culture,
+  catalogSpace,
+  catalogCulture,
+  catalog,
+  about,
+  trade,
+  contact,
+  custom,
+  instagram,
+  terms,
+  returns,
+};
 export type ContentKey = keyof typeof defaults;
 export type Content<K extends ContentKey> = (typeof defaults)[K];
 
-const t = (k: string, label: string, help?: string): Field => ({ k, label, t: "text", ...(help ? { help } : {}) });
-const ta = (k: string, label: string, help?: string): Field => ({ k, label, t: "textarea", ...(help ? { help } : {}) });
+const t = (k: string, label: string, help?: string): Field => ({
+  k,
+  label,
+  t: "text",
+  ...(help ? { help } : {}),
+});
+const ta = (k: string, label: string, help?: string): Field => ({
+  k,
+  label,
+  t: "textarea",
+  ...(help ? { help } : {}),
+});
 const im = (k: string, label: string): Field => ({ k, label, t: "image" });
 const legal: Group[] = [
-  { title: "Header", fields: [t("eyebrow", "Small label"), t("title", "Title"), ta("intro", "Introduction"), ta("notice", "Notice box")] },
-  { title: "Sections", fields: [{ k: "sections", label: "Sections", t: "list", item: "section", of: [t("heading", "Heading"), ta("body", "Text", "Leave a blank line between paragraphs.")] }] },
+  {
+    title: "Header",
+    fields: [
+      t("eyebrow", "Small label"),
+      t("title", "Title"),
+      ta("intro", "Introduction"),
+      ta("notice", "Notice box"),
+    ],
+  },
+  {
+    title: "Sections",
+    fields: [
+      {
+        k: "sections",
+        label: "Sections",
+        t: "list",
+        item: "section",
+        of: [t("heading", "Heading"), ta("body", "Text", "Leave a blank line between paragraphs.")],
+      },
+    ],
+  },
   { title: "Footer", fields: [t("footer", "Last line")] },
 ];
 
-export const sections: Record<ContentKey, { title: string; description: string; groups: Group[] }> = {
-  settings: {
-    title: "Site settings",
-    description: "Navigation, contact details, store location, socials and footer — used on every page.",
-    groups: [
-      { title: "Logo", fields: [{ k: "logoMode", label: "Display logo as", t: "select", options: [{ value: "text", label: "Text" }, { value: "image", label: "Image (SVG or PNG)" }] }, t("brand", "Logo text", "Also used as the image description and fallback if no image is uploaded."), { k: "logoImage", label: "Logo image", t: "image", help: "Upload an SVG or PNG logo. Choose Image above to display it." }] },
-      { title: "Navigation", fields: [{ k: "nav", label: "Menu links", t: "list", item: "link", of: [t("label", "Label"), { k: "path", label: "Opens page", t: "link" }] }, t("contactButton", "Contact button label")] },
-      { title: "Contact details", fields: [t("email", "Main email"), t("tradeEmail", "Trade email"), t("phone", "Phone number"), t("whatsapp", "WhatsApp number", "Country code + number, digits only, e.g. 919800000000"), t("whatsappMessage", "WhatsApp greeting"), t("showWhatsappButton", "Show floating WhatsApp button", "Type yes or no")] },
-      { title: "Store & studio", fields: [t("storeName", "Store name"), ta("storeAddress", "Store address"), t("storeHours", "Opening hours"), { k: "mapUrl", label: "Google Maps link", t: "url" }, t("studioLocation", "Studio location")] },
-      { title: "Social profiles", fields: [{ k: "socials", label: "Profiles", t: "list", item: "profile", of: [t("label", "Name (e.g. Instagram)"), { k: "url", label: "Profile link", t: "url" }] }] },
-      { title: "Footer", fields: [t("tagline", "Header line beside the world switch"), ta("footerText", "Footer description"), t("footerExplore", "Explore heading"), t("footerCompany", "Company heading"), t("footerSocial", "Social heading"), t("copyright", "Copyright line")] },
-    ],
-  },
-  home: {
-    title: "Homepage",
-    description: "The studio homepage: cover carousel with the two-worlds slide, world panels, studio projects, design process and living photos. The Design process also appears on About.",
-    groups: [
-      { title: "Scrolling banner", fields: [t("marquee", "Banner text")] },
-      { title: "Cover carousel", fields: [
-        { k: "coverSlides", label: "Slides before the two-worlds slide", t: "list", item: "slide", of: [t("eyebrow", "Small label"), t("title", "Headline"), ta("text", "Text"), im("image", "Photo"), t("button", "Button label"), { k: "link", label: "Opens page", t: "link" }] },
-        t("studioEyebrow", "Studio slide label"), t("studioTitle", "Studio slide headline"), ta("studioText", "Studio slide text"), im("studioImage", "Studio slide photo"), t("studioButton", "Studio slide button"),
-        t("worldsTitle", "Two worlds headline"), t("worldsHint", "Two worlds hint"),
-        t("spaceLabel", "Space label"), t("spaceLine", "Space line"), im("spaceImage", "Space photo"),
-        t("cultureLabel", "Culture label"), t("cultureLine", "Culture line"), im("cultureImage", "Culture photo"),
-      ] },
-      { title: "Choose your world", fields: [t("chooseTitle", "Title"), ta("chooseSubtitle", "Subtitle")] },
-      { title: "Studio projects", fields: [t("projectsTitle", "Title"), ta("projectsSubtitle", "Subtitle"), { k: "projects", label: "Projects", t: "list", item: "project", of: [t("name", "Title"), ta("text", "Text"), im("image", "Photo"), { k: "video", label: "Video link (optional, .mp4)", t: "url" }] }] },
-      { title: "Design process", fields: [t("processTitle", "Title"), ta("processSubtitle", "Subtitle"), { k: "process", label: "Steps", t: "list", item: "step", of: [t("name", "Step"), ta("text", "Text"), t("scale", "Scale note"), im("image", "Photo"), { k: "video", label: "Video link (optional, .mp4)", t: "url" }] }] },
-      { title: "Living with our objects", fields: [ta("livingSubtitle", "Subtitle"), im("spaceShowcase", "All Space products photo"), im("cultureShowcase", "All Culture products photo")] },
-    ],
-  },
-  space: {
-    title: "Space landing page",
-    description: "The calm lifestyle world at /space.",
-    groups: [{ title: "Space", fields: [t("eyebrow", "Small label"), t("title", "Headline"), ta("text", "Text"), im("image", "Cover photo"), t("editTitle", "Featured heading"), t("categoriesTitle", "Categories heading"), t("setupsTitle", "Rooms heading"), { k: "setups", label: "Room photos", t: "images" }] }],
-  },
-  culture: {
-    title: "Culture landing page",
-    description: "The pop collectibles world at /culture.",
-    groups: [{ title: "Culture", fields: [t("eyebrow", "Small label"), t("title", "Headline"), ta("text", "Text"), im("image", "Cover photo"), t("ticker", "Running strip text"), t("dropsTitle", "Drops heading"), t("dropsTag", "Drop tag"), t("categoriesTitle", "Categories heading"), t("setupsTitle", "Setups heading"), { k: "setups", label: "Setup photos", t: "images" }, im("showcase", "All Culture products photo")] }],
-  },
-  catalog: {
-    title: "Products page & product details",
-    description: "Labels on the All Objects page and on every product page.",
-    groups: [
-      { title: "All Objects page", fields: [t("heroTitle", "Title"), ta("heroText", "Intro"), t("filtersTitle", "Filters heading"), t("categoryLabel", "Category heading"), t("allLabel", "“All” option"), t("spaceLabel", "Spaces heading"), t("emptyText", "No results text")] },
-      { title: "Product page", fields: [t("taxNote", "Under price"), t("madeForLabel", "Spaces label"), t("colourLabel", "Colour label"), t("variantLabel", "Variant label"), t("specsLabel", "Specifications heading"), t("careLabel", "Care heading"), t("returnPolicyLabel", "Return policy heading"), { k: "returnPolicy", label: "Return & replacement policy", t: "textarea" }, t("fbtLabel", "Frequently bought together heading"), t("shipsNote", "Shipping note"), t("returnsNote", "Returns note"), t("paymentsLabel", "Payments heading"), { k: "payments", label: "Payment methods", t: "strings" }, t("backLabel", "Back link")] },
-    ],
-  },
-  about: {
-    title: "About page",
-    description: "Story, materials, beliefs and the retail store photos (add as many as you like).",
-    groups: [
-      { title: "Header", fields: [t("heroEyebrow", "Small label"), t("heroTitle", "Title")] },
-      { title: "Story", fields: [t("storyTitle", "Heading"), ta("storyText1", "Paragraph 1"), ta("storyText2", "Paragraph 2"), im("storyImage", "Photo")] },
-      { title: "Materials", fields: [t("materialsTitle", "Heading"), { k: "materials", label: "Materials", t: "list", item: "material", of: [t("name", "Name"), ta("text", "Description"), im("image", "Photo")] }] },
-      { title: "Beliefs", fields: [t("beliefsTitle", "Heading"), { k: "beliefs", label: "Beliefs", t: "list", item: "belief", of: [t("name", "Title"), ta("text", "Text")] }] },
-      { title: "Atmosphere", fields: [t("atmosphereTitle", "Heading"), im("atmosphereImage", "Photo")] },
-      { title: "Retail store", fields: [t("storeEyebrow", "Small label"), t("storeTitle", "Heading"), ta("storeText", "Text"), t("storeAddress", "Address"), t("storeHours", "Hours"), { k: "storeImages", label: "Store photos", t: "images", help: "Add as many as you like — the slider loops through all of them." }] },
-    ],
-  },
-  trade: {
-    title: "Trade page",
-    description: "Partner panels, contact block and the catalogue request form. Email and phone come from Site settings.",
-    groups: [
-      { title: "Header", fields: [t("heroEyebrow", "Small label"), t("heroTitle", "Title"), ta("heroText", "Intro")] },
-      { title: "Who we work with", fields: [t("partnersEyebrow", "Small label"), t("partnersTitle", "Heading"), { k: "partners", label: "Partner panels", t: "list", item: "panel", of: [t("name", "Title"), ta("text", "Description"), im("image", "Photo")] }] },
-      { title: "Contact block", fields: [t("contactTitle", "Heading"), ta("contactText", "Text")] },
-      { title: "Catalogue form", fields: [t("catalogueEyebrow", "Small label"), t("catalogueTitle", "Heading"), t("catalogueSubtitle", "Subheading"), ta("catalogueText", "Text"), { k: "catalogues", label: "Catalogue options", t: "strings" }, { k: "quantities", label: "Quantity options", t: "strings" }, t("submitLabel", "Button label"), ta("thankYou", "Thank-you message")] },
-    ],
-  },
-  contact: {
-    title: "Contact page",
-    description: "Store block, contact cards and the careers form. Address, email and phone come from Site settings.",
-    groups: [
-      { title: "Header", fields: [t("heroEyebrow", "Small label"), t("heroTitle", "Title"), ta("heroText", "Intro")] },
-      { title: "Store", fields: [t("storeEyebrow", "Small label"), t("storeTitle", "Heading"), ta("storeText", "Text"), im("storeImage", "Store photo"), t("directionsLabel", "Directions button")] },
-      { title: "Reach us", fields: [t("reachTitle", "Heading"), ta("reachText", "Text"), t("emailNote", "Email card note"), t("phoneNote", "Phone card note"), t("postNote", "Post card note")] },
-      { title: "Careers", fields: [t("careersEyebrow", "Small label"), t("careersTitle", "Heading"), ta("careersText", "Text"), t("careersNote", "Small note"), t("submitLabel", "Button label"), ta("thankYou", "Thank-you message")] },
-    ],
-  },
-  custom: {
-    title: "Custom page",
-    description: "The Bespoke Lab: customisation options, 3D sandbox, photo to 3D, steps and the custom brief form.",
-    groups: [
-      { title: "Header", fields: [t("heroEyebrow", "Small label"), t("heroTitle", "Title"), im("heroImage", "Cover photo"), ta("heroText", "Intro"), t("tweakLabel", "Button 1"), t("scratchLabel", "Button 2")] },
-      { title: "What we customise", fields: [t("offersTitle", "Heading"), { k: "offers", label: "Options", t: "list", item: "option", of: [t("name", "Title"), ta("text", "Text")] }] },
-      { title: "3D sandbox", fields: [t("sandboxEyebrow", "Small label"), t("sandboxTitle", "Heading"), ta("sandboxText", "Text"), ta("sandboxNote", "Estimate note"), ta("engravingProofNote", "Custom engraving proof note"), t("sendLabel", "Send button")] },
-      { title: "Lamp builder", fields: [t("lampBaseLabel", "Base tab"), t("lampShadeLabel", "Shade tab"), t("lampLegsLabel", "Legs label"), t("lampAssemblyLabel", "Connection view button"), t("lampAssembledLabel", "Assembled view button"), t("lampFittingNote", "Fitting details")] },
-      { title: "Estimate settings (₹)", fields: [t("gramPrice", "Price per gram", "Numbers only"), t("basePrice", "Base fee"), t("lightKitPrice", "Light kit price"), t("waterproofLoops", "Extra wall loops for waterproofing")] },
-      { title: "Customer request progress", fields: [t("progressReceived", "Advance received status"), ta("progressReceivedNote", "Advance received message"), t("progressReviewing", "Review status"), ta("progressReviewingNote", "Review message"), t("progressQuoted", "Quote ready status"), ta("progressQuotedNote", "Quote ready message"), t("progressAccepted", "Approved status"), ta("progressAcceptedNote", "Approved message"), t("progressDeclined", "Declined status"), ta("progressDeclinedNote", "Declined message"), t("progressAdvanceLabel", "Advance label"), t("progressQuoteLabel", "Final quote label"), t("progressBalanceLabel", "Balance label")] },
-      { title: "Photo to 3D", fields: [t("photoEyebrow", "Small label"), t("photoTitle", "Heading"), ta("photoText", "Text"), t("photoNote", "Note")] },
-      { title: "Steps", fields: [t("stepsTitle", "Heading"), { k: "steps", label: "Steps", t: "list", item: "step", of: [t("name", "Title"), ta("text", "Text")] }] },
-      { title: "Custom brief form", fields: [t("briefEyebrow", "Small label"), t("briefTitle", "Heading"), ta("briefText", "Text"), t("submitLabel", "Button label"), ta("thankYou", "Thank-you message"), t("whatsappLabel", "WhatsApp link label")] },
-    ],
-  },
-  instagram: {
-    title: "Instagram strip",
-    description: "Shown on the homepage and the About page.",
-    groups: [{ title: "Instagram", fields: [t("eyebrow", "Small label"), t("handle", "Handle (without @)"), { k: "url", label: "Profile link", t: "url" }, ta("text", "Text"), t("buttonLabel", "Button label"), { k: "posts", label: "Post photos", t: "images" }] }],
-  },
-  terms: { title: "Terms & Conditions", description: "Opens from the footer link.", groups: legal },
-  returns: { title: "Returns & Refunds policy", description: "Opens from the footer link.", groups: legal },
-};
+export const sections: Record<ContentKey, { title: string; description: string; groups: Group[] }> =
+  {
+    settings: {
+      title: "Site settings",
+      description:
+        "Navigation, contact details, store location, socials and footer — used on every page.",
+      groups: [
+        {
+          title: "Logo",
+          fields: [
+            {
+              k: "logoMode",
+              label: "Display logo as",
+              t: "select",
+              options: [
+                { value: "text", label: "Text" },
+                { value: "image", label: "Image (SVG or PNG)" },
+              ],
+            },
+            t(
+              "brand",
+              "Logo text",
+              "Also used as the image description and fallback if no image is uploaded.",
+            ),
+            {
+              k: "logoImage",
+              label: "Logo image",
+              t: "image",
+              help: "Upload an SVG or PNG logo. Choose Image above to display it.",
+            },
+          ],
+        },
+        {
+          title: "Navigation",
+          fields: [
+            {
+              k: "nav",
+              label: "Menu links",
+              t: "list",
+              item: "link",
+              of: [t("label", "Label"), { k: "path", label: "Opens page", t: "link" }],
+            },
+            t("contactButton", "Contact button label"),
+          ],
+        },
+        {
+          title: "Contact details",
+          fields: [
+            t("email", "Main email"),
+            t("tradeEmail", "Trade email"),
+            t("phone", "Phone number"),
+            t(
+              "whatsapp",
+              "WhatsApp number",
+              "Country code + number, digits only, e.g. 919800000000",
+            ),
+            t("whatsappMessage", "WhatsApp greeting"),
+            t("showWhatsappButton", "Show floating WhatsApp button", "Type yes or no"),
+          ],
+        },
+        {
+          title: "Store & studio",
+          fields: [
+            t("storeName", "Store name"),
+            ta("storeAddress", "Store address"),
+            t("storeHours", "Opening hours"),
+            { k: "mapUrl", label: "Google Maps link", t: "url" },
+            t("studioLocation", "Studio location"),
+          ],
+        },
+        {
+          title: "Social profiles",
+          fields: [
+            {
+              k: "socials",
+              label: "Profiles",
+              t: "list",
+              item: "profile",
+              of: [
+                t("label", "Name (e.g. Instagram)"),
+                { k: "url", label: "Profile link", t: "url" },
+              ],
+            },
+          ],
+        },
+        {
+          title: "Footer",
+          fields: [
+            t("tagline", "Header line beside the world switch"),
+            ta("footerText", "Footer description"),
+            t("footerExplore", "Explore heading"),
+            t("footerCompany", "Company heading"),
+            t("footerSocial", "Social heading"),
+            t("copyright", "Copyright line"),
+          ],
+        },
+      ],
+    },
+    home: {
+      title: "Landing homepage",
+      description:
+        "Main Layer & Loop homepage at /: cover carousel slides, two-worlds slider, studio projects, design process and living showcase. Design process also appears on About.",
+      groups: [
+        {
+          title: "Cover carousel & two-worlds slide",
+          fields: [
+            t("worldsTitle", "Two-worlds headline"),
+            t("worldsHint", "Two-worlds hint"),
+            t("dragHint", "Drag indicator label"),
+            t("spaceLabel", "Space label"),
+            t("spaceLine", "Space line"),
+            im("spaceImage", "Space photo"),
+            t("spaceButton", "Space cover button"),
+            t("cultureLabel", "Culture label"),
+            t("cultureLine", "Culture line"),
+            im("cultureImage", "Culture photo"),
+            t("cultureButton", "Culture cover button"),
+            {
+              k: "coverSlides",
+              label: "Additional cover slides",
+              t: "list",
+              item: "slide",
+              help: "Shown alongside the interactive two-worlds cover on the landing homepage.",
+              of: [
+                t("eyebrow", "Small label"),
+                t("title", "Headline"),
+                ta("text", "Text"),
+                im("image", "Photo"),
+                t("button", "Button label"),
+                { k: "link", label: "Opens page", t: "link" },
+              ],
+            },
+            t("studioEyebrow", "Studio slide label"),
+            t(
+              "studioTitle",
+              "Studio slide headline",
+              "Leave blank to hide the studio cover slide.",
+            ),
+            ta("studioText", "Studio slide text"),
+            im("studioImage", "Studio slide photo"),
+            t("studioButton", "Studio slide button"),
+          ],
+        },
+        {
+          title: "Choose your world",
+          fields: [t("chooseTitle", "Title"), ta("chooseSubtitle", "Subtitle")],
+        },
+        {
+          title: "Studio projects",
+          fields: [
+            t("projectsTitle", "Title"),
+            ta("projectsSubtitle", "Subtitle"),
+            {
+              k: "projects",
+              label: "Projects",
+              t: "list",
+              item: "project",
+              of: [
+                t("name", "Title"),
+                ta("text", "Text"),
+                im("image", "Photo"),
+                { k: "video", label: "Video link (optional, .mp4)", t: "url" },
+              ],
+            },
+          ],
+        },
+        {
+          title: "Design process",
+          fields: [
+            t("processTitle", "Title"),
+            ta("processSubtitle", "Subtitle"),
+            {
+              k: "process",
+              label: "Steps",
+              t: "list",
+              item: "step",
+              of: [
+                t("name", "Step"),
+                ta("text", "Text"),
+                t("scale", "Scale note"),
+                im("image", "Photo"),
+                { k: "video", label: "Video link (optional, .mp4)", t: "url" },
+              ],
+            },
+          ],
+        },
+        { title: "Scrolling banner", fields: [t("marquee", "Banner text")] },
+        {
+          title: "Living showcase",
+          fields: [
+            t("livingTitle", "Title"),
+            ta("livingSubtitle", "Subtitle"),
+            im("spaceShowcase", "All Space products photo"),
+            im("cultureShowcase", "All Culture products photo"),
+          ],
+        },
+      ],
+    },
+    space: {
+      title: "Space homepage",
+      description: "Every section on the Space homepage at /space.",
+      groups: [
+        {
+          title: "Cover banner",
+          fields: [
+            t("eyebrow", "Small label"),
+            t("title", "Headline"),
+            ta("text", "Intro text"),
+            im("image", "Cover photo"),
+            t("ctaLabel", "Cover button label"),
+          ],
+        },
+        {
+          title: "Featured edit",
+          fields: [
+            t("editTitle", "Section heading"),
+            t("editSubtitle", "Subtitle"),
+            t("editButton", "Collection button label"),
+            t("philosophyTitle", "Philosophy heading"),
+            ta("philosophyText", "Philosophy text"),
+          ],
+        },
+        { title: "Scrolling banner", fields: [t("marquee", "Banner text")] },
+        {
+          title: "Shop Space categories",
+          fields: [
+            t("categoriesTitle", "Section heading"),
+            t("categoriesSubtitle", "Subtitle"),
+            t("categoriesButton", "Browse button label"),
+          ],
+        },
+        {
+          title: "Living showcase",
+          fields: [t("livingTitle", "Heading"), im("livingImage", "Full-width showcase photo")],
+        },
+      ],
+    },
+    culture: {
+      title: "Culture homepage",
+      description: "Every section on the Culture homepage at /culture.",
+      groups: [
+        {
+          title: "Cover banner",
+          fields: [
+            t("eyebrow", "Small label"),
+            t("title", "Headline"),
+            ta("text", "Intro text"),
+            im("image", "Cover photo"),
+            t("ctaLabel", "Cover button label"),
+          ],
+        },
+        {
+          title: "Drops section",
+          fields: [
+            t("dropsTitle", "Section heading"),
+            t("dropsTag", "Drop badge label (shown on cover & cards)"),
+            t("dropsButton", "See everything button label"),
+          ],
+        },
+        { title: "Scrolling strip", fields: [t("ticker", "Running strip text")] },
+        {
+          title: "Shop Culture categories",
+          fields: [
+            t("categoriesTitle", "Section heading"),
+            t("categoriesButton", "Shop all button label"),
+          ],
+        },
+        {
+          title: "Culture showcase",
+          fields: [t("livingTitle", "Heading"), im("showcase", "Full-width showcase photo")],
+        },
+      ],
+    },
+    catalogSpace: {
+      title: "Space all objects",
+      description:
+        "Title, intro text and filters on the Space catalog page (/products?world=space).",
+      groups: [
+        {
+          title: "Header",
+          fields: [
+            t("heroTitle", "All-objects title"),
+            ta("heroText", "All-objects text below title"),
+          ],
+        },
+        {
+          title: "Filters & labels",
+          fields: [
+            t("filtersTitle", "Filters heading"),
+            t("categoryLabel", "Category heading"),
+            t("allLabel", "“All” option"),
+            t("featuredLabel", "Featured option"),
+            t("spaceLabel", "Spaces heading"),
+            t("emptyText", "No results text"),
+          ],
+        },
+      ],
+    },
+    catalogCulture: {
+      title: "Culture all objects",
+      description:
+        "Title, intro text and separate Culture filter headings on the Culture catalog page (/products?world=culture).",
+      groups: [
+        {
+          title: "Header",
+          fields: [
+            t("heroTitle", "All-objects title"),
+            ta("heroText", "All-objects text below title"),
+          ],
+        },
+        {
+          title: "Filters & labels",
+          fields: [
+            t("filtersTitle", "Filters heading"),
+            t("categoryLabel", "Category heading"),
+            t("allLabel", "“All” option"),
+            t("featuredLabel", "Featured option"),
+            t(
+              "collectionLabel",
+              "Culture filter section heading",
+              "Manage the filter options under Categories & filters in the sidebar.",
+            ),
+            t("dropsOnlyLabel", "Limited Drops filter option"),
+            t("madeForLabel", "Product page setup label"),
+            t("emptyText", "No results text"),
+          ],
+        },
+      ],
+    },
+    catalog: {
+      title: "Product details & search",
+      description:
+        "Shared labels on every Space and Culture product detail page, plus fallback copy when searching across both worlds.",
+      groups: [
+        {
+          title: "Product page (shared across Space & Culture)",
+          fields: [
+            t("taxNote", "Under price"),
+            t("madeForLabel", "Spaces label"),
+            t("colourLabel", "Colour label"),
+            t("variantLabel", "Variant label"),
+            t("specsLabel", "Specifications heading"),
+            t("careLabel", "Care heading"),
+            t("returnPolicyLabel", "Return policy heading"),
+            { k: "returnPolicy", label: "Return & replacement policy", t: "textarea" },
+            t("fbtLabel", "Frequently bought together heading"),
+            t("shipsNote", "Shipping note"),
+            t("returnsNote", "Returns note"),
+            t("paymentsLabel", "Payments heading"),
+            { k: "payments", label: "Payment methods", t: "strings" },
+            t("backLabel", "Back link"),
+          ],
+        },
+        {
+          title: "Global search fallback",
+          fields: [
+            t("heroTitle", "Search page title"),
+            ta("heroText", "Search page intro"),
+            t("filtersTitle", "Filters heading"),
+            t("categoryLabel", "Category heading"),
+            t("allLabel", "“All” option"),
+            t("featuredLabel", "Featured option"),
+            t("emptyText", "No results text"),
+          ],
+        },
+      ],
+    },
+    about: {
+      title: "About page",
+      description:
+        "Story, materials, beliefs and the retail store photos (add as many as you like).",
+      groups: [
+        { title: "Header", fields: [t("heroEyebrow", "Small label"), t("heroTitle", "Title")] },
+        {
+          title: "Story",
+          fields: [
+            t("storyTitle", "Heading"),
+            ta("storyText1", "Paragraph 1"),
+            ta("storyText2", "Paragraph 2"),
+            im("storyImage", "Photo"),
+          ],
+        },
+        {
+          title: "Materials",
+          fields: [
+            t("materialsTitle", "Heading"),
+            {
+              k: "materials",
+              label: "Materials",
+              t: "list",
+              item: "material",
+              of: [t("name", "Name"), ta("text", "Description"), im("image", "Photo")],
+            },
+          ],
+        },
+        {
+          title: "Beliefs",
+          fields: [
+            t("beliefsTitle", "Heading"),
+            {
+              k: "beliefs",
+              label: "Beliefs",
+              t: "list",
+              item: "belief",
+              of: [t("name", "Title"), ta("text", "Text")],
+            },
+          ],
+        },
+        {
+          title: "Atmosphere",
+          fields: [t("atmosphereTitle", "Heading"), im("atmosphereImage", "Photo")],
+        },
+        {
+          title: "Retail store",
+          fields: [
+            t("storeEyebrow", "Small label"),
+            t("storeTitle", "Heading"),
+            ta("storeText", "Text"),
+            t("storeAddress", "Address"),
+            t("storeHours", "Hours"),
+            {
+              k: "storeImages",
+              label: "Store photos",
+              t: "images",
+              help: "Add as many as you like — the slider loops through all of them.",
+            },
+          ],
+        },
+      ],
+    },
+    trade: {
+      title: "Trade page",
+      description:
+        "Partner panels, contact block and the catalogue request form. Email and phone come from Site settings.",
+      groups: [
+        {
+          title: "Header",
+          fields: [
+            t("heroEyebrow", "Small label"),
+            t("heroTitle", "Title"),
+            ta("heroText", "Intro"),
+          ],
+        },
+        {
+          title: "Who we work with",
+          fields: [
+            t("partnersEyebrow", "Small label"),
+            t("partnersTitle", "Heading"),
+            {
+              k: "partners",
+              label: "Partner panels",
+              t: "list",
+              item: "panel",
+              of: [t("name", "Title"), ta("text", "Description"), im("image", "Photo")],
+            },
+          ],
+        },
+        {
+          title: "Contact block",
+          fields: [t("contactTitle", "Heading"), ta("contactText", "Text")],
+        },
+        {
+          title: "Catalogue form",
+          fields: [
+            t("catalogueEyebrow", "Small label"),
+            t("catalogueTitle", "Heading"),
+            t("catalogueSubtitle", "Subheading"),
+            ta("catalogueText", "Text"),
+            { k: "catalogues", label: "Catalogue options", t: "strings" },
+            { k: "quantities", label: "Quantity options", t: "strings" },
+            t("submitLabel", "Button label"),
+            ta("thankYou", "Thank-you message"),
+          ],
+        },
+      ],
+    },
+    contact: {
+      title: "Contact page",
+      description:
+        "Store block, contact cards and the careers form. Address, email and phone come from Site settings.",
+      groups: [
+        {
+          title: "Header",
+          fields: [
+            t("heroEyebrow", "Small label"),
+            t("heroTitle", "Title"),
+            ta("heroText", "Intro"),
+          ],
+        },
+        {
+          title: "Store",
+          fields: [
+            t("storeEyebrow", "Small label"),
+            t("storeTitle", "Heading"),
+            ta("storeText", "Text"),
+            im("storeImage", "Store photo"),
+            t("directionsLabel", "Directions button"),
+          ],
+        },
+        {
+          title: "Reach us",
+          fields: [
+            t("reachTitle", "Heading"),
+            ta("reachText", "Text"),
+            t("emailNote", "Email card note"),
+            t("phoneNote", "Phone card note"),
+            t("postNote", "Post card note"),
+          ],
+        },
+        {
+          title: "Careers",
+          fields: [
+            t("careersEyebrow", "Small label"),
+            t("careersTitle", "Heading"),
+            ta("careersText", "Text"),
+            t("careersNote", "Small note"),
+            t("submitLabel", "Button label"),
+            ta("thankYou", "Thank-you message"),
+          ],
+        },
+      ],
+    },
+    custom: {
+      title: "Custom page",
+      description:
+        "The Bespoke Lab: customisation options, 3D sandbox, photo to 3D, steps and the custom brief form.",
+      groups: [
+        {
+          title: "Header",
+          fields: [
+            t("heroEyebrow", "Small label"),
+            t("heroTitle", "Title"),
+            im("heroImage", "Cover photo"),
+            ta("heroText", "Intro"),
+            t("tweakLabel", "Button 1"),
+            t("scratchLabel", "Button 2"),
+          ],
+        },
+        {
+          title: "What we customise",
+          fields: [
+            t("offersTitle", "Heading"),
+            {
+              k: "offers",
+              label: "Options",
+              t: "list",
+              item: "option",
+              of: [t("name", "Title"), ta("text", "Text")],
+            },
+          ],
+        },
+        {
+          title: "3D sandbox",
+          fields: [
+            t("sandboxEyebrow", "Small label"),
+            t("sandboxTitle", "Heading"),
+            ta("sandboxText", "Text"),
+            ta("sandboxNote", "Estimate note"),
+            ta("engravingProofNote", "Custom engraving proof note"),
+            t("sendLabel", "Send button"),
+          ],
+        },
+        {
+          title: "Lamp builder",
+          fields: [
+            t("lampBaseLabel", "Base tab"),
+            t("lampShadeLabel", "Shade tab"),
+            t("lampLegsLabel", "Legs label"),
+            t("lampAssemblyLabel", "Connection view button"),
+            t("lampAssembledLabel", "Assembled view button"),
+            t("lampFittingNote", "Fitting details"),
+          ],
+        },
+        {
+          title: "Estimate settings (₹)",
+          fields: [
+            t("gramPrice", "Price per gram", "Numbers only"),
+            t("basePrice", "Base fee"),
+            t("lightKitPrice", "Light kit price"),
+            t("waterproofLoops", "Extra wall loops for waterproofing"),
+          ],
+        },
+        {
+          title: "Customer request progress",
+          fields: [
+            t("progressReceived", "Advance received status"),
+            ta("progressReceivedNote", "Advance received message"),
+            t("progressReviewing", "Review status"),
+            ta("progressReviewingNote", "Review message"),
+            t("progressQuoted", "Quote ready status"),
+            ta("progressQuotedNote", "Quote ready message"),
+            t("progressAccepted", "Approved status"),
+            ta("progressAcceptedNote", "Approved message"),
+            t("progressDeclined", "Declined status"),
+            ta("progressDeclinedNote", "Declined message"),
+            t("progressAdvanceLabel", "Advance label"),
+            t("progressQuoteLabel", "Final quote label"),
+            t("progressBalanceLabel", "Balance label"),
+          ],
+        },
+        {
+          title: "Photo to 3D",
+          fields: [
+            t("photoEyebrow", "Small label"),
+            t("photoTitle", "Heading"),
+            ta("photoText", "Text"),
+            t("photoNote", "Note"),
+          ],
+        },
+        {
+          title: "Steps",
+          fields: [
+            t("stepsTitle", "Heading"),
+            {
+              k: "steps",
+              label: "Steps",
+              t: "list",
+              item: "step",
+              of: [t("name", "Title"), ta("text", "Text")],
+            },
+          ],
+        },
+        {
+          title: "Custom brief form",
+          fields: [
+            t("briefEyebrow", "Small label"),
+            t("briefTitle", "Heading"),
+            ta("briefText", "Text"),
+            t("submitLabel", "Button label"),
+            ta("thankYou", "Thank-you message"),
+            t("whatsappLabel", "WhatsApp link label"),
+          ],
+        },
+      ],
+    },
+    instagram: {
+      title: "Instagram strip",
+      description: "Shown on the homepage and the About page.",
+      groups: [
+        {
+          title: "Instagram",
+          fields: [
+            t("eyebrow", "Small label"),
+            t("handle", "Handle (without @)"),
+            { k: "url", label: "Profile link", t: "url" },
+            ta("text", "Text"),
+            t("buttonLabel", "Button label"),
+            { k: "posts", label: "Post photos", t: "images" },
+          ],
+        },
+      ],
+    },
+    terms: {
+      title: "Terms & Conditions",
+      description: "Opens from the footer link.",
+      groups: legal,
+    },
+    returns: {
+      title: "Returns & Refunds policy",
+      description: "Opens from the footer link.",
+      groups: legal,
+    },
+  };
 
 /** Saved values win; anything missing falls back to the default. */
 export function mergeContent<K extends ContentKey>(key: K, saved: unknown): Content<K> {
